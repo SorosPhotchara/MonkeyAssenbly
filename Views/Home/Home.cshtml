@@ -1,0 +1,169 @@
+﻿
+@{
+    Layout = null;
+    ViewData["Title"] = "Home";
+}
+
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/166/166749.png">
+    <link rel="stylesheet" href="~/css/home.css">
+    <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.HomeUrl = '@ViewBag.HomeUrl';
+        window.TagsUrl = '@ViewBag.TagsUrl';
+        window.NotifyUrl = '@ViewBag.NotifyUrl';
+        window.Profile = '@ViewBag.ProfileUrl';
+    </script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">
+            <a href=" @Url.Action("Home", "Home")">
+                <img src="/picture/logo.png" alt="Monkey Assemble Logo">
+            </a>
+        </div>
+
+        <div class="menu">
+            <h2 class="active">FOR YOU</h2>
+            <h2>FOLLOW</h2>
+        </div>
+
+        <input type="checkbox" id="toggle">
+        <label class="toggle" for="toggle">
+            <i class="bx bxs-sun"></i>
+            <i class="bx bx-moon"></i>
+            <span class="ball"></span>
+        </label>
+    </header>
+
+    <!-- Sidebar Menu -->
+    <nav>
+        <div class="sidebar">
+            <a href="@Url.Action("Home", "Home")" class="active"><i class="fa-solid fa-home"></i></a>
+            <a href="@Url.Action("Tags","Tags")"><i class="fa-solid fa-tag"></i></a>
+            <a href="#" class="add"><i class="fa-solid fa-plus"></i></a>
+            <a href="@Url.Action("Notify", "Notify")"><i class="fa-solid fa-bell"></i></a>
+            <a href="@Url.Action("Profile","Profile")"><i class="fa-solid fa-user"></i></a>
+        </div>
+    </nav>
+
+    <!-- Hamburger Menu -->
+    <div class="hamburger" id="hamburgerBtn">
+        <i class="fa-solid fa-bars"></i>
+    </div>
+
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <ul id="menuList">
+        </ul>
+    </div>
+
+    <!-- Popup Create Event -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+
+            <i class="fa-solid fa-xmark close-btn"></i>
+
+            <h2>Create Event</h2>
+            <form id="createEventForm">
+                <input type="text" name="eventName" placeholder="event name" required>
+                <input type="datetime-local" name="startTime" placeholder="เวลาเริ่มรับผู้เข้าร่วม" required>
+                <input type="datetime-local" name="endTime" placeholder="เวลาปิดรับผู้เข้าร่วม" required>
+                <input type="text" name="location" placeholder="location">
+                <input type="number" name="maxParticipants" placeholder="participants">
+
+                <div class="tag-container">
+                    <input type="text" id="tagInput" placeholder="tag">
+                    <div id="tagSuggestions" class="suggestions"></div>
+                </div>
+
+                <textarea name="description" placeholder="detail"></textarea>
+
+                <p class="note">Check the details of your created event!</p>
+                <button type="submit" class="create-btn">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <section id="event-feed" class="feed">
+        <div class="event-card">
+            <div class="event-header">
+                <div class="host-info">
+                    <span class="avatar" style="background: purple;"></span>
+                    <span class="host">User1234</span>
+                    <small class="time">10 นาที</small>
+                </div>
+                <span class="status open">OPEN</span>
+            </div>
+            <div class="event-body">
+                <h3>หาเพื่อนเล่นฟุตบอล</h3>
+                <p>ที่สนามใน สจล. เวลา 17:00 น. อยากให้มากันเยอะๆ นะครับ</p>
+                <small>สถานที่: สจล.</small><br>
+                <small>เวลาเปิดรับ: 10/09/25 17:00 - 10/09/25 19:00</small><br>
+                <small>ผู้เข้าร่วม: 2/8</small>
+            </div>
+            <div class="event-footer">
+                <button class="join-btn">JOIN</button>
+            </div>
+        </div>
+
+        <div class="event-card">
+            <div class="event-header">
+                <div class="host-info">
+                    <span class="avatar" style="background: orange;"></span>
+                    <span class="host">User5678</span>
+                    <small class="time">1 ชั่วโมง</small>
+                </div>
+                <span class="status close">CLOSED</span>
+            </div>
+
+            <div class="event-body">
+                <h3>เล่นบาสเกตบอล</h3>
+                <p>สนามกีฬาในมหาวิทยาลัย อยากชวนทุกคนมาสนุกด้วยกัน</p>
+                <small>สถานที่: ม.สจล ฝั่งวิศวะ</small><br>
+                <small>เวลาเปิดรับ: 10/09/25 15:00 - 10/09/25 17:00</small><br>
+                <small>ผู้เข้าร่วม: 8/8</small>
+            </div>
+
+            <div class="event-footer">
+                <button class="join-btn" disabled>CLOSED</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Event Popup  -->
+    <div id="event-popup" class="event-popup hidden">
+        <div class="event-popup-content">
+            <button id="close-popup" class="popup-close-btn"><i class="fa-solid fa-arrow-left"></i></button>
+
+            <h3 id="event-title">Event Name</h3>
+            <p>Host: <span id="event-host">HostName</span></p>
+            <p>สถานที่: <span id="event-place">ไม่ระบุ</span></p>
+
+            <h4>ผู้เข้าร่วม:</h4>
+            <ul id="participants-list"></ul>
+
+            <button id="popup-join-btn" class="popup-join-btn">JOIN</button>
+
+            <h4>Comment:</h4>
+            <div class="comment-section">
+                <input type="text" id="popup-comment-input" placeholder="เขียนความคิดเห็น...">
+                <button id="popup-comment-send"><i class="fa-solid fa-paper-plane"></i></button>
+                <div id="popup-comment-list"></div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="/js/home.js"></script>
+</body>
+
+</html>

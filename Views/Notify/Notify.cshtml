@@ -1,0 +1,67 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Notify Page";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notify</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/166/166749.png">
+    <link rel="stylesheet" href="~/css/notify.css">
+    <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.HomeUrl = '@ViewBag.HomeUrl';
+        window.TagsUrl = '@ViewBag.TagsUrl';
+        window.NotifyUrl = '@ViewBag.NotifyUrl';
+        window.Profile = '@ViewBag.ProfileUrl';
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">
+            <a href="">
+                <img src="~/picture/logo.png" alt="Monkey Assemble Logo">
+            </a>
+        </div>
+
+        <h1 class="notify-title">Notify</h1> <!-- ย้ายมาไว้ตรงนี้ -->
+
+        <input type="checkbox" id="toggle">
+        <label class="toggle" for="toggle">
+            <i class="bx bxs-sun"></i>
+            <i class="bx bx-moon"></i>
+            <span class="ball"></span>
+        </label>
+    </header>
+    
+    <!-- Sidebar Menu -->
+    <nav>
+        <div class="sidebar">
+            <a href="@Url.Action("Home", "Home")" class="active"><i class="fa-solid fa-home"></i></a>
+            <a href="@Url.Action("Tags", "Tags")"><i class="fa-solid fa-tag"></i></a>
+            <a href="#" class="add"><i class="fa-solid fa-plus"></i></a>
+            <a href="@Url.Action("Notify", "Notify")"><i class="fa-solid fa-bell"></i></a>
+            <a href="@Url.Action("Profile", "Profile")"><i class="fa-solid fa-user"></i></a>
+        </div>
+    </nav>
+
+    <!-- Hamburger Menu -->
+    <div class="hamburger" id="hamburgerBtn">
+        <i class="fa-solid fa-bars"></i>
+    </div>
+
+    <div class="hamburger-menu" id="hamburgerMenu">
+        <ul id="menuList">
+        </ul>
+    </div>
+
+    <!-- Notification List -->
+    <div class="notify-list"></div>
+
+    <script src="/js/notify.js"></script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =======================
+   Light Mode Variables
+======================= */
+:root {
+  --bg: #FFEDEA;
+  --bar-font: #CE6A57;
+  --highlight: #FFE0D6;
+  --head-font: #3D3436;
+  --sub-font: #78716C;
+  --border: #FF7E5F;
+  --toggle-bg: linear-gradient(145deg, #ffedea, #ffedea);
+  --toggle-shadow: 3px 3px 4px #e6e6e6, -3px -3px 4px #ffffff;
+  --sun-color: #fafafa;
+  --moon-color: #feb47b;
+  --ball-bg: #feb47b;
+  --white: #fff;
+}
+
+/* =======================
+   Dark Mode Variables
+======================= */
+html.dark {
+  --bg: #392F35;
+  --bar-font: #F2E9E4;
+  --highlight: #463A41;
+  --head-font: #F2E9E4;
+  --sub-font: #D7C6BC;
+  --border: #F2E9E4;
+  --toggle-bg: #2a2024;
+  --toggle-shadow: 3px 3px 3px #0e131b, -3px -3px 3px #1c2739;
+  --sun-color: #feb47b;
+  --moon-color: #2a2024;
+  --ball-bg: #feb47b;
+  --white: #fff;
+}
+
+/* =======================
+   Global Styles
+======================= */
+body {
+  font-family: 'Nunito', 'Prompt', sans-serif;
+  background: var(--bg);
+  color: var(--head-font);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  transition: 0.3s;
+}
+
+/* =======================
+   Navbar
+======================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  background: var(--bg);
+  transition: 0.3s;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.logo img {
+  height: 100px;
+}
+
+.menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+}
+
+.menu h2 {
+  position: relative;
+  display: inline-block;
+  font-size: 16px;
+  color: var(--bar-font);
+  cursor: pointer;
+  padding: 6px 0px;
+  transition: color 0.3s ease;
+}
+
+.menu h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--bar-font);
+  transition: width 0.3s ease;
+}
+
+.menu h2.active::after {
+  width: 100%;
+}
+
+/* =======================
+   Dark/Light Mode Toggle
+======================= */
+.toggle {
+  cursor: pointer;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  display: flex;
+  justify-content: space-between;
+  width: 90px;
+  height: 45px;
+  border-radius: 35px;
+  transition: .2s;
+  background: var(--toggle-bg);
+  box-shadow: var(--toggle-shadow);
+}
+
+.toggle i {
+  width: 50%;
+  line-height: 45px;
+  text-align: center;
+  font-size: 20px;
+  z-index: 1;
+}
+
+.toggle .bxs-sun,
+.toggle .bx-sun {
+  color: var(--sun-color);
+}
+
+.toggle .bxs-moon,
+.toggle .bx-moon {
+  color: var(--moon-color);
+}
+
+.toggle .ball {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: 7.5px;
+  border-radius: 50%;
+  transition: .3s ease-out;
+  background: var(--ball-bg);
+}
+
+html.dark .toggle .ball {
+  transform: translateX(45px);
+}
+
+input#toggle {
+  display: none;
+}
+
+/* =======================
+   Reset Password Card
+======================= */
+.resetpassword-card {
+  background: var(--highlight);
+  padding: 40px 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+  transition: 0.3s;
+  text-align: center;
+}
+
+.resetpassword-card h2 {
+  margin-bottom: 30px;
+  font-size: 32px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--head-font);
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 15px;
+  width: 100%;
+  background: var(--highlight);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  border-bottom: 2px solid var(--sub-font);
+  background: transparent;
+  font-size: 16px;
+  color: var(--head-font);
+  outline: none;
+  transition: 0.3s;
+}
+
+.input-group input:focus {
+  border-bottom-color: var(--border);
+}
+
+.input-group label {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  color: var(--head-font);
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.3s ease;
+}
+
+@keyframes floatLabel { 
+  0%, 100% { 
+    transform: translateY(0); 
+  } 
+  50% { 
+    transform: translateY(-4px); 
+  } 
+}
+
+.input-group input:focus ~ label,
+.input-group input:valid ~ label {
+  top: -8px;
+  left: 0;
+  font-size: 13px;
+  color: var(--border);
+  background: var(--highlight);
+  padding: 0 4px;
+  border-radius: 4px;
+  animation: floatLabel 2s ease-in-out infinite
+}
+
+.input-group i {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+  color: #999;
+  transition: 0.3s;
+}
+
+.input-group i:hover {
+  color: var(--border);
+}
+
+.btn-reset {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--head-font);
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 25px;
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-reset:hover {
+  color: var(--white);
+  background: var(--border);
+}
+
+html.dark .btn-reset:hover {
+  color: var(--highlight);
+  background: var(--border);
+}
+
+.back-login-link {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 16px;
+  color: var(--border);
+  text-decoration: none;
+  font-style: italic;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.back-login-link:hover {
+  text-decoration: underline;
+}

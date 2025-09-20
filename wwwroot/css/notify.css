@@ -1,0 +1,424 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =======================
+   Light Mode Variables
+======================= */
+:root {
+  --bg: #FFEDEA;
+  --bar-font: #CE6A57;
+  --highlight: #FFE0D6;
+  --head-font: #3D3436;
+  --sub-font: #78716C;
+  --border: #FF7E5F;
+  --toggle-bg: linear-gradient(145deg, #ffedea, #ffedea);
+  --toggle-shadow: 3px 3px 4px #e6e6e6, -3px -3px 4px #ffffff;
+  --sun-color: #fafafa;
+  --moon-color: #feb47b;
+  --ball-bg: #feb47b;
+  --white: #fff;
+}
+
+/* =======================
+   Dark Mode Variables
+======================= */
+html.dark {
+  --bg: #392F35;
+  --bar-font: #F2E9E4;
+  --highlight: #463A41;
+  --head-font: #F2E9E4;
+  --sub-font: #D7C6BC;
+  --border: #F2E9E4;
+  --toggle-bg: #2a2024;
+  --toggle-shadow: 3px 3px 3px #0e131b, -3px -3px 3px #1c2739;
+  --sun-color: #feb47b;
+  --moon-color: #2a2024;
+  --ball-bg: #feb47b;
+  --white: #fff;
+}
+
+/* =======================
+   Global Styles
+======================= */
+body {
+  font-family: 'Nunito', 'Prompt', sans-serif;
+  background: var(--bg);
+  color: var(--head-font);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  transition: 0.3s;
+  padding-top: 80px; /* เพิ่มบรรทัดนี้ */
+}
+
+/* =======================
+   Navbar
+======================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  background: var(--bg);
+  transition: 0.3s;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.logo img {
+  height: 100px;
+}
+
+.menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+}
+
+.menu h2 {
+  position: relative;
+  display: inline-block;
+  font-size: 16px;
+  color: var(--bar-font);
+  cursor: pointer;
+  padding: 6px 0px;
+  transition: color 0.3s ease;
+}
+
+.menu h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--bar-font);
+  transition: width 0.3s ease;
+}
+
+.menu h2.active::after {
+  width: 100%;
+}
+
+/* =======================
+   Dark/Light Mode Toggle
+======================= */
+.toggle {
+  cursor: pointer;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  display: flex;
+  justify-content: space-between;
+  width: 90px;
+  height: 45px;
+  border-radius: 35px;
+  transition: .2s;
+  background: var(--toggle-bg);
+  box-shadow: var(--toggle-shadow);
+}
+
+.toggle i {
+  width: 50%;
+  line-height: 45px;
+  text-align: center;
+  font-size: 20px;
+  z-index: 1;
+}
+
+.toggle .bxs-sun,
+.toggle .bx-sun {
+  color: var(--sun-color);
+}
+
+.toggle .bxs-moon,
+.toggle .bx-moon {
+  color: var(--moon-color);
+}
+
+.toggle .ball {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: 7.5px;
+  border-radius: 50%;
+  transition: .3s ease-out;
+  background: var(--ball-bg);
+}
+
+html.dark .toggle .ball {
+  transform: translateX(45px);
+}
+
+input#toggle {
+  display: none;
+}
+
+/* =======================
+   Sidebar
+======================= */
+.sidebar {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  background: var(--bg);
+  padding: 20px 15px;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s, color 0.1s;
+  border: 1px solid var(--highlight);
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  background: transparent;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar a i {
+  font-size: 25px;
+  color: var(--bar-font);
+  opacity: 1;
+  transition: color 0.1s, opacity 0.2s;
+}
+
+.sidebar a.active {
+  background: var(--highlight);
+  border-color: var(--border);
+}
+
+.sidebar a.active i {
+  color: var(--border);
+  opacity: 1;
+}
+
+.sidebar a:hover {
+  border-color: var(--head-font);
+}
+
+.sidebar a:hover i {
+  color: var(--border);
+  opacity: 1;
+}
+
+/* Sidebar Add Button */
+.sidebar a.add {
+  width: 60px;
+  height: 60px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  transition: all 0.1s ease;
+  background: var(--highlight);
+}
+
+.sidebar a.add:hover {
+  background: var(--border);
+  color: var(--highlight);
+}
+
+.sidebar a.add:hover i { 
+  color: inherit; 
+}
+
+html.dark .sidebar a.add {
+  background: var(--highlight);
+  color: var(--bar-font);
+}
+
+html.dark .sidebar a.add:hover {
+  background: var(--bar-font);
+  color: var(--highlight);
+}
+
+html.dark .sidebar a.add:hover i { 
+  color: inherit; 
+}
+
+/* =======================
+   Hamburger Menu
+======================= */
+.hamburger {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  font-size: 28px;
+  color: var(--bar-font);
+  cursor: pointer;
+  z-index: 2000;
+  background: var(--bg);
+  padding: 10px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.hamburger-menu {
+  position: fixed;
+  bottom: 70px;
+  left: 20px;
+  background: var(--bg);
+  border: 1px solid var(--highlight);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: none;
+  z-index: 2001;
+  min-width: 160px;
+  padding: 8px 0;
+}
+
+.hamburger-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hamburger-menu li {
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--head-font);
+  transition: background 0.2s;
+  font-size: 15px;
+}
+
+.hamburger-menu li:hover {
+  background: var(--highlight);
+}
+
+/* =======================
+   Notifications
+======================= */
+/* Notification Title */
+.notify-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--bar-font);
+  letter-spacing: 1px;
+  z-index: 2;
+}
+
+/* Notification List Container */
+.notify-list {
+  width: 900px; /* เดิม 600px */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notify-list {
+  background: #FFEDEA;
+}
+
+html.dark .notify-list {
+  background: #2a2024;
+}
+
+/* Notification Item */
+.notify-item {
+  display: flex;
+  align-items: center;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-bottom: none;
+  border-radius: 0;
+  padding: 24px 28px;
+  transition: background 0.2s;
+}
+
+.notify-item:last-child {
+  border-bottom: 1.5px solid var(--border);
+  border-radius: 0 0 12px 12px;
+}
+
+.notify-item:first-child {
+  border-radius: 12px 12px 0 0;
+}
+
+html.dark .notify-item {
+  background: #3a2d34;
+  border-color: #7e6c7a;
+}
+
+/* Avatar */
+.notify-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 22px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* Content */
+.notify-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ฟ้อนต์แจ้งเตือน (Light Mode) */
+.notify-user {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #2d1a1a; /* สีเข้มขึ้น */
+}
+
+.notify-msg {
+  font-size: 1rem;
+  color: #4a2e2e; /* สีเข้มขึ้น */
+  margin-top: 2px;
+}
+
+/* ฟ้อนต์แจ้งเตือน (Dark Mode) */
+html.dark .notify-user {
+  color: #ffe0d6;
+}
+
+html.dark .notify-msg {
+  color: #d7c6bc;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+  .notify-list {
+    width: 98vw;
+    min-width: 0;
+  }
+  .notify-item {
+    padding: 18px 10px;
+  }
+}

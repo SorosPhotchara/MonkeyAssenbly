@@ -1,0 +1,88 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Sign Up";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/166/166749.png">
+    <link rel="stylesheet" href="/frontend/CSS/signup.css">
+    <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">
+            <a href="/frontend/HTML/home.html">
+                <img src="/frontend/picture/logo.png" alt="Monkey Assemble Logo">
+            </a>
+        </div>
+
+        <input type="checkbox" id="toggle">
+        <label class="toggle" for="toggle">
+            <i class="bx bxs-sun"></i>
+            <i class="bx bx-moon"></i>
+            <span class="ball"></span>
+        </label>
+    </header>
+    
+    <div class="signup-card">
+        <h2>Sign up</h2>
+        <form action="" method="post">
+            <div class="input-group">
+                <input type="text" id="firstName" name="firstName" required>
+                <label for="firstName">First Name</label>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="lastName" name="lastName" required>
+                <label for="lastName">Last Name</label>
+            </div>
+
+            <div class="input-group">
+                <select id="gender" name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="male">ชาย</option>
+                    <option value="female">หญิง</option>
+                    <option value="other">อื่น ๆ</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <input type="date" id="date" name="date" required>
+            </div>
+
+            <div class="input-group">
+                <input type="email" id="email" name="email" required>
+                <label for="email">Email</label>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" name="password" required>
+                <label for="password">Password</label>
+                <i class="bx bx-hide toggle-password"></i>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="confirmpassword" name="confirmpassword" required>
+                <label for="confirmpassword">Confirm Password</label>
+                <i class="bx bx-hide toggle-password"></i>
+            </div>
+
+            <div class="terms">
+                <input type="checkbox" id="terms" required>
+                <label for="terms">I Agree with <a href="#">privacy</a> and <a href="#">policy</a></label>
+            </div>
+
+            <button type="submit" class="btn-signup">Sign up</button>
+        </form>
+        <p>Already have an account? <a href="/frontend/HTML/login.html">Sign in</a></p>
+    </div>
+
+    <script src="/frontend/JS/signup.js"></script>
+</body>
+</html>

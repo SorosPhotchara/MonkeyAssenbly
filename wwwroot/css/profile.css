@@ -1,0 +1,701 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =======================
+   Light Mode Variables
+======================= */
+:root {
+  --bg: #FFEDEA;
+  --bar-font: #CE6A57;
+  --highlight: #FFE0D6;
+  --head-font: #3D3436;
+  --sub-font: #78716C;
+  --border: #FF7E5F;
+  --toggle-bg: linear-gradient(145deg, #ffedea, #ffedea);
+  --toggle-shadow: 3px 3px 4px #e6e6e6, -3px -3px 4px #ffffff;
+  --sun-color: #fafafa;
+  --moon-color: #feb47b;
+  --ball-bg: #feb47b;
+  --white: #fff;
+  --follow-color: #FF7E5F;
+  --following-color: #CE6A57; 
+}
+
+/* =======================
+   Dark Mode Variables
+======================= */
+html.dark {
+  --bg: #392F35;
+  --bar-font: #F2E9E4;
+  --highlight: #463A41;
+  --head-font: #F2E9E4;
+  --sub-font: #D7C6BC;
+  --border: #F2E9E4;
+  --toggle-bg: #2a2024;
+  --toggle-shadow: 3px 3px 3px #0e131b, -3px -3px 3px #1c2739;
+  --sun-color: #feb47b;
+  --moon-color: #2a2024;
+  --ball-bg: #feb47b;
+  --white: #fff;
+  --follow-color: #F2E9E4;
+  --following-color: #CE6A57; 
+}
+
+/* =======================
+   Global Styles
+======================= */
+body {
+  font-family: 'Nunito', 'Prompt', sans-serif;
+  background: var(--bg);
+  color: var(--head-font);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  transition: 0.3s;
+}
+
+/* =======================
+   Navbar
+======================= */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+  background: var(--bg);
+  transition: 0.3s;
+  z-index: 1000;
+}
+
+.logo img {
+  height: 100px;
+}
+
+.menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 40px;
+}
+
+.menu h2 {
+  position: relative;
+  display: inline-block;
+  font-size: 16px;
+  color: var(--bar-font);
+  cursor: pointer;
+  padding: 6px 0px;
+  transition: color 0.3s ease;
+}
+
+.menu h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--bar-font);
+  transition: width 0.3s ease;
+}
+
+.menu h2.active::after {
+  width: 100%;
+}
+
+/* =======================
+   Dark/Light Mode Toggle
+======================= */
+.toggle {
+  cursor: pointer;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  display: flex;
+  justify-content: space-between;
+  width: 90px;
+  height: 45px;
+  border-radius: 35px;
+  transition: .2s;
+  background: var(--toggle-bg);
+  box-shadow: var(--toggle-shadow);
+}
+
+.toggle i {
+  width: 50%;
+  line-height: 45px;
+  text-align: center;
+  font-size: 20px;
+  z-index: 1;
+}
+
+.toggle .bxs-sun,
+.toggle .bx-sun {
+  color: var(--sun-color);
+}
+
+.toggle .bxs-moon,
+.toggle .bx-moon {
+  color: var(--moon-color);
+}
+
+.toggle .ball {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  margin: 7.5px;
+  border-radius: 50%;
+  transition: .3s ease-out;
+  background: var(--ball-bg);
+}
+
+html.dark .toggle .ball {
+  transform: translateX(45px);
+}
+
+input#toggle {
+  display: none;
+}
+
+/* =======================
+   Sidebar
+======================= */
+.sidebar {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  background: var(--bg);
+  padding: 20px 15px;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: background 0.2s, color 0.1s;
+  border: 1px solid var(--highlight);
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  background: transparent;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar a i {
+  font-size: 25px;
+  color: var(--bar-font);
+  opacity: 1;
+  transition: color 0.1s, opacity 0.2s;
+}
+
+.sidebar a.active {
+  background: var(--highlight);
+  border-color: var(--border);
+}
+
+.sidebar a.active i {
+  color: var(--border);
+  opacity: 1;
+}
+
+.sidebar a:hover {
+  border-color: var(--head-font);
+}
+
+.sidebar a:hover i {
+  color: var(--border);
+  opacity: 1;
+}
+
+.sidebar a.add {
+  width: 60px;
+  height: 60px;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  transition: all 0.1s ease;
+  background: var(--highlight);
+}
+
+.sidebar a.add:hover {
+  background: var(--border);
+  color: var(--highlight);
+}
+
+.sidebar a.add:hover i { 
+  color: inherit; 
+}
+
+html.dark .sidebar a.add {
+  background: var(--highlight);
+  color: var(--bar-font);
+}
+
+html.dark .sidebar a.add:hover {
+  background: var(--bar-font);
+  color: var(--highlight);
+}
+
+html.dark .sidebar a.add:hover i { 
+  color: inherit; 
+}
+
+/* =======================
+   Hamburger Menu
+======================= */
+.hamburger {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  font-size: 28px;
+  color: var(--bar-font);
+  cursor: pointer;
+  z-index: 2000;
+  background: var(--bg);
+  padding: 10px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.hamburger-menu {
+  position: fixed;
+  bottom: 70px;
+  left: 20px;
+  background: var(--bg);
+  border: 1px solid var(--highlight);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: none;
+  z-index: 2001;
+  min-width: 160px;
+  padding: 8px 0;
+}
+
+.hamburger-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hamburger-menu li {
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--head-font);
+  transition: background 0.2s;
+  font-size: 15px;
+}
+
+.hamburger-menu li:hover {
+  background: var(--highlight);
+}
+
+/* =======================
+   Profile Card
+======================= */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: clamp(10px, 5vh, 20px);
+  width: 100%;
+  padding: 20px;
+}
+
+.profile-card {
+  min-height: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 25px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;  
+}
+
+.profile-pic {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  margin: 0 auto 10px auto; 
+}
+
+#profile-username {
+  font-size: 22px;
+  margin: 5px 0;
+  font-weight: 600;
+}
+
+#profile-bio {
+  font-size: 14px;
+  color: var(--sub-font);
+  margin-bottom: 10px;
+}
+
+.follow-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.edit-btn,
+.follow-btn {
+  padding: 10px 40px;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.edit-btn {
+  background: var(--border);
+  color: #fff;
+}
+
+.follow-btn {
+  background: var(--follow-color);
+  color: #fff;
+}
+
+.follow-btn.following {
+  background: var(--following-color);
+}
+
+/* =======================
+   Tabs
+======================= */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--highlight);
+  margin-bottom: 20px;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--sub-font);
+}
+
+.tab.active {
+  border-bottom: 3px solid var(--border);
+  color: var(--border);
+}
+
+.tab-content {
+  display: none;
+  flex: 1;
+  overflow-y: auto; 
+  padding-right: 5px;
+}
+
+.tab-content::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* =======================
+   Post Card
+======================= */
+.post-card {
+  background: var(--bg);
+  padding: 15px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  text-align: left;
+  position: relative;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.post-info h3 {
+  margin-bottom: 2px;
+  font-size: 15px;
+}
+
+.post-info .timestamp {
+  font-size: 12px;
+  color: var(--sub-font);
+}
+
+.post-menu {
+  cursor: pointer;
+}
+
+.post-menu-dropdown {
+  position: absolute;
+  right: 15px;
+  top: 35px;
+  background: var(--white);
+  border: 1px solid var(--highlight);
+  border-radius: 8px;
+  padding: 5px 0;
+  list-style: none;
+  font-size: 14px;
+  display: none;
+  z-index: 100;
+}
+
+.post-menu-dropdown.show {
+  display: block;
+}
+
+.post-menu-dropdown li {
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.post-menu-dropdown li:hover {
+  background: var(--highlight);
+}
+
+/* =======================
+   Modal
+======================= */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background: var(--highlight);
+  padding: 25px 30px;
+  border-radius: 16px;
+  max-width: 420px;
+  width: 90%;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.modal-content h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: var(--head-font);
+}
+
+.modal-content label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--head-font);
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.modal-content input[type="text"],
+.modal-content textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--sub-font);
+  margin-bottom: 12px;
+  font-size: 14px;
+  outline: none;
+  background: var(--white);
+  color: var(--head-font);
+}
+
+.modal-content input[type="file"] {
+  display: none;
+}
+
+.modal-content .file-label {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-content .file-label:hover {
+  background: var(--border);
+  color: var(--white);
+}
+
+.modal-content .btn-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.modal-content button {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-content .btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--border);
+}
+
+.modal-content .btn-cancel:hover {
+  background: var(--border);
+  color: var(--white);
+}
+
+.modal-content .btn-save {
+  background: var(--border);
+  color: var(--white);
+}
+
+.modal-content .btn-save:hover {
+  opacity: 0.85;
+}
+
+/* =======================
+   Hidden Utility
+======================= */
+.hidden {
+  display: none !important;
+}
+
+/* =======================
+   Responsive Sidebar
+   ======================= */
+@media (max-width: 768px) {
+
+  .hamburger,
+  .hamburger-menu {
+    display: none !important;
+  }
+
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--highlight);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--bg);
+    z-index: 1000;
+  }
+
+  .sidebar a {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+  }
+
+  .sidebar a.add {
+    width: 60px;
+    height: 60px;
+    margin-top: -25px;
+    border-radius: 50%;
+    background: var(--highlight);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .logo img {
+    width: 75px;
+    height: auto;
+  }
+  
+  .toggle {
+    margin-top: 10px;
+    width: 60px;
+    height: 30px;
+  }
+
+  .toggle i {
+    font-size: 16px;
+    line-height: 30px;
+  }
+
+  .toggle .ball {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(30px);
+  }
+}
