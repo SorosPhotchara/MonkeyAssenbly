@@ -75,7 +75,7 @@ signupBtn.addEventListener("click", async (e) => {
 
     if (res.ok) {
       alert("สมัครสมาชิกสำเร็จ 🎉");
-      window.location.href = "/frontend/HTML/login.html";
+      window.location.href = window.LoginUrl;
     } else {
       alert(data.message || "ไม่สามารถสมัครสมาชิกได้");
     }

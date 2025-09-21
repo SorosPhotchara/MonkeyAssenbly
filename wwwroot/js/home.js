@@ -55,9 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
     menuList.innerHTML="";
     if(!isLoggedIn){
         addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
-      addMenuItem("สมัครสมาชิก",()=>window.location.href="/frontend/HTML/signup.html");
+      addMenuItem("สมัครสมาชิก",()=>window.location.href= window.SignupUrl);
     } else {
-      addMenuItem("โปรไฟล์ของฉัน",()=>window.location.href="/frontend/HTML/profile.html");
+        addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
       addMenuItem("ออกจากระบบ", async ()=>{
         try{
           await fetch("/Account/Logout",{method:"POST"});

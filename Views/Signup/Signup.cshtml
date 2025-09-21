@@ -9,16 +9,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"]</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/166/166749.png">
-    <link rel="stylesheet" href="/frontend/CSS/signup.css">
+    <link rel="stylesheet" href="/css/signup.css">
     <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.HomeUrl = '@ViewBag.HomeUrl';
+        window.TagsUrl = '@ViewBag.TagsUrl';
+        window.NotifyUrl = '@ViewBag.NotifyUrl';
+        window.ProfileUrl = '@ViewBag.ProfileUrl';
+        window.LoginUrl = '@ViewBag.LoginUrl';
+        window.SignupUrl = '@ViewBag.SignupUrl';
+    </script>
 </head>
 <body>
     <!-- Header -->
     <header class="navbar">
         <div class="logo">
-            <a href="/frontend/HTML/home.html">
-                <img src="/frontend/picture/logo.png" alt="Monkey Assemble Logo">
+            <a href="#">
+                <img src="/picture/logo.png" alt="Monkey Assemble Logo">
             </a>
         </div>
 
@@ -80,9 +88,9 @@
 
             <button type="submit" class="btn-signup">Sign up</button>
         </form>
-        <p>Already have an account? <a href="/frontend/HTML/login.html">Sign in</a></p>
+        <p>Already have an account? <a href=window.LoginUrl>Sign in</a></p>
     </div>
 
-    <script src="/frontend/JS/signup.js"></script>
+    <script src="/js/signup.js"></script>
 </body>
 </html>
