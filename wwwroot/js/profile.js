@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------------- Check Login ----------------
     let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
     if (!isLoggedIn) {
-        window.location.href = "/frontend/HTML/login.html";
+        window.location.href = window.LoginUrl;
         return;
     }
 
@@ -40,8 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
             link.classList.add("active");
 
             switch(index) {
-                case 0: window.location.href="/frontend/HTML/home.html"; break;
-                case 1: window.location.href="/frontend/HTML/tags.html"; break;
+                case 0: window.location.href = window.HomeUrl; break;
+                case 1: window.location.href = window.TagsUrl; break;
                 case 2: 
                     const modal = document.querySelector(".modal");
                     const textarea = document.querySelector("textarea");
@@ -50,8 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         textarea?.focus();
                     }
                     break;
-                case 3: window.location.href="/frontend/HTML/notify.html"; break;
-                case 4: window.location.href="/frontend/HTML/profile.html"; break; 
+                case 3: window.location.href = window.NotifyUrl; break;
+                case 4: window.location.href = window.ProfileUrl; break; 
             }
         });
     });
@@ -77,10 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const updateMenu = () => {
         menuList.innerHTML = "";
         if(!isLoggedIn){
-            addMenuItem("เข้าสู่ระบบ", ()=>window.location.href="/frontend/HTML/login.html");
-            addMenuItem("สมัครสมาชิก", ()=>window.location.href="/frontend/HTML/signup.html");
+            addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
+            addMenuItem("สมัครสมาชิก", () => window.location.href = window.SignupUrl);
         } else {
-            addMenuItem("โปรไฟล์ของฉัน", ()=>window.location.href="/frontend/HTML/profile.html");
+            addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
             addMenuItem("ออกจากระบบ", async ()=>{
                 try{
                     await fetch("/Account/Logout",{method:"POST"});

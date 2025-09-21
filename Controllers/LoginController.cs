@@ -6,7 +6,7 @@ namespace MonkeyAssenbly.Controllers
     public class LoginController : BaseController
     {
         // GET: LoginController
-        public ActionResult Login()
+        public IActionResult Login()
         {
             return View();
         }

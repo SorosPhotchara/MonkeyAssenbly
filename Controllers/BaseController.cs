@@ -11,7 +11,8 @@ namespace MonkeyAssenbly.Controllers
             ViewBag.TagsUrl = Url.Action("Tags", "Tags");
             ViewBag.NotifyUrl = Url.Action("Notify", "Notify");
             ViewBag.ProfileUrl = Url.Action("Profile", "Profile");
-
+            ViewBag.LoginUrl = Url.Action("Login", "Login");
+            ViewBag.SignupUrl = Url.Action("Signup", "Signup");
             base.OnActionExecuting(filterContext);
         }
     }

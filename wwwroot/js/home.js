@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".menu h2").forEach(item => {
     item.addEventListener("click", () => {
       if (!isLoggedIn && item.dataset.tab==="follow") {
-        window.location.href="/frontend/HTML/login.html";
+        window.location.href=window.LoginUrl;
         return;
       }
 
@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const updateMenu = ()=>{
     menuList.innerHTML="";
     if(!isLoggedIn){
-      addMenuItem("เข้าสู่ระบบ",()=>window.location.href="/frontend/HTML/login.html");
+        addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
       addMenuItem("สมัครสมาชิก",()=>window.location.href="/frontend/HTML/signup.html");
     } else {
       addMenuItem("โปรไฟล์ของฉัน",()=>window.location.href="/frontend/HTML/profile.html");
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.stopPropagation();
       if(!isLoggedIn){
         alert("กรุณาเข้าสู่ระบบเพื่อเข้าร่วม"); 
-        window.location.href="/frontend/HTML/login.html"; 
+        window.location.href=window.LoginUrl; 
         return; 
       }
       joinEvent(event);
@@ -220,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   popupJoinBtn.addEventListener("click", async ()=>{
     if(!isLoggedIn){
-      window.location.href="/frontend/HTML/login.html";
+        window.location.href = window.LoginUrl;
       return;
     }
     if(!currentEventId) return;
@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   commentSend.addEventListener("click", async ()=>{
     if(!isLoggedIn){
-      window.location.href="/frontend/HTML/login.html";
+        window.location.href = window.LoginUrl;
       return;
     }
     const text = commentInput.value.trim(); if(!text || !currentEventId) return;
