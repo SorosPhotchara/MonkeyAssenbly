@@ -1,0 +1,34 @@
+@model IEnumerable<MonkeyAssenbly.Models.UserDetail>
+@{
+    Layout = null;
+}
+
+<h1>User Details</h1>
+
+<table class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Gender</th>
+            <th>Birthdate</th>
+            <th>Email</th>
+            <th>Account ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.UserId</td>
+                <td>@user.UserFirstname</td>
+                <td>@user.UserLastname</td>
+                <td>@user.UserGender</td>
+                <td>@user.UserBirthdate.ToString("yyyy-MM-dd")</td>
+                <td>@user.UserEmail</td>
+                <td>@(user.AccountId?.ToString() ?? "NULL")</td>
+            </tr>
+        }
+    </tbody>
+</table>
