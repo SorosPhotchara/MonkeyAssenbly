@@ -4,6 +4,7 @@
 }
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +20,7 @@
         window.Profile = '@ViewBag.ProfileUrl';
     </script>
 </head>
+
 <body>
     <!-- Header -->
     <header class="navbar">
@@ -37,14 +39,14 @@
             <span class="ball"></span>
         </label>
     </header>
-    
+
     <!-- Sidebar Menu -->
     <nav>
         <div class="sidebar">
-            <a href="@Url.Action("Home", "Home")" class="active"><i class="fa-solid fa-home"></i></a>
+            <a href="@Url.Action("Home", "Home")"><i class="fa-solid fa-home"></i></a>
             <a href="@Url.Action("Tags", "Tags")"><i class="fa-solid fa-tag"></i></a>
             <a href="#" class="add"><i class="fa-solid fa-plus"></i></a>
-            <a href="@Url.Action("Notify", "Notify")"><i class="fa-solid fa-bell"></i></a>
+            <a href="@Url.Action("Notify", "Notify")" class="active"><i class="fa-solid fa-bell"></i></a>
             <a href="@Url.Action("Profile", "Profile")"><i class="fa-solid fa-user"></i></a>
         </div>
     </nav>
@@ -64,4 +66,5 @@
 
     <script src="/js/notify.js"></script>
 </body>
+
 </html>
