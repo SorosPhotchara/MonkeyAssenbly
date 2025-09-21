@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using MonkeyAssenbly.Models;
 namespace MonkeyAssenbly.Controllers
 {
     public class LoginController : BaseController

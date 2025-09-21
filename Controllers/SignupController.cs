@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MonkeyAssenbly.Controllers
 {
-    public class SignupController : Controller
+    public class SignupController : BaseController
     {
         // GET: SignupController
         public ActionResult Index()

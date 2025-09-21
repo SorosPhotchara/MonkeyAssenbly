@@ -6,11 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <Content Remove="Views\Login\Login.cshtml" />
     <Content Remove="Views\Signup\Signup.cshtml" />
     <Content Remove="Views\tags.cshtml" />
-  </ItemGroup>
+  </ItemGroup> -->
 
   <ItemGroup>
     <None Include="Views\Login\Login.cshtml" />
