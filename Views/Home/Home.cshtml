@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     Layout = null;
     ViewData["Title"] = "Home";
 }
@@ -49,10 +48,10 @@
     <nav>
         <div class="sidebar">
             <a href="@Url.Action("Home", "Home")" class="active"><i class="fa-solid fa-home"></i></a>
-            <a href="@Url.Action("Tags","Tags")"><i class="fa-solid fa-tag"></i></a>
+            <a href="@Url.Action("Tags", "Tags")"><i class="fa-solid fa-tag"></i></a>
             <a href="#" class="add"><i class="fa-solid fa-plus"></i></a>
             <a href="@Url.Action("Notify", "Notify")"><i class="fa-solid fa-bell"></i></a>
-            <a href="@Url.Action("Profile","Profile")"><i class="fa-solid fa-user"></i></a>
+            <a href="@Url.Action("Profile", "Profile")"><i class="fa-solid fa-user"></i></a>
         </div>
     </nav>
 
@@ -94,6 +93,7 @@
     </div>
 
     <section id="event-feed" class="feed">
+        @* mokup *@
         <div class="event-card">
             <div class="event-header">
                 <div class="host-info">
@@ -137,6 +137,7 @@
                 <button class="join-btn" disabled>CLOSED</button>
             </div>
         </div>
+        @* mokup *@
     </section>
 
     <!-- Event Popup  -->
@@ -162,7 +163,7 @@
         </div>
     </div>
 
-    
+
     <script src="/js/home.js"></script>
 </body>
 
