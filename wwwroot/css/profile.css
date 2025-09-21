@@ -380,8 +380,14 @@ html.dark .sidebar a.add:hover i {
 }
 
 .edit-btn {
+  background: var(--highlight);
+  color: var(--bar-font);
+  border: 1px solid var(--border); 
+}
+
+.edit-btn:hover {
   background: var(--border);
-  color: #fff;
+  color: var(--bg);
 }
 
 .follow-btn {
@@ -418,7 +424,7 @@ html.dark .sidebar a.add:hover i {
 }
 
 .tab-content {
-  display: none;
+  display: none !important;
   flex: 1;
   overflow-y: auto; 
   padding-right: 5px;
@@ -430,7 +436,7 @@ html.dark .sidebar a.add:hover i {
 }
 
 .tab-content.active {
-  display: block;
+  display: block !important;
 }
 
 /* =======================

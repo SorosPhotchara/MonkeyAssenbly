@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = window.LoginUrl;
         return;
     }
-
     // ---------------- Theme Toggle ----------------
     const root = document.documentElement;
     const toggle = document.getElementById("toggle");
@@ -17,11 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle.checked = true;
     }
 
-    toggle.addEventListener("change", () => {
+    toggle?.addEventListener("change", () => {
         const isDark = root.classList.toggle("dark");
         localStorage.setItem("theme", isDark ? "dark" : "light");
-        sunIcon.className = isDark ? "bx bx-sun" : "bx bxs-sun";
-        moonIcon.className = isDark ? "bx bx-moon" : "bx bxs-moon";
+        sunIcon.className = isDark ? "bx bx-sun" : "bxs-sun";
+        moonIcon.className = isDark ? "bx bx-moon" : "bxs-moon";
     });
 
     // ---------------- Sidebar Menu ----------------
@@ -81,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
             addMenuItem("สมัครสมาชิก", () => window.location.href = window.SignupUrl);
         } else {
             addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
-            addMenuItem("ออกจากระบบ", async ()=>{
+            addMenuItem("ออกจากระบบ", async ()=> {
                 try{
                     await fetch("/Account/Logout",{method:"POST"});
                     setLoginState(false);
@@ -97,12 +96,12 @@ document.addEventListener("DOMContentLoaded", () => {
         hamburgerBtn.querySelector("i").className = open ? "fa-solid fa-xmark" : "fa-solid fa-bars";
     };
 
-    hamburgerBtn.addEventListener("click", ()=>{
+    hamburgerBtn?.addEventListener("click", ()=> {
         menuOpen = !menuOpen;
         toggleMenu(menuOpen);
     });
 
-    window.addEventListener("click", e=>{
+    window.addEventListener("click", e => {
         if(menuOpen && !hamburgerBtn.contains(e.target) && !hamburgerMenu.contains(e.target)){
             toggleMenu(false);
             menuOpen = false;
@@ -111,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateMenu();
 
-    // ---------------- Profile Page (Edit + Follow) ----------------
+    // ---------------- Profile Page ----------------
     const editBtn = document.getElementById("edit-btn");
     const followBtn = document.getElementById("follow-btn");
     const editModal = document.querySelector(".modal");
@@ -130,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const userId = document.body.dataset.userId;
     const role = document.body.dataset.role;
 
-    // ================== Fetch profile info ==================
+    // -------- Load Profile Info --------
     const loadProfile = async () => {
         try {
             const res = await fetch(`/api/profile/${userId}`);
@@ -147,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 editBtn?.classList.add("hidden");
                 followBtn?.classList.remove("hidden");
                 followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
-                if(data.isFollowing) followBtn.classList.add("following");
+                followBtn.classList.toggle("following", data.isFollowing);
             } else {
                 followBtn?.classList.add("hidden");
                 editBtn?.classList.remove("hidden");
@@ -157,77 +156,69 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("เกิดข้อผิดพลาดในการโหลดโปรไฟล์");
         }
     };
-
     loadProfile();
 
-    // ================== Edit Profile ==================
+    // -------- Edit Profile --------
     editBtn?.addEventListener("click", () => {
+        if(role === "visitor"){ window.location.href = window.LoginUrl; return; }
         editModal.classList.add("show");
         usernameInput.value = profileUsername.textContent;
         bioInput.value = profileBio.textContent;
     });
 
     cancelBtn?.addEventListener("click", () => editModal.classList.remove("show"));
-    editModal?.addEventListener("click", e => {
-        if(e.target === editModal) editModal.classList.remove("show");
-    });
+    editModal?.addEventListener("click", e => { if(e.target===editModal) editModal.classList.remove("show"); });
 
     saveBtn?.addEventListener("click", async () => {
         const formData = new FormData();
         formData.append("username", usernameInput.value);
         formData.append("bio", bioInput.value);
-        if(fileUpload.files.length > 0){
-            formData.append("avatar", fileUpload.files[0]);
-        }
+        if(fileUpload.files.length>0) formData.append("avatar", fileUpload.files[0]);
 
-        try {
-            const res = await fetch(`/api/profile/${userId}`, {
-                method: "PUT",
-                body: formData
-            });
+        try{
+            const res = await fetch(`/api/profile/${userId}`, { method:"PUT", body: formData });
             if(!res.ok) throw new Error("ไม่สามารถบันทึกได้");
-
             const data = await res.json();
             profileUsername.textContent = data.username;
             profileBio.textContent = data.bio;
             if(data.avatar) profilePic.src = data.avatar;
-
             editModal.classList.remove("show");
             alert("บันทึกข้อมูลเรียบร้อยแล้ว");
-        } catch(err) {
+        } catch(err){
             console.error(err);
             alert("เกิดข้อผิดพลาด: "+err.message);
         }
     });
 
-    // ================== Follow / Unfollow ==================
+    // -------- Follow / Unfollow --------
     followBtn?.addEventListener("click", async () => {
-        try {
-            const action = followBtn.textContent === "Follow" ? "follow" : "unfollow";
-            const res = await fetch(`/api/profile/${userId}/${action}`, {method: "POST"});
+        if(role === "visitor"){ window.location.href = window.LoginUrl; return; }
+        try{
+            const action = followBtn.textContent==="Follow" ? "follow" : "unfollow";
+            const res = await fetch(`/api/profile/${userId}/${action}`, {method:"POST"});
             if(!res.ok) throw new Error("ไม่สามารถอัปเดต follow status");
-
             const data = await res.json();
-            followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+            followBtn.textContent = data.isFollowing?"Unfollow":"Follow";
             followBtn.classList.toggle("following", data.isFollowing);
             followersCount.textContent = data.followers;
-        } catch(err) {
+        } catch(err){
             console.error(err);
             alert("เกิดข้อผิดพลาด: "+err.message);
         }
     });
 
-    // ================== Tabs ==================
+    // -------- Tabs Toggle --------
     const tabs = document.querySelectorAll(".tab");
     const tabContents = document.querySelectorAll(".tab-content");
 
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {
-            tabs.forEach(t => t.classList.remove("active"));
-            tabContents.forEach(c => c.classList.remove("active"));
+            tabs.forEach(t=>t.classList.remove("active"));
+            tabContents.forEach(c=>c.classList.remove("active"));
 
             tab.classList.add("active");
-            document.getElementById(tab.dataset.tab).classList.add("active");
+            const target = document.getElementById(tab.dataset.tab);
+            if(target) target.classList.add("active");
         });
     });
 });

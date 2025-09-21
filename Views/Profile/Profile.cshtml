@@ -4,6 +4,7 @@
 }
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,11 +22,12 @@
         window.SignupUrl = '@ViewBag.SingupUrl';
     </script>
 </head>
-<body data-user-id="123" data-role="visitor">
+
+<body data-user-id="123" data-role="host">
     <!-- Header -->
     <header class="navbar">
         <div class="logo">
-            <a href="@Url.Action("Home","Home")">
+            <a href="@Url.Action("Home", "Home")">
                 <img src="/picture/logo.png" alt="Monkey Assemble Logo">
             </a>
         </div>
@@ -107,4 +109,5 @@
 
     <script src="/js/profile.js"></script>
 </body>
+
 </html>
