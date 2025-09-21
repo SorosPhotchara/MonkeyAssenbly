@@ -420,16 +420,101 @@ html.dark .tag-search-bar i.fa-search {
   color: #ffe0d6;
 }
 
-/* Responsive */
-@media (max-width: 1000px) {
+/* =======================
+   Responsive Sidebar for Tags Page
+======================= */
+@media (max-width: 768px) {
+  .hamburger,
+  .hamburger-menu {
+    display: none !important;
+  }
+
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 0;
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--highlight);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--bg);
+    z-index: 1000;
+  }
+
+  .sidebar a {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+  }
+
+  .sidebar a.add {
+    width: 60px;
+    height: 60px;
+    margin-top: -25px;
+    border-radius: 50%;
+    background: var(--highlight);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .logo {
+    font-size: 20px;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 15px;
+    margin: 0;
+  }
+
+  .logo img {
+    width: 75px;
+    height: auto;
+  }
+
+  .toggle {
+    margin-top: 10px;
+    width: 60px;
+    height: 30px;
+  }
+
+  .toggle i {
+    font-size: 16px;
+    line-height: 30px;
+  }
+
+  .toggle .ball {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(30px);
+  }
+
+  .tag-search-bar {
+    width: 95vw;
+    margin: 20px auto 20px auto;
+  }
+
   .tag-list {
-    width: 98vw;
+    width: 95vw;
+    margin: 0 auto 80px auto;
     gap: 12px;
     justify-content: center;
   }
+
   .tag-card {
     min-width: 120px;
     padding: 18px 16px;
     font-size: 1rem;
+  }
+
+  .tag-title {
+    font-size: 1.8rem;
   }
 }

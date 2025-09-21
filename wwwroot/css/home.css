@@ -679,7 +679,7 @@ html.dark .join-btn:hover {
 }
 
 /* =======================
-   Responsive Sidebar
+   Responsive Sidebar  for Home Page
    ======================= */
 @media (max-width: 768px) {
 
@@ -723,9 +723,9 @@ html.dark .join-btn:hover {
 
   .logo {
     font-size: 20px;
-    align-items: center;   /* ให้ vertical ตรงกลาง */
-    justify-content: flex-start; /* ชิดซ้าย */
-    padding-left: 15px; /* ระยะจากซ้ายเท่ากันทุกหน้า */
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 15px;
     margin: 0;
   }
 

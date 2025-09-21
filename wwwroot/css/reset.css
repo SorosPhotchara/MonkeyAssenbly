@@ -296,3 +296,78 @@ html.dark .btn-reset:hover {
 .back-login-link:hover {
   text-decoration: underline;
 }
+
+/* =======================
+   Responsive Reset Password Card
+======================= */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+    justify-content: flex-start;
+  }
+
+  .resetpassword-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 30px 20px;
+    border-radius: 12px;
+    box-shadow: none;
+    margin-top: 80px;
+  }
+
+  .resetpassword-card h2 {
+    font-size: 28px;
+  }
+
+  .input-group input {
+    font-size: 15px;
+    padding: 10px 0;
+  }
+
+  .input-group label {
+    font-size: 13px;
+  }
+
+  .input-group i {
+    font-size: 18px;
+    right: 8px;
+  }
+
+  .btn-reset {
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  .back-login-link {
+    font-size: 14px;
+    margin-top: 12px;
+  }
+
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .logo img {
+    height: 70px;
+  }
+
+  .toggle {
+    width: 70px;
+    height: 35px;
+  }
+
+  .toggle i {
+    font-size: 16px;
+    line-height: 35px;
+  }
+
+  .toggle .ball {
+    width: 20px;
+    height: 20px;
+    margin: 7.5px 0 0 5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(30px);
+  }
+}

@@ -1,109 +1,117 @@
-// =================== Theme Toggle ===================
-const root = document.documentElement;
-const toggle = document.getElementById("toggle");
-const sunIcon = document.querySelector(".toggle .bxs-sun");
-const moonIcon = document.querySelector(".toggle .bx-moon");
+document.addEventListener("DOMContentLoaded", () => {
+    // ---------------- Check Login ----------------
+    let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    if (!isLoggedIn) {
+        window.location.href = "/frontend/HTML/login.html";
+        return;
+    }
 
-if (localStorage.getItem("theme") === "dark") {
-    root.classList.add("dark");
-    toggle.checked = true;
-}
+    // ---------------- Theme Toggle ----------------
+    const root = document.documentElement;
+    const toggle = document.getElementById("toggle");
+    const sunIcon = document.querySelector(".toggle .bxs-sun");
+    const moonIcon = document.querySelector(".toggle .bx-moon");
 
-toggle.addEventListener("change", () => {
-    const isDark = root.classList.toggle("dark");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    sunIcon.className = isDark ? "bx bx-sun" : "bx bxs-sun";
-    moonIcon.className = isDark ? "bx bx-moon" : "bx bxs-moon";
-});
+    if (localStorage.getItem("theme") === "dark") {
+        root.classList.add("dark");
+        toggle.checked = true;
+    }
 
-// =================== Sidebar Menu ===================
-document.querySelectorAll(".menu h2").forEach(item => {
-    item.addEventListener("click", () => {
-        document.querySelectorAll(".menu h2").forEach(el => el.classList.remove("active"));
-        item.classList.add("active");
+    toggle.addEventListener("change", () => {
+        const isDark = root.classList.toggle("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        sunIcon.className = isDark ? "bx bx-sun" : "bx bxs-sun";
+        moonIcon.className = isDark ? "bx bx-moon" : "bx bxs-moon";
     });
-});
 
-const sidebarLinks = document.querySelectorAll(".sidebar a");
-sidebarLinks.forEach((link, index) => {
-    link.addEventListener("click", e => {
-        e.preventDefault();
-        sidebarLinks.forEach(el => el.classList.remove("active"));
-        link.classList.add("active");
+    // ---------------- Sidebar Menu ----------------
+    document.querySelectorAll(".menu h2").forEach(item => {
+        item.addEventListener("click", () => {
+            document.querySelectorAll(".menu h2").forEach(el => el.classList.remove("active"));
+            item.classList.add("active");
+        });
+    });
 
-        switch(index) {
-            case 0: window.location.href=window.HomeUrl; break;
-            case 1: window.location.href = window.TagsUrl; break;
-            case 2: 
-                if(typeof modal !== "undefined") {
-                    modal.style.display="flex"; 
-                    textarea?.focus();
-                }
-                break;
-            case 3: window.location.href =window.NotifyUrl; break;
-            case 4: window.location.href = window.ProfileUrl; break; 
+    const sidebarLinks = document.querySelectorAll(".sidebar a");
+    sidebarLinks.forEach((link, index) => {
+        link.addEventListener("click", e => {
+            e.preventDefault();
+            sidebarLinks.forEach(el => el.classList.remove("active"));
+            link.classList.add("active");
+
+            switch(index) {
+                case 0: window.location.href="/frontend/HTML/home.html"; break;
+                case 1: window.location.href="/frontend/HTML/tags.html"; break;
+                case 2: 
+                    const modal = document.querySelector(".modal");
+                    const textarea = document.querySelector("textarea");
+                    if(modal) {
+                        modal.style.display="flex"; 
+                        textarea?.focus();
+                    }
+                    break;
+                case 3: window.location.href="/frontend/HTML/notify.html"; break;
+                case 4: window.location.href="/frontend/HTML/profile.html"; break; 
+            }
+        });
+    });
+
+    // ---------------- Hamburger Menu ----------------
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
+    const hamburgerMenu = document.getElementById("hamburgerMenu");
+    const menuList = document.getElementById("menuList");
+
+    const addMenuItem = (text, onClick) => {
+        const li = document.createElement("li");
+        li.textContent = text;
+        li.addEventListener("click", onClick);
+        menuList.appendChild(li);
+    };
+
+    const setLoginState = state => {
+        isLoggedIn = state;
+        localStorage.setItem("isLoggedIn", state);
+        updateMenu();
+    };
+
+    const updateMenu = () => {
+        menuList.innerHTML = "";
+        if(!isLoggedIn){
+            addMenuItem("เข้าสู่ระบบ", ()=>window.location.href="/frontend/HTML/login.html");
+            addMenuItem("สมัครสมาชิก", ()=>window.location.href="/frontend/HTML/signup.html");
+        } else {
+            addMenuItem("โปรไฟล์ของฉัน", ()=>window.location.href="/frontend/HTML/profile.html");
+            addMenuItem("ออกจากระบบ", async ()=>{
+                try{
+                    await fetch("/Account/Logout",{method:"POST"});
+                    setLoginState(false);
+                    alert("ออกจากระบบเรียบร้อย");
+                } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
+            });
+        }
+    };
+
+    let menuOpen = false;
+    const toggleMenu = open => {
+        hamburgerMenu.style.display = open ? "block" : "none";
+        hamburgerBtn.querySelector("i").className = open ? "fa-solid fa-xmark" : "fa-solid fa-bars";
+    };
+
+    hamburgerBtn.addEventListener("click", ()=>{
+        menuOpen = !menuOpen;
+        toggleMenu(menuOpen);
+    });
+
+    window.addEventListener("click", e=>{
+        if(menuOpen && !hamburgerBtn.contains(e.target) && !hamburgerMenu.contains(e.target)){
+            toggleMenu(false);
+            menuOpen = false;
         }
     });
-});
 
-// =================== Hamburger Menu ===================
-let isLoggedIn = localStorage.getItem("isLoggedIn") === "true"; 
-const hamburgerBtn = document.getElementById("hamburgerBtn");
-const hamburgerMenu = document.getElementById("hamburgerMenu");
-const menuList = document.getElementById("menuList");
-
-const addMenuItem = (text, onClick) => {
-    const li = document.createElement("li");
-    li.textContent = text;
-    li.addEventListener("click", onClick);
-    menuList.appendChild(li);
-};
-
-const updateMenu = () => {
-    menuList.innerHTML = "";
-    if(!isLoggedIn){
-        addMenuItem("เข้าสู่ระบบ", ()=>window.location.href="/frontend/HTML/login.html");
-        addMenuItem("สมัครสมาชิก", ()=>window.location.href="/frontend/HTML/signup.html");
-    } else {
-        addMenuItem("โปรไฟล์ของฉัน", ()=>window.location.href="/frontend/HTML/profile.html");
-        addMenuItem("ออกจากระบบ", async ()=>{
-            try{
-                await fetch("/Account/Logout",{method:"POST"});
-                setLoginState(false);
-                alert("ออกจากระบบเรียบร้อย");
-            } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
-        });
-    }
-};
-
-const setLoginState = state => {
-    isLoggedIn = state;
-    localStorage.setItem("isLoggedIn", state);
     updateMenu();
-};
 
-let menuOpen = false;
-const toggleMenu = open => {
-    hamburgerMenu.style.display = open ? "block" : "none";
-    hamburgerBtn.querySelector("i").className = open ? "fa-solid fa-xmark" : "fa-solid fa-bars";
-};
-
-hamburgerBtn.addEventListener("click", ()=>{
-    menuOpen = !menuOpen;
-    toggleMenu(menuOpen);
-});
-
-window.addEventListener("click", e=>{
-    if(menuOpen && !hamburgerBtn.contains(e.target) && !hamburgerMenu.contains(e.target)){
-        toggleMenu(false);
-        menuOpen = false;
-    }
-});
-
-updateMenu();
-
-// =================== Profile Page (Edit + Follow) ===================
-document.addEventListener("DOMContentLoaded", () => {
+    // ---------------- Profile Page (Edit + Follow) ----------------
     const editBtn = document.getElementById("edit-btn");
     const followBtn = document.getElementById("follow-btn");
     const editModal = document.querySelector(".modal");
@@ -122,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const userId = document.body.dataset.userId;
     const role = document.body.dataset.role;
 
-    // ================== Fetch profile info from backend ==================
+    // ================== Fetch profile info ==================
     const loadProfile = async () => {
         try {
             const res = await fetch(`/api/profile/${userId}`);
@@ -160,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     cancelBtn?.addEventListener("click", () => editModal.classList.remove("show"));
-    editModal.addEventListener("click", e => {
+    editModal?.addEventListener("click", e => {
         if(e.target === editModal) editModal.classList.remove("show");
     });
 
@@ -221,72 +229,5 @@ document.addEventListener("DOMContentLoaded", () => {
             tab.classList.add("active");
             document.getElementById(tab.dataset.tab).classList.add("active");
         });
-    });
-
-    // ================== Post Menu (Host Only) ==================
-    const posts = document.querySelectorAll(".post-card");
-
-    posts.forEach(post => {
-        const dropdown = post.querySelector(".post-menu-dropdown");
-        const menuBtn = post.querySelector(".post-menu");
-
-        if(role === "visitor" && post.dataset.private === "true") {
-            post.style.display = "none";
-        }
-
-        if(role === "host") {
-            dropdown.innerHTML = `
-                <li class="menu-private">Private</li>
-                <li class="menu-edit">Edit</li>
-                <li class="menu-delete">Delete</li>
-            `;
-
-            menuBtn.addEventListener("click", e => {
-                e.stopPropagation();
-                dropdown.classList.toggle("show");
-            });
-
-            // Private
-            dropdown.querySelector(".menu-private").addEventListener("click", async () => {
-                try {
-                    const postId = post.dataset.postId;
-                    const res = await fetch(`/api/posts/${postId}/private`, {method:"POST"});
-                    if(!res.ok) throw new Error("ไม่สามารถตั้ง private");
-
-                    post.dataset.private = "true";
-                    alert("โพสต์นี้ถูกตั้งเป็น Private");
-                    dropdown.classList.remove("show");
-                } catch(err) {
-                    console.error(err);
-                    alert(err.message);
-                }
-            });
-
-            // Edit
-            dropdown.querySelector(".menu-edit").addEventListener("click", () => {
-                const postId = post.dataset.postId;
-                window.location.href = `/frontend/HTML/detailhost.html?id=${postId}`;
-            });
-
-            // Delete
-            dropdown.querySelector(".menu-delete").addEventListener("click", async () => {
-                if(!confirm("คุณแน่ใจว่าต้องการลบโพสต์นี้?")) return;
-                try {
-                    const postId = post.dataset.postId;
-                    const res = await fetch(`/api/posts/${postId}`, {method:"DELETE"});
-                    if(!res.ok) throw new Error("ลบโพสต์ไม่สำเร็จ");
-
-                    post.remove();
-                    alert("ลบโพสต์เรียบร้อย");
-                } catch(err) {
-                    console.error(err);
-                    alert(err.message);
-                }
-            });
-        }
-    });
-
-    window.addEventListener("click", () => {
-        document.querySelectorAll(".post-menu-dropdown").forEach(d => d.classList.remove("show"));
     });
 });
