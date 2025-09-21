@@ -18,6 +18,8 @@
         window.TagsUrl = '@ViewBag.TagsUrl';
         window.NotifyUrl = '@ViewBag.NotifyUrl';
         window.ProfileUrl = '@ViewBag.ProfileUrl';
+        window.LoginUrl = '@ViewBag.LoginUrl';
+        window.SignupUrl = '@ViewBag.SignupUrl';
     </script>
 </head>
 
@@ -25,7 +27,7 @@
     <!-- Header -->
     <header class="navbar">
         <div class="logo">
-            <a href="">
+            <a href="@Url.Action("Home", "Home")">
                 <img src="~/picture/logo.png" alt="Monkey Assemble Logo">
             </a>
         </div>

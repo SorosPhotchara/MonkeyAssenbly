@@ -64,10 +64,10 @@ function updateMenu() {
 
     if (!isLoggedIn) {
         addMenuItem("เข้าสู่ระบบ", () => {
-            window.location.href = "/frontend/HTML/login.html";
+            window.location.href = window.LoginUrl;
         });
         addMenuItem("สมัครสมาชิก", () => {
-            window.location.href = "/frontend/HTML/signup.html";
+            window.location.href = window.SignupUrl;
         });
     } else {
         addMenuItem("โปรไฟล์ของฉัน", () => {
@@ -109,11 +109,11 @@ updateMenu();
 
 // ---------------- Login / Signup / Logout ----------------
 function showLoginPage() {
-    window.location.href = "/frontend/HTML/login.html";
+    window.location.href = window.LoginUrl;
 }
 
 function showSignupPage() {
-    window.location.href = "/frontend/HTML/signup.html";
+    window.location.href = window.SignupUrl;
 }
 
 async function logoutUser() {

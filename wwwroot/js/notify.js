@@ -65,14 +65,14 @@ function updateMenu() {
 
     if (!isLoggedIn) {
         addMenuItem("เข้าสู่ระบบ", () => {
-            window.location.href = "/frontend/HTML/login.html";
+            window.location.href = window.LoginUrl;
         });
         addMenuItem("สมัครสมาชิก", () => {
-            window.location.href = "/frontend/HTML/signup.html";
+            window.location.href = window.SignupUrl;
         });
     } else {
         addMenuItem("โปรไฟล์ของฉัน", () => {
-            window.location.href = "/frontend/HTML/profile.html";
+            window.location.href = window.ProfileUrl;
         });
 
         addMenuItem("ออกจากระบบ", async () => {
@@ -110,11 +110,11 @@ updateMenu();
 
 // ---------------- Login / Signup / Logout ----------------
 function showLoginPage() {
-    window.location.href = "/frontend/HTML/login.html";
+    window.location.href = window.LoginUrl;
 }
 
 function showSignupPage() {
-    window.location.href = "/frontend/HTML/signup.html";
+    window.location.href = window.SignupUrl;
 }
 
 async function logoutUser() {
@@ -221,10 +221,10 @@ notifications.forEach((item) => {
 //   function updateMenu(){
 //     menuList.innerHTML = "";
 //     if(!isLoggedIn){
-//       addMenuItem("เข้าสู่ระบบ", ()=>window.location.href="/frontend/HTML/login.html");
-//       addMenuItem("สมัครสมาชิก", ()=>window.location.href="/frontend/HTML/signup.html");
+//       addMenuItem("เข้าสู่ระบบ", ()=>window.location.href=window.LoginUrl);
+//       addMenuItem("สมัครสมาชิก", ()=>window.location.href=window.SignupUrl);
 //     } else {
-//       addMenuItem("โปรไฟล์ของฉัน", ()=>window.location.href="/frontend/HTML/profile.html");
+//       addMenuItem("โปรไฟล์ของฉัน", ()=>window.location.href=window.ProfileUrl);
 //       addMenuItem("ออกจากระบบ", async ()=>{
 //         try{
 //           await fetch("/Account/Logout",{method:"POST"});
