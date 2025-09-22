@@ -75,6 +75,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const followFeed = document.getElementById("follow");
   let cachedEvents = [];
 
+  // ---------------- Avatar Color Helper ----------------
+  function getColorForUser(username) {
+    const colors = [
+      "#1abc9c","#3498db","#9b59b6",
+      "#e67e22","#e74c3c","#2ecc71",
+      "#f39c12","#7f8c8d","#16a085",
+      "#d35400","#2980b9","#27ae60",
+      "#8e44ad","#c0392b","#f1c40f",
+    ];
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colors.length;
+    return colors[index];
+  }
+
   async function loadEvents() {
     try {
       const res = await fetch(`${SERVER_URL}/events`);
