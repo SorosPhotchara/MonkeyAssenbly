@@ -32,8 +32,8 @@
         </div>
 
         <div class="menu">
-            <h2 class="active">FOR YOU</h2>
-            <h2>FOLLOW</h2>
+            <h2 class="active" data-tab="for-you">FOR YOU</h2>
+            <h2 data-tab="follow">FOLLOW</h2>
         </div>
 
         <input type="checkbox" id="toggle">
@@ -68,9 +68,7 @@
     <!-- Popup Create Event -->
     <div id="createEventModal" class="modal">
         <div class="modal-content">
-
             <i class="fa-solid fa-xmark close-btn"></i>
-
             <h2>Create Event</h2>
             <form id="createEventForm">
                 <input type="text" name="eventName" placeholder="event name" required>
@@ -92,8 +90,9 @@
         </div>
     </div>
 
-    <section id="event-feed" class="feed">
-        @* mokup *@
+    <!-- FEEDS  -->
+    <section id="for-you" class="feed active">
+        <!-- Mokup For You -->
         <div class="event-card">
             <div class="event-header">
                 <div class="host-info">
@@ -124,7 +123,6 @@
                 </div>
                 <span class="status close">CLOSED</span>
             </div>
-
             <div class="event-body">
                 <h3>เล่นบาสเกตบอล</h3>
                 <p>สนามกีฬาในมหาวิทยาลัย อยากชวนทุกคนมาสนุกด้วยกัน</p>
@@ -132,19 +130,85 @@
                 <small>เวลาเปิดรับ: 10/09/25 15:00 - 10/09/25 17:00</small><br>
                 <small>ผู้เข้าร่วม: 8/8</small>
             </div>
-
             <div class="event-footer">
                 <button class="join-btn" disabled>CLOSED</button>
             </div>
         </div>
-        @* mokup *@
+        <!-- End Mokup For You -->
+    </section>
+
+    <section id="follow" class="feed">
+        <!-- Mokup Follow -->
+        <div class="event-card">
+            <div class="event-header">
+                <div class="host-info">
+                    <span class="avatar" style="background: teal;"></span>
+                    <span class="host">FriendHost</span>
+                    <small class="time">5 นาที</small>
+                </div>
+                <span class="status open">OPEN</span>
+            </div>
+            <div class="event-body">
+                <h3>วิ่งมาราธอน</h3>
+                <p>รวมตัวที่สวนหลวง ร.9 ใครว่างมาเจอกันครับ</p>
+                <small>สถานที่: สวนหลวง ร.9</small><br>
+                <small>เวลาเปิดรับ: 11/09/25 06:00 - 11/09/25 08:00</small><br>
+                <small>ผู้เข้าร่วม: 3/10</small>
+            </div>
+            <div class="event-footer">
+                <div class="friends-joined">
+                    <span class="joined-text">ได้เข้าร่วมกับ Event นี้แล้ว</span>
+                    <div class="avatars">
+                        <div class="avatar" title="Alice">
+                            <img src="/picture/mock/alice.jpg" alt="Alice">
+                        </div>
+                        <div class="avatar" title="Bob">
+                            <img src="/picture/mock/bob.jpg" alt="Bob">
+                        </div>
+                    </div>
+                </div>
+                <button class="join-btn">JOIN</button>
+            </div>
+        </div>
+
+        <div class="event-card">
+            <div class="event-header">
+                <div class="host-info">
+                    <span class="avatar" style="background: teal;"></span>
+                    <span class="host">FriendHost</span>
+                    <small class="time">5 นาที</small>
+                </div>
+                <span class="status open">OPEN</span>
+            </div>
+            <div class="event-body">
+                <h3>วิ่งมาราธอน</h3>
+                <p>รวมตัวที่สวนหลวง ร.9 ใครว่างมาเจอกันครับ</p>
+                <small>สถานที่: สวนหลวง ร.9</small><br>
+                <small>เวลาเปิดรับ: 11/09/25 06:00 - 11/09/25 08:00</small><br>
+                <small>ผู้เข้าร่วม: 3/10</small>
+            </div>
+            <div class="event-footer">
+                <div class="friends-joined">
+                    <span class="joined-text">ได้เข้าร่วมกับ Event นี้แล้ว</span>
+                    <div class="avatars">
+                        <div class="avatar" title="Alice">
+                            <img src="/picture/mock/alice.jpg" alt="Alice">
+                        </div>
+                        <div class="avatar" title="Bob">
+                            <img src="/picture/mock/bob.jpg" alt="Bob">
+                        </div>
+                    </div>
+                </div>
+                <button class="join-btn">JOIN</button>
+            </div>
+        </div>
+        <!-- End Mokup Follow -->
     </section>
 
     <!-- Event Popup  -->
     <div id="event-popup" class="event-popup hidden">
         <div class="event-popup-content">
             <button id="close-popup" class="popup-close-btn"><i class="fa-solid fa-arrow-left"></i></button>
-
             <h3 id="event-title">Event Name</h3>
             <p>Host: <span id="event-host">HostName</span></p>
             <p>สถานที่: <span id="event-place">ไม่ระบุ</span></p>

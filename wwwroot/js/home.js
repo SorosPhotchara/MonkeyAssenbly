@@ -20,16 +20,21 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- Sidebar Tabs ----------------
   document.querySelectorAll(".menu h2").forEach(item => {
     item.addEventListener("click", () => {
-      if (!isLoggedIn && item.dataset.tab === "follow") {
-        window.location.href = "/frontend/HTML/login.html";
-        return;
-      }
+      // รอ ใช้งานค่อยเปิด
+      // if (!isLoggedIn && item.dataset.tab === "follow") {
+      //   window.location.href = "/frontend/HTML/login.html";
+      //   return;
+      // }
 
-      document.querySelectorAll(".menu h2").forEach(el => el.classList.remove("active"));
-      item.classList.add("active");
-      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-      document.getElementById(item.dataset.tab).classList.add("active");
-      renderEventsCache();
+    document.querySelectorAll(".menu h2").forEach(el => el.classList.remove("active"));
+    item.classList.add("active");
+    
+    document.querySelectorAll(".feed").forEach(feed => feed.classList.remove("active"));
+    const feedId = item.dataset.tab;
+    const feed = document.getElementById(feedId);
+    if (feed) feed.classList.add("active");
+    
+    // renderEventsCache(); //เปิดตอนมีAPI
     });
   });
 
@@ -105,15 +110,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderEventsCache() {
-    forYouFeed.innerHTML = ""; followFeed.innerHTML = "";
+    // forYouFeed.innerHTML = ""; 
+    // followFeed.innerHTML = "";
+
     cachedEvents.forEach(event => {
-      const card = createEventCard(event);
-      forYouFeed.appendChild(card);
-      if (isLoggedIn && event.hostsFollowing) { followFeed.appendChild(card.cloneNode(true)); }
+      // --- For You Feed ---
+      const cardForYou = createEventCard(event);
+      forYouFeed.appendChild(cardForYou);
+
+      // --- Follow Feed ---
+      if (isLoggedIn && event.hostsFollowing && event.hostsFollowing.includes(currentUserId)) {
+        const cardFollow = createEventCard(event, true);
+        followFeed.appendChild(cardFollow);
+      }
     });
   }
 
-  function createEventCard(event) {
+  function createEventCard(event, isFollowFeed = false) {
     const card = document.createElement("div");
     card.className = "event-card";
     card.dataset.eventId = event.id;
@@ -122,8 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let avatarHTML = "";
     if (event.hostAvatar && event.hostAvatar !== "") {
       avatarHTML = `<span class="avatar" style="background:none">
-                  <img src="${event.hostAvatar}" alt="${event.host}" />
-                </span>`;
+                      <img src="${event.hostAvatar}" alt="${event.host}" />
+                    </span>`;
     } else {
       const initial = event.host?.charAt(0).toUpperCase() || "U";
       const bgColor = getColorForUser(event.host || "U");
@@ -131,43 +144,72 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     card.innerHTML = `
-    <div class="event-header">
-      <div class="host-info">
-        ${avatarHTML}
-        <span class="host">${event.host}</span>
-        <small class="time">0 นาที</small>
+      <div class="event-header">
+        <div class="host-info">
+          ${avatarHTML}
+          <span class="host">${event.host}</span>
+          <small class="time">0 นาที</small>
+        </div>
+        <span class="status ${status}">${status.toUpperCase()}</span>
       </div>
-      <span class="status ${status}">${status.toUpperCase()}</span>
-    </div>
-    <div class="event-body">
-      <h3>${event.eventName}</h3>
-      <p>${event.description}</p>
-      <small>สถานที่: ${event.location || "ไม่ระบุ"}</small><br>
-      <small>เวลาเปิดรับ: ${event.startTime || ""} - ${event.endTime || ""}</small><br>
-      <small>ผู้เข้าร่วม: ${event.participants.length}/${event.maxParticipants || 0}</small>
-    </div>
-    <div class="event-footer">
-      <button class="join-btn" ${status === "closed" ? "disabled" : ""}>${status === "closed" ? "CLOSED" : "JOIN"}</button>
-    </div>
-  `;
+      <div class="event-body">
+        <h3>${event.eventName}</h3>
+        <p>${event.description}</p>
+        <small>สถานที่: ${event.location || "ไม่ระบุ"}</small><br>
+        <small>เวลาเปิดรับ: ${event.startTime || ""} - ${event.endTime || ""}</small><br>
+        <small>ผู้เข้าร่วม: ${event.participants.length}/${event.maxParticipants || 0}</small>
+      </div>
+      <div class="event-footer">
+        <button class="join-btn" ${status === "closed" ? "disabled" : ""}>
+          ${status === "closed" ? "CLOSED" : "JOIN"}
+        </button>
+      </div>
+    `;
+
+    if (event.participantsFollowing && event.participantsFollowing.length > 0) {
+      const divFriends = document.createElement("div");
+      divFriends.className = "friends-joined";
+      divFriends.innerHTML = `<span class="joined-text">เพื่อนของคุณเข้าร่วม Event นี้แล้ว</span>`;
+
+      const avatarsDiv = document.createElement("div");
+      avatarsDiv.className = "avatars";
+
+      event.participantsFollowing.forEach(user => {
+        const av = document.createElement("div");
+        av.className = "avatar";
+        av.innerHTML = `
+          <img src="${user.avatar || ''}" alt="${user.name || 'U'}" />
+          <div class="tooltip">${user.name}</div>
+        `;
+        avatarsDiv.appendChild(av);
+      });
+
+      divFriends.appendChild(avatarsDiv);
+      card.appendChild(divFriends);
+
+      divFriends.querySelectorAll(".avatar").forEach(av => {
+        av.addEventListener("mouseenter", () => {
+          const tip = av.querySelector(".tooltip");
+          if (tip) tip.style.visibility = "visible";
+        });
+        av.addEventListener("mouseleave", () => {
+          const tip = av.querySelector(".tooltip");
+          if (tip) tip.style.visibility = "hidden";
+        });
+      });
+    }
 
     const joinBtn = card.querySelector(".join-btn");
-
     joinBtn.addEventListener("click", e => {
       e.stopPropagation();
-      if (!isLoggedIn) {
-        alert("กรุณาเข้าสู่ระบบเพื่อเข้าร่วม");
-        window.location.href = "/frontend/HTML/login.html";
-        return;
-      }
+      if (!isLoggedIn) { window.location.href = "/frontend/HTML/login.html"; return; }
       joinEvent(event);
     });
 
     card.addEventListener("click", () => openPopup(event));
     return card;
   }
-
-  function updatePostStatus(event) {
+    function updatePostStatus(event) {
     const now = new Date(new Date().toLocaleString("en-US", { timeZone: TIMEZONE }));
     const isFull = (event.maxParticipants > 0 && event.participants?.length >= event.maxParticipants);
     const isExpired = event.endTime && new Date(event.endTime) < now;
