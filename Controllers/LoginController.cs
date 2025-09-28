@@ -53,10 +53,13 @@ namespace MonkeyAssenbly.Controllers
             return View();
         }
 
+        [HttpGet, HttpPost]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login");
         }
+
+
     }
 }

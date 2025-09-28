@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
         addMenuItem("ออกจากระบบ", async ()=> {
             try{
-                await fetch("/Account/Logout",{method:"POST"});
+                await fetch("/Login/Logout", { method: "POST" });
                 window.location.href = window.LoginUrl;
             } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
         });
@@ -148,20 +148,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     saveBtn?.addEventListener("click", async (e) => {
         e.preventDefault();
-        if(fileUpload.files.length === 0) return;
+        const avatarUrl = document.getElementById("avatar-url").value.trim();
+        const bio = bioInput.value.trim();
+        const username = usernameInput.value.trim();
 
-        const formData = new FormData();
-        formData.append("avatar", fileUpload.files[0]);
+        if (!avatarUrl) {
+            alert("กรุณาใส่ URL รูปภาพ");
+            return;
+        }
 
-        try{
-            const res = await fetch(`/Profile/UpdateAvatar`, { method:"POST", body: formData });
-            if(!res.ok) throw new Error("ไม่สามารถบันทึกได้");
+        try {
+            const res = await fetch(`/Profile/UpdateProfile`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ avatarUrl, bio, username })
+            });
+
+            if (!res.ok) throw new Error("ไม่สามารถบันทึกได้");
             const data = await res.json();
+
             profilePic.src = data.avatar;
+            profileBio.textContent = data.bio;
+            profileUsername.textContent = data.username;
             alert("บันทึกข้อมูลเรียบร้อยแล้ว");
-        } catch(err){
+        } catch (err) {
             console.error(err);
-            alert("เกิดข้อผิดพลาด: "+err.message);
+            alert("เกิดข้อผิดพลาด: " + err.message);
         }
     });
 

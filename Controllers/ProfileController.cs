@@ -75,5 +75,43 @@ namespace MonkeyAssenbly.Controllers
                 isFollowing = user.IsFollowing
             });
         }
+        [HttpPost]
+        public IActionResult UpdateProfile([FromBody] UpdateProfileRequest model)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null) return Unauthorized();
+
+            using var conn = new NpgsqlConnection(_connectionString);
+            conn.Open();
+
+            var sql = @"UPDATE ""UserDetailTable"" 
+                        SET user_firstname = @firstname, 
+                            bio = @bio,
+                            user_avatar = @avatar
+                        WHERE user_id = @userId";
+
+            using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("firstname", model.Username);
+            cmd.Parameters.AddWithValue("bio", model.Bio ?? "");
+            cmd.Parameters.AddWithValue("avatar", model.AvatarUrl ?? "");
+            cmd.Parameters.AddWithValue("userId", userId.Value);
+
+            var rows = cmd.ExecuteNonQuery();
+            if (rows == 0) return BadRequest(new { message = "Update failed" });
+
+            return Json(new
+            {
+                username = model.Username,
+                bio = model.Bio,
+                avatar = model.AvatarUrl
+            });
+        }
+
+        public class UpdateProfileRequest
+        {
+            public string Username { get; set; }
+            public string Bio { get; set; }
+            public string AvatarUrl { get; set; }
+        }
     }
 }
