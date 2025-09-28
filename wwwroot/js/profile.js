@@ -1,10 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ---------------- Check Login ----------------
-    let isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-    if (!isLoggedIn) {
-        window.location.href = window.LoginUrl;
-        return;
-    }
     // ---------------- Theme Toggle ----------------
     const root = document.documentElement;
     const toggle = document.getElementById("toggle");
@@ -24,17 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ---------------- Sidebar Menu ----------------
-    document.querySelectorAll(".menu h2").forEach(item => {
-        item.addEventListener("click", () => {
-            document.querySelectorAll(".menu h2").forEach(el => el.classList.remove("active"));
-            item.classList.add("active");
-        });
-    });
-
     const sidebarLinks = document.querySelectorAll(".sidebar a");
     sidebarLinks.forEach((link, index) => {
         link.addEventListener("click", e => {
-            e.preventDefault();
+            if(index === 2) e.preventDefault(); // ปุ่ม "+" เปิด modal
+
             sidebarLinks.forEach(el => el.classList.remove("active"));
             link.classList.add("active");
 
@@ -44,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 case 2: 
                     const modal = document.querySelector(".modal");
                     const textarea = document.querySelector("textarea");
-                    if(modal) {
+                    if(modal){
                         modal.style.display="flex"; 
                         textarea?.focus();
                     }
@@ -67,27 +55,15 @@ document.addEventListener("DOMContentLoaded", () => {
         menuList.appendChild(li);
     };
 
-    const setLoginState = state => {
-        isLoggedIn = state;
-        localStorage.setItem("isLoggedIn", state);
-        updateMenu();
-    };
-
     const updateMenu = () => {
         menuList.innerHTML = "";
-        if(!isLoggedIn){
-            addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
-            addMenuItem("สมัครสมาชิก", () => window.location.href = window.SignupUrl);
-        } else {
-            addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
-            addMenuItem("ออกจากระบบ", async ()=> {
-                try{
-                    await fetch("/Account/Logout",{method:"POST"});
-                    setLoginState(false);
-                    alert("ออกจากระบบเรียบร้อย");
-                } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
-            });
-        }
+        addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
+        addMenuItem("ออกจากระบบ", async ()=> {
+            try{
+                await fetch("/Account/Logout",{method:"POST"});
+                window.location.href = window.LoginUrl;
+            } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
+        });
     };
 
     let menuOpen = false;
@@ -132,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // -------- Load Profile Info --------
     const loadProfile = async () => {
         try {
-            const res = await fetch(`/api/profile/${userId}`);
+            const res = await fetch(`/Profile/GetProfile`);
             if(!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
             const data = await res.json();
 
@@ -159,30 +135,29 @@ document.addEventListener("DOMContentLoaded", () => {
     loadProfile();
 
     // -------- Edit Profile --------
-    editBtn?.addEventListener("click", () => {
+    editBtn?.addEventListener("click", (e) => {
+        e.preventDefault();
         if(role === "visitor"){ window.location.href = window.LoginUrl; return; }
         editModal.classList.add("show");
         usernameInput.value = profileUsername.textContent;
         bioInput.value = profileBio.textContent;
     });
 
-    cancelBtn?.addEventListener("click", () => editModal.classList.remove("show"));
+    cancelBtn?.addEventListener("click", (e) => { e.preventDefault(); editModal.classList.remove("show"); });
     editModal?.addEventListener("click", e => { if(e.target===editModal) editModal.classList.remove("show"); });
 
-    saveBtn?.addEventListener("click", async () => {
+    saveBtn?.addEventListener("click", async (e) => {
+        e.preventDefault();
+        if(fileUpload.files.length === 0) return;
+
         const formData = new FormData();
-        formData.append("username", usernameInput.value);
-        formData.append("bio", bioInput.value);
-        if(fileUpload.files.length>0) formData.append("avatar", fileUpload.files[0]);
+        formData.append("avatar", fileUpload.files[0]);
 
         try{
-            const res = await fetch(`/api/profile/${userId}`, { method:"PUT", body: formData });
+            const res = await fetch(`/Profile/UpdateAvatar`, { method:"POST", body: formData });
             if(!res.ok) throw new Error("ไม่สามารถบันทึกได้");
             const data = await res.json();
-            profileUsername.textContent = data.username;
-            profileBio.textContent = data.bio;
-            if(data.avatar) profilePic.src = data.avatar;
-            editModal.classList.remove("show");
+            profilePic.src = data.avatar;
             alert("บันทึกข้อมูลเรียบร้อยแล้ว");
         } catch(err){
             console.error(err);
@@ -191,7 +166,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // -------- Follow / Unfollow --------
-    followBtn?.addEventListener("click", async () => {
+    followBtn?.addEventListener("click", async (e) => {
+        e.preventDefault();
         if(role === "visitor"){ window.location.href = window.LoginUrl; return; }
         try{
             const action = followBtn.textContent==="Follow" ? "follow" : "unfollow";
@@ -212,7 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabContents = document.querySelectorAll(".tab-content");
 
     tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
+        tab.addEventListener("click", (e) => {
+            e.preventDefault();
             tabs.forEach(t=>t.classList.remove("active"));
             tabContents.forEach(c=>c.classList.remove("active"));
 

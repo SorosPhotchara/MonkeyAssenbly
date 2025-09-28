@@ -25,9 +25,9 @@
                 <td>@user.UserFirstname</td>
                 <td>@user.UserLastname</td>
                 <td>@user.UserGender</td>
-                <td>@user.UserBirthdate.ToString("yyyy-MM-dd")</td>
+                <td>@(user.UserBirthdate?.ToString("yyyy-MM-dd") ?? "")</td>
                 <td>@user.UserEmail</td>
-                <td>@(user.AccountId?.ToString() ?? "NULL")</td>
+                <td>@(user.AccountId.HasValue ? user.AccountId.Value.ToString() : "")</td>
             </tr>
         }
     </tbody>

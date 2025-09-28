@@ -40,29 +40,25 @@
 
     <div class="login-card">
         <h2>Login</h2>
-        <form>
+        <form asp-action="Login" method="post">
             <div class="input-group">
-                <input type="text" id="username" required />
-                <label for="username">User</label>
-                <i class="bx bx-user"></i> 
+                <input type="text" name="username" required />
+                <label>User</label>
             </div>
 
             <div class="input-group">
-                <input type="password" id="password" required />
-                <label for="password">Password</label>
-                 <i class="bx bx-hide toggle-password"></i>
+                <input type="password" name="password" required />
+                <label>Password</label>
             </div>
 
-            <div class="forget-container">
-                <a href="#" class="forget-link">Forgot Password?</a>
-            
-            </div>
-
-            <button class="login-btn">Login</button>
+            <button type="submit" class="login-btn">Login</button>
         </form>
-        <p>
-            Don’t have an account? <a href= @Url.Action("Signup", "Signup") class="sign-up">Sign up</a>
-        </p>
+
+        @if (ViewBag.Error != null)
+        {
+            <p style="color:red">@ViewBag.Error</p>
+        }
+
     </div>
     
     <script src="/js/login.js"></script>

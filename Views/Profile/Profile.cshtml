@@ -55,12 +55,16 @@
     <main class="profile-container">
         <div class="profile-card">
             <img src="/picture/logo.png" id="profile-pic" class="profile-pic">
-            <h2 id="profile-username">Username</h2>
-            <p id="profile-bio">คำอธิบายตัวเอง</p>
+            <!-- แสดงชื่อผู้ใช้จาก Session -->
+            <h2 id="profile-username">@ViewBag.FirstName @ViewBag.LastName</h2>
+            <!-- แสดง Email เป็น bio -->
+            <p id="profile-bio">@ViewBag.Email</p>
+
             <div class="follow-info">
                 <span><strong id="followers-count">0</strong> Followers</span>
                 <span><strong id="following-count">0</strong> Following</span>
             </div>
+
             <button id="edit-btn" class="edit-btn">Edit Profile</button>
             <button id="follow-btn" class="follow-btn hidden">Follow</button>
 
@@ -82,10 +86,10 @@
             <h3>แก้ไขโปรไฟล์</h3>
 
             <label for="username">ชื่อผู้ใช้</label>
-            <input type="text" id="username">
+            <input type="text" id="username" value="@ViewBag.FirstName @ViewBag.LastName">
 
             <label for="bio">คำอธิบายตัวเอง</label>
-            <textarea id="bio" rows="3"></textarea>
+            <textarea id="bio" rows="3">@ViewBag.Email</textarea>
 
             <label for="file-upload" class="file-label">เลือกรูปภาพ</label>
             <input type="file" id="file-upload">

@@ -1,83 +1,62 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Npgsql;
 using MonkeyAssenbly.Models;
+using System.Threading.Tasks;
+
 namespace MonkeyAssenbly.Controllers
 {
-    public class LoginController : BaseController
+    public class LoginController : Controller
     {
-        // GET: LoginController
+        private readonly string _connectionString;
+
+        public LoginController(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
+        }
+
+        [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-        // GET: LoginController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: LoginController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: LoginController/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Login(string username, string password)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+            await using var conn = new NpgsqlConnection(_connectionString);
+            await conn.OpenAsync();
 
-        // GET: LoginController/Edit/5
-        public ActionResult Edit(int id)
-        {
+            var sql = @"SELECT a.account_id, u.user_id, u.user_firstname, u.user_lastname, u.user_email
+                        FROM ""AccountTable"" a
+                        JOIN ""UserDetailTable"" u ON a.account_id = u.account_id
+                        WHERE a.username = @username AND a.passwd = @password;";
+
+            await using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("username", username);
+            cmd.Parameters.AddWithValue("password", password);
+
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            if (await reader.ReadAsync())
+            {
+                // บันทึก Session
+                HttpContext.Session.SetInt32("UserId", reader.GetInt32(1));
+                HttpContext.Session.SetString("FirstName", reader.GetString(2));
+                HttpContext.Session.SetString("LastName", reader.GetString(3));
+                HttpContext.Session.SetString("Email", reader.GetString(4));
+
+                return RedirectToAction("Profile", "Profile");
+            }
+
+            ViewBag.Error = "Invalid username or password";
             return View();
         }
 
-        // POST: LoginController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public IActionResult Logout()
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: LoginController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: LoginController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login");
         }
     }
 }
