@@ -488,18 +488,23 @@ html.dark .create-btn:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 90px;
+  padding-top: calc(70px + 20px);
   gap: 20px;
   padding-bottom: 20px;
 }
 
-/* -------------------- Feed Layout -------------------- */
 .feed {
-  display: grid;
+  display: none;
+  flex-direction: column; 
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
-  padding: 1rem;
+  padding: calc(70px + 20px) 1rem 20px 1rem;
   margin-top: 1rem;
+  justify-content: center;
+}
+
+.feed.active {
+  display: flex;
 }
 
 /* =======================
@@ -508,7 +513,7 @@ html.dark .create-btn:hover {
 .event-card {
   width: 100%;
   max-width: 400px;
-  margin: auto;   
+  margin: auto;
   background: var(--card-bg);
   color: var(--head-font);
   border-radius: 20px;
@@ -536,11 +541,25 @@ html.dark .create-btn:hover {
 }
 
 .avatar {
-  width: 35px;
-  height: 35px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  display: inline-block;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  overflow: hidden;
 }
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 
 .host {
   font-weight: 600;
@@ -586,8 +605,12 @@ html.dark .create-btn:hover {
 }
 
 .event-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 15px;
-  text-align: right;
+  gap: 10px; 
+  width: 100%;
 }
 
 .join-btn {
@@ -599,6 +622,10 @@ html.dark .create-btn:hover {
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
+}
+
+#for-you .event-footer .join-btn {
+  margin-left: auto; 
 }
 
 .join-btn:hover {
@@ -621,18 +648,77 @@ html.dark .join-btn:hover {
 }
 
 /* =======================
+   Friends Joined Section
+======================= */
+.friends-joined {
+  display: flex;
+  align-items: center;
+  gap: 8px;            
+  font-size: 13px;
+  color: var(--sub-font);
+  margin-top: 0; 
+}
+
+.avatars {
+  display: flex;
+  align-items: center;
+  gap: 4px;     
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--white);
+  position: relative;
+  cursor: pointer;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: max-content;
+  background: var(--head-font);
+  color: var(--bg);
+  text-align: left;
+  padding: 4px 8px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 10;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.joined-avatar:hover .tooltip {
+  visibility: visible;
+}
+
+/* =======================
    Event Popup
 ======================= */
 .event-popup {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 5000;
 }
-.event-popup.hidden { display: none; }
+
+.event-popup.hidden {
+  display: none;
+}
 
 .event-popup-content {
   background: #fff;
@@ -718,7 +804,7 @@ html.dark .join-btn:hover {
     margin-top: -25px;
     border-radius: 50%;
     background: var(--highlight);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   }
 
   .logo {
