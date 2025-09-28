@@ -27,15 +27,35 @@ namespace MonkeyAssenbly.Controllers
             return View();
         }
 
-        // GET: /Profile/GetProfile
+        // ---------------- ตรวจสอบสถานะ Login ----------------
+        [HttpGet]
+        public IActionResult CheckLoginStatus()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Json(new { isLoggedIn = false });
+            }
+
+            var firstName = HttpContext.Session.GetString("FirstName");
+            var lastName = HttpContext.Session.GetString("LastName");
+
+            return Json(new
+            {
+                isLoggedIn = true,
+                username = $"{firstName} {lastName}"
+            });
+        }
+
+        // ---------------- ดึงข้อมูลโปรไฟล์ ----------------
         [HttpGet]
         public IActionResult GetProfile()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if(userId == null) return Unauthorized();
+            if (userId == null) return Unauthorized();
 
             UserDetail user;
-            using(var conn = new NpgsqlConnection(_connectionString))
+            using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
                 var cmd = new NpgsqlCommand(
@@ -45,7 +65,7 @@ namespace MonkeyAssenbly.Controllers
                 cmd.Parameters.AddWithValue("id", userId.Value);
 
                 using var reader = cmd.ExecuteReader();
-                if(!reader.Read()) return NotFound();
+                if (!reader.Read()) return NotFound();
 
                 user = new UserDetail
                 {
@@ -64,7 +84,8 @@ namespace MonkeyAssenbly.Controllers
                 };
             }
 
-            return Json(new {
+            return Json(new
+            {
                 userId = user.UserId,
                 username = $"{user.UserFirstname} {user.UserLastname}",
                 email = user.UserEmail,
@@ -75,6 +96,8 @@ namespace MonkeyAssenbly.Controllers
                 isFollowing = user.IsFollowing
             });
         }
+
+        // ---------------- แก้ไขโปรไฟล์ ----------------
         [HttpPost]
         public IActionResult UpdateProfile([FromBody] UpdateProfileRequest model)
         {
@@ -86,12 +109,14 @@ namespace MonkeyAssenbly.Controllers
 
             var sql = @"UPDATE ""UserDetailTable"" 
                         SET user_firstname = @firstname, 
+                            user_lastname = @lastname, 
                             bio = @bio,
                             user_avatar = @avatar
                         WHERE user_id = @userId";
 
             using var cmd = new NpgsqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("firstname", model.Username);
+            cmd.Parameters.AddWithValue("firstname", model.FirstName);
+            cmd.Parameters.AddWithValue("lastname", model.LastName);
             cmd.Parameters.AddWithValue("bio", model.Bio ?? "");
             cmd.Parameters.AddWithValue("avatar", model.AvatarUrl ?? "");
             cmd.Parameters.AddWithValue("userId", userId.Value);
@@ -101,15 +126,17 @@ namespace MonkeyAssenbly.Controllers
 
             return Json(new
             {
-                username = model.Username,
+                username = $"{model.FirstName} {model.LastName}",
                 bio = model.Bio,
                 avatar = model.AvatarUrl
             });
         }
 
+        // ---------------- Model สำหรับรับข้อมูล ----------------
         public class UpdateProfileRequest
         {
-            public string Username { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
             public string Bio { get; set; }
             public string AvatarUrl { get; set; }
         }

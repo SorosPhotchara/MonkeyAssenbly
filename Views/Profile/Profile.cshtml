@@ -85,9 +85,12 @@
         <div class="modal-content">
             <h3>แก้ไขโปรไฟล์</h3>
 
-            <label for="username">ชื่อผู้ใช้</label>
-            <input type="text" id="username" value="@ViewBag.FirstName @ViewBag.LastName">
+             <label for="first-name">First Name</label>
+            <input type="text" id="first-name" value="@ViewBag.FirstName" placeholder="First Name">
 
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" value="@ViewBag.LastName" placeholder="Last Name">
+            
             <label for="bio">คำอธิบายตัวเอง</label>
             <textarea id="bio" rows="3">@ViewBag.Email</textarea>
 

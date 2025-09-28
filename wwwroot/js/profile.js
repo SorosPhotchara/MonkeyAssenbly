@@ -55,16 +55,38 @@ document.addEventListener("DOMContentLoaded", () => {
         menuList.appendChild(li);
     };
 
-    const updateMenu = () => {
-        menuList.innerHTML = "";
-        addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
-        addMenuItem("ออกจากระบบ", async ()=> {
-            try{
-                await fetch("/Login/Logout", { method: "POST" });
-                window.location.href = window.LoginUrl;
-            } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
-        });
+    const updateMenu = async () => {
+        try {
+            const res = await fetch("/Profile/CheckLoginStatus", {
+                method: "GET",
+                credentials: "same-origin"  // ต้องใส่เพื่อส่ง cookie session
+            });
+            const data = await res.json();
+
+            // 🟢 Debug จุดสำคัญ
+            console.log("CheckLoginStatus:", data); 
+            console.log("menuList element:", menuList);
+
+            menuList.innerHTML = "";
+
+            if (data.isLoggedIn) {
+                addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
+                addMenuItem("ออกจากระบบ", async () => {
+                    await fetch("/Login/Logout", {
+                        method: "POST",
+                        credentials: "same-origin"
+                    });
+                    window.location.href = window.LoginUrl;
+                });
+            } else {
+                addMenuItem("Log in", () => window.location.href = window.LoginUrl);
+                addMenuItem("Sign up", () => window.location.href = window.SignupUrl);
+            }
+        } catch (err) {
+            console.error("Error checking login status:", err);
+        }
     };
+
 
     let menuOpen = false;
     const toggleMenu = open => {
@@ -109,29 +131,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const loadProfile = async () => {
         try {
             const res = await fetch(`/Profile/GetProfile`);
-            if(!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
+            if (!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
             const data = await res.json();
+
+            // แยกชื่อเต็มออกเป็น first และ last
+            const fullName = data.username.split(" ");
+            document.getElementById("first-name").value = fullName[0] || "";
+            document.getElementById("last-name").value = fullName[1] || "";
 
             profileUsername.textContent = data.username;
             profileBio.textContent = data.bio;
             profilePic.src = data.avatar || "/uploads/default-avatar.png";
             followersCount.textContent = data.followers;
             followingCount.textContent = data.following;
-
-            if(role === "visitor") {
-                editBtn?.classList.add("hidden");
-                followBtn?.classList.remove("hidden");
-                followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
-                followBtn.classList.toggle("following", data.isFollowing);
-            } else {
-                followBtn?.classList.add("hidden");
-                editBtn?.classList.remove("hidden");
-            }
-        } catch(err) {
+        } catch (err) {
             console.error(err);
             alert("เกิดข้อผิดพลาดในการโหลดโปรไฟล์");
         }
     };
+
     loadProfile();
 
     // -------- Edit Profile --------
@@ -148,12 +166,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     saveBtn?.addEventListener("click", async (e) => {
         e.preventDefault();
+
         const avatarUrl = document.getElementById("avatar-url").value.trim();
         const bio = bioInput.value.trim();
-        const username = usernameInput.value.trim();
+        const firstName = document.getElementById("first-name").value.trim();
+        const lastName = document.getElementById("last-name").value.trim();
 
-        if (!avatarUrl) {
-            alert("กรุณาใส่ URL รูปภาพ");
+        if (!firstName || !lastName) {
+            alert("กรุณากรอกชื่อและนามสกุล");
             return;
         }
 
@@ -161,21 +181,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch(`/Profile/UpdateProfile`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ avatarUrl, bio, username })
+                body: JSON.stringify({
+                    firstName: firstName,
+                    lastName: lastName,
+                    bio: bio,
+                    avatarUrl: avatarUrl
+                })
             });
 
             if (!res.ok) throw new Error("ไม่สามารถบันทึกได้");
             const data = await res.json();
 
-            profilePic.src = data.avatar;
-            profileBio.textContent = data.bio;
             profileUsername.textContent = data.username;
+            profileBio.textContent = data.bio;
+            profilePic.src = data.avatar;
             alert("บันทึกข้อมูลเรียบร้อยแล้ว");
         } catch (err) {
             console.error(err);
             alert("เกิดข้อผิดพลาด: " + err.message);
         }
     });
+
 
     // -------- Follow / Unfollow --------
     followBtn?.addEventListener("click", async (e) => {
@@ -210,4 +236,5 @@ document.addEventListener("DOMContentLoaded", () => {
             if(target) target.classList.add("active");
         });
     });
+    updateMenu();
 });
