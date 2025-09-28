@@ -20,15 +20,18 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- Sidebar Tabs ----------------
   document.querySelectorAll(".menu h2").forEach(item => {
     item.addEventListener("click", () => {
-      if (!isLoggedIn && item.dataset.tab==="follow") {
-        window.location.href=window.LoginUrl;
-        return;
-      }
+      // รอ ใช้งานค่อยเปิด
+      // if (!isLoggedIn && item.dataset.tab === "follow") {
+      //   window.location.href = "/frontend/HTML/login.html";
+      //   return;
+      // }
+
 
       document.querySelectorAll(".menu h2").forEach(el=>el.classList.remove("active"));
       item.classList.add("active");
-      document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
       document.getElementById(item.dataset.tab).classList.add("active");
+
       renderEventsCache();
     });
   });
@@ -74,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const forYouFeed = document.getElementById("for-you");
   const followFeed = document.getElementById("follow");
   let cachedEvents=[];
+  
 
   async function loadEvents(){
     try{
@@ -88,11 +92,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderEventsCache(){
-    forYouFeed.innerHTML=""; followFeed.innerHTML="";
-    cachedEvents.forEach(event=>{
-      const card = createEventCard(event);
-      forYouFeed.appendChild(card);
-      if(isLoggedIn && event.hostsFollowing){ followFeed.appendChild(card.cloneNode(true)); }
+    // forYouFeed.innerHTML=""; 
+    // followFeed.innerHTML="";
+
+    cachedEvents.forEach(event => {
+      // --- For You Feed ---
+      const cardForYou = createEventCard(event);
+      forYouFeed.appendChild(cardForYou);
+
+      // --- Follow Feed ---
+      if (isLoggedIn && event.hostsFollowing && event.hostsFollowing.includes(currentUserId)) {
+        const cardFollow = createEventCard(event, true);
+        followFeed.appendChild(cardFollow);
+      }
     });
   }
 
@@ -100,10 +112,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const card = document.createElement("div");
     card.className="event-card"; card.dataset.eventId=event.id;
     const status = updatePostStatus(event);
-    card.innerHTML=`
+
+    card.innerHTML = `
       <div class="event-header">
         <div class="host-info">
-          <span class="avatar" style="background:purple"></span>
+          ${avatarHTML}
           <span class="host">${event.host}</span>
           <small class="time">0 นาที</small>
         </div>
@@ -112,12 +125,14 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="event-body">
         <h3>${event.eventName}</h3>
         <p>${event.description}</p>
-        <small>สถานที่: ${event.location||"ไม่ระบุ"}</small><br>
-        <small>เวลาเปิดรับ: ${event.startTime||""} - ${event.endTime||""}</small><br>
-        <small>ผู้เข้าร่วม: ${event.participants.length}/${event.maxParticipants||0}</small>
+        <small>สถานที่: ${event.location || "ไม่ระบุ"}</small><br>
+        <small>เวลาเปิดรับ: ${event.startTime || ""} - ${event.endTime || ""}</small><br>
+        <small>ผู้เข้าร่วม: ${event.participants.length}/${event.maxParticipants || 0}</small>
       </div>
       <div class="event-footer">
-        <button class="join-btn" ${status==="closed"?"disabled":""}>${status==="closed"?"CLOSED":"JOIN"}</button>
+        <button class="join-btn" ${status === "closed" ? "disabled" : ""}>
+          ${status === "closed" ? "CLOSED" : "JOIN"}
+        </button>
       </div>
     `;
 

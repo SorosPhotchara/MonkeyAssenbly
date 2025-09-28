@@ -4,12 +4,13 @@
 }
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/166/166749.png">
-    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="~/css/login.css">
     <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -21,6 +22,7 @@
         window.SignupUrl = '@ViewBag.SignupUrl';
     </script>
 </head>
+
 <body>
     <!-- Header -->
     <header class="navbar">
@@ -51,8 +53,14 @@
                 <label>Password</label>
             </div>
 
+            <div class="forget-container">
+                <a href="#" class="forget-link">Forgot Password?</a>
+            </div>
+
             <button type="submit" class="login-btn">Login</button>
         </form>
+
+        <p>Don’t have an account? <a href="@ViewBag.SignupUrl" class="sign-up">Sign up</a></p>
 
         @if (ViewBag.Error != null)
         {
@@ -60,7 +68,8 @@
         }
 
     </div>
-    
+
     <script src="/js/login.js"></script>
 </body>
+
 </html>

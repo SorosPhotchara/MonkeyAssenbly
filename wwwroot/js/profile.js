@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const SERVER_URL = "http://localhost:3000";
+    const TIMEZONE = "Asia/Bangkok";
+    let currentUserId = localStorage.getItem("userId") || "";
+    let isLoggedIn = !!currentUserId;
+
     // ---------------- Theme Toggle ----------------
     const root = document.documentElement;
     const toggle = document.getElementById("toggle");

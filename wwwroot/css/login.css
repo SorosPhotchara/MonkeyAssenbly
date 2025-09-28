@@ -326,6 +326,7 @@ html.dark .login-btn:hover {
   text-decoration: none;
   color: var(--border);
   transition: 0.2s;
+  cursor: pointer;
 }
 
 .login-card p .sign-up:hover {
