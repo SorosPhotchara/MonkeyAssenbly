@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Reflection.Metadata.Ecma335;
+using System.Globalization;
 
 [ApiController]
 [Route("[controller]")]
@@ -59,6 +60,23 @@ public class PostController : Controller
         }
 
         return Ok(posts);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult CreatePost(
+            string eventName,
+            string description,
+            string location,
+            string lastNhostame,
+            string gender,
+            string birthdate,
+            string email,
+            string avatarUrl,
+            string bio)
+    {
+        var res = "got it man";
+        return Ok(res);
     }
 
 }

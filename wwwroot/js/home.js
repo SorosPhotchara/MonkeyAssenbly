@@ -88,13 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch(err){
       console.error("Error fetching events:", err);
       cachedEvents = [];
-      //renderEventsCache();
+      renderEventsCache();
     }
   }
 
   function renderEventsCache(){
-    // forYouFeed.innerHTML=""; 
-    // followFeed.innerHTML="";
+     forYouFeed.innerHTML=""; 
+     followFeed.innerHTML="";
 
     cachedEvents.forEach(event => {
       // --- For You Feed ---
@@ -113,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const card = document.createElement("div");
     card.className="event-card"; card.dataset.eventId=event.id;
     const status = updatePostStatus(event);
-
+    const avatarHTML = `<img src="${event.avatar}" alt="avatar" class="avatar">`;
     card.innerHTML = `
       <div class="event-header">
         <div class="host-info">
