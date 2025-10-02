@@ -1,0 +1,64 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Npgsql;
+using System.Reflection.Metadata.Ecma335;
+
+[ApiController]
+[Route("[controller]")]
+public class PostController : Controller
+{
+    private readonly string _connectionString;
+
+    public PostController(IConfiguration configuration)
+    {
+        _connectionString = configuration.GetConnectionString("DefaultConnection");
+    }
+ 
+    [HttpGet("GetAllPost")]
+    public IActionResult GetAllPost()
+    {
+        var posts = new List<object>();
+
+        using (var connection = new NpgsqlConnection(_connectionString))
+        {
+            connection.Open();
+
+            var sql = @"
+            SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+                   p.post_time_open, p.post_time_close, 
+                   p.post_date_open, p.post_date_close,
+                   p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                   u.user_firstname, u.user_lastname, u.user_avatar
+            FROM ""PostTable"" p
+            JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id";
+
+            using var command = new NpgsqlCommand(sql, connection);
+            using var reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                posts.Add(new
+                {
+                    id = reader.GetInt32(reader.GetOrdinal("post_id")),
+                    eventName = reader.GetString(reader.GetOrdinal("post_titile")),
+                    description = reader.GetString(reader.GetOrdinal("post_descript")),
+                    location = reader.GetString(reader.GetOrdinal("post_place")),
+                    host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                    avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
+                             ? "/uploads/default-avatar.png"
+                             : reader.GetString(reader.GetOrdinal("user_avatar")),
+                    startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
+                    endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
+                    dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
+                    dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
+                    maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
+                    currentParticipants = reader.GetInt32(reader.GetOrdinal("post_current_paticipants")),
+                    participants = new List<string>(),
+                    status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+                });
+            }
+        }
+
+        return Ok(posts);
+    }
+
+}

@@ -81,13 +81,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadEvents(){
     try{
-      const res = await fetch(`${SERVER_URL}/events`);
-      cachedEvents = await res.json();
-      renderEventsCache();
+        const res = await fetch(`/Post/GetAllPost`);
+        if (!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
+        cachedEvents = await res.json();
+        renderEventsCache();
     } catch(err){
       console.error("Error fetching events:", err);
       cachedEvents = [];
-      renderEventsCache();
+      //renderEventsCache();
     }
   }
 
