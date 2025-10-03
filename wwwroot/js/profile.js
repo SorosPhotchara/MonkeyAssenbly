@@ -248,8 +248,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // -------- Load Posts & History --------
     const loadYourPosts = async () => {
-        let user_id = localStorage.getItem("userId");
-        const res = await fetch(`GetMyPost/${user_id}`);
+        //let user_id = localStorage.getItem("userId");
+        const res = await fetch(`GetMyPost/${data.userId}`);
         console.log(res);
         //try {
         //    const res = await fetch(`/Post/GetMyPost/${currentUserId}`);
