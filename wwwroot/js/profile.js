@@ -143,10 +143,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const fullName = data.username.split(" ");
             document.getElementById("first-name").value = fullName[0] || "";
             document.getElementById("last-name").value = fullName[1] || "";
+            const avatarInput = document.getElementById("avatar-url");
 
             profileUsername.textContent = data.username;
             profileBio.textContent = data.bio;
-            profilePic.src = data.avatar || "/uploads/default-avatar.png";
+            profilePic.src = data.avatar ;
+            avatarInput.value = data.avatar ;
+
             followersCount.textContent = data.followers;
             followingCount.textContent = data.following;
         } catch (err) {
@@ -200,7 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
             profileUsername.textContent = data.username;
             profileBio.textContent = data.bio;
             profilePic.src = data.avatar;
-            alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+            // alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+            editModal.classList.remove("show");
         } catch (err) {
             console.error(err);
             alert("เกิดข้อผิดพลาด: " + err.message);
