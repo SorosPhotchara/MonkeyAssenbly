@@ -169,6 +169,18 @@ document.addEventListener("DOMContentLoaded", () => {
         bioInput.value = profileBio.textContent;
     });
 
+    function showToast(message, duration = 3000) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+        toast.classList.remove("hidden");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+            toast.classList.add("hidden");
+        }, duration);
+    }
+    
     cancelBtn?.addEventListener("click", (e) => { e.preventDefault(); editModal.classList.remove("show"); });
     editModal?.addEventListener("click", e => { if(e.target===editModal) editModal.classList.remove("show"); });
 
@@ -203,8 +215,8 @@ document.addEventListener("DOMContentLoaded", () => {
             profileUsername.textContent = data.username;
             profileBio.textContent = data.bio;
             profilePic.src = data.avatar;
-            // alert("บันทึกข้อมูลเรียบร้อยแล้ว");
-            editModal.classList.remove("show");
+            showToast("บันทึกข้อมูลเรียบร้อยแล้ว");
+            editModal.classList.remove("show"); 
         } catch (err) {
             console.error(err);
             alert("เกิดข้อผิดพลาด: " + err.message);
