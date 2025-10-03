@@ -399,6 +399,50 @@ html.dark .sidebar a.add:hover i {
   background: var(--following-color);
 }
 
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--border);
+  color: var(--white);
+  padding: 12px 25px;
+  border-radius: 25px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.toast.show {
+  animation: toast-in-out 3s ease forwards;
+}
+
+@keyframes toast-in-out {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px) scale(0.8);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1.05);
+  }
+  20% {
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px) scale(0.8);
+  }
+}
+
+
 /* =======================
    Tabs
 ======================= */
