@@ -244,64 +244,71 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // -------- Load Posts & History --------
     const loadYourPosts = async () => {
-        try {
-            const res = await fetch(`/Profile/GetPosts`);
-            if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
-            const posts = await res.json();
-            const container = document.getElementById("your-posts");
+        let user_id = localStorage.getItem("userId");
+        const res = await fetch(`GetMyPost/${user_id}`);
+        console.log(res);
+        //try {
+        //    const res = await fetch(`/Post/GetMyPost/${currentUserId}`);
+        //    if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
+        //    const posts = await res.json();
+        //    const container = document.getElementById("your-posts");
             
-            if(posts.length === 0){
-                container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
-                return;
-            }
+        //    if (posts.length === 0) {
+        //        console.log(currentUserId);
+        //        container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
+        //        return;
+        //    }
 
-            container.innerHTML = "";
-            posts.forEach(p => {
-                const div = document.createElement("div");
-                div.className = "post-item";
-                div.innerHTML = `
-                    <h4>${p.title}</h4>
-                    <p>${p.content}</p>
-                    <small>${new Date(p.date).toLocaleString("th-TH")}</small>
-                `;
-                container.appendChild(div);
-            });
-        } catch (err) {
-            console.error(err);
-            document.getElementById("your-posts").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดโพสต์</p>";
-        }
+        //    container.innerHTML = "";
+        //    console.log("User posts:", posts);
+        //    console.log("Fetching my post:", currentUserId);
+
+        //    posts.forEach(p => {
+        //        const div = document.createElement("div");
+        //        div.className = "post-item";
+        //        div.innerHTML = `
+        //            <h4>${p.eventName}</h4>
+        //            <p>${p.description}</p>
+        //            <small>${new Date(p.dateOpen).toLocaleString("th-TH")}</small>
+        //        `;
+        //        container.appendChild(div);
+        //    });
+        //} catch (err) {
+        //    console.error(err);
+        //    document.getElementById("your-posts").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดโพสต์</p>";
+        //}
     };
 
-    const loadHistory = async () => {
-        try {
-            const res = await fetch(`/Profile/GetHistory`);
-            if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
-            const history = await res.json();
-            const container = document.getElementById("history");
+    //const loadHistory = async () => {
+    //    try {
+    //        const res = await fetch(`/Profile/GetHistory`);
+    //        if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
+    //        const history = await res.json();
+    //        const container = document.getElementById("history");
 
-            if(history.length === 0){
-                container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
-                return;
-            }
+    //        if(history.length === 0){
+    //            container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
+    //            return;
+    //        }
 
-            container.innerHTML = "";
-            history.forEach(h => {
-                const div = document.createElement("div");
-                div.className = "history-item";
-                div.innerHTML = `
-                    <p>${h.event}</p>
-                    <small>${new Date(h.date).toLocaleString("th-TH")}</small>
-                `;
-                container.appendChild(div);
-            });
-        } catch (err) {
-            console.error(err);
-            document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
-        }
-    };
+    //        container.innerHTML = "";
+    //        history.forEach(h => {
+    //            const div = document.createElement("div");
+    //            div.className = "history-item";
+    //            div.innerHTML = `
+    //                <p>${h.event}</p>
+    //                <small>${new Date(h.date).toLocaleString("th-TH")}</small>
+    //            `;
+    //            container.appendChild(div);
+    //        });
+    //    } catch (err) {
+    //        console.error(err);
+    //        document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
+    //    }
+    //};
 
     loadYourPosts();
-    loadHistory();
+    //loadHistory();
 
     updateMenu();
 });
