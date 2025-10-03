@@ -233,13 +233,75 @@ document.addEventListener("DOMContentLoaded", () => {
     tabs.forEach(tab => {
         tab.addEventListener("click", (e) => {
             e.preventDefault();
-            tabs.forEach(t=>t.classList.remove("active"));
-            tabContents.forEach(c=>c.classList.remove("active"));
+            tabs.forEach(t => t.classList.remove("active"));
+            tabContents.forEach(c => c.classList.remove("active"));
 
             tab.classList.add("active");
             const target = document.getElementById(tab.dataset.tab);
             if(target) target.classList.add("active");
         });
     });
+
+    // -------- Load Posts & History --------
+    const loadYourPosts = async () => {
+        try {
+            const res = await fetch(`/Profile/GetPosts`);
+            if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
+            const posts = await res.json();
+            const container = document.getElementById("your-posts");
+            
+            if(posts.length === 0){
+                container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            posts.forEach(p => {
+                const div = document.createElement("div");
+                div.className = "post-item";
+                div.innerHTML = `
+                    <h4>${p.title}</h4>
+                    <p>${p.content}</p>
+                    <small>${new Date(p.date).toLocaleString("th-TH")}</small>
+                `;
+                container.appendChild(div);
+            });
+        } catch (err) {
+            console.error(err);
+            document.getElementById("your-posts").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดโพสต์</p>";
+        }
+    };
+
+    const loadHistory = async () => {
+        try {
+            const res = await fetch(`/Profile/GetHistory`);
+            if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
+            const history = await res.json();
+            const container = document.getElementById("history");
+
+            if(history.length === 0){
+                container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            history.forEach(h => {
+                const div = document.createElement("div");
+                div.className = "history-item";
+                div.innerHTML = `
+                    <p>${h.event}</p>
+                    <small>${new Date(h.date).toLocaleString("th-TH")}</small>
+                `;
+                container.appendChild(div);
+            });
+        } catch (err) {
+            console.error(err);
+            document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
+        }
+    };
+
+    loadYourPosts();
+    loadHistory();
+
     updateMenu();
 });
