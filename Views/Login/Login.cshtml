@@ -60,7 +60,7 @@
             <button type="submit" class="login-btn">Login</button>
         </form>
 
-        <p>Don’t have an account? <a href="@ViewBag.SignupUrl" class="sign-up">Sign up</a></p>
+        <p>Don’t have an account? <a href=@Url.Action("Signup", "Signup") class="sign-up">Sign up</a></p>
 
         @if (ViewBag.Error != null)
         {

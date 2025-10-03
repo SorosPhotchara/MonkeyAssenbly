@@ -20,12 +20,50 @@ namespace MonkeyAssenbly.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Login");
 
-            ViewBag.FirstName = HttpContext.Session.GetString("FirstName");
-            ViewBag.LastName = HttpContext.Session.GetString("LastName");
-            ViewBag.Email = HttpContext.Session.GetString("Email");
+            UserDetail user;
+            using (var conn = new NpgsqlConnection(_connectionString))
+            {
+                conn.Open();
+                var cmd = new NpgsqlCommand(
+                    @"SELECT user_firstname, user_lastname, user_email, bio, user_avatar
+                    FROM ""UserDetailTable""
+                    WHERE user_id = @id", conn);
+                cmd.Parameters.AddWithValue("id", userId.Value);
 
-            return View();
+                using var reader = cmd.ExecuteReader();
+                if (!reader.Read()) return NotFound();
+
+                user = new UserDetail
+                {
+                    UserId = userId.Value,
+                    UserFirstname = reader.GetString(0),
+                    UserLastname = reader.GetString(1),
+                    UserEmail = reader.GetString(2),
+                    Bio = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                    UserAvatar = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    Followers = 0,
+                    Following = 0,
+                    IsFollowing = false
+                };
+            }
+
+            var model = new ProfileModel
+            {
+                UserId = user.UserId,
+                FirstName = user.UserFirstname,
+                LastName = user.UserLastname,
+                Email = user.UserEmail,
+                Bio = user.Bio,
+                AvatarUrl = user.UserAvatar,
+                Followers = user.Followers,
+                Following = user.Following,
+                IsFollowing = user.IsFollowing
+            };
+
+            return View(model); // ส่ง model ไปยัง View
         }
+
+
 
         // ---------------- ตรวจสอบสถานะ Login ----------------
         [HttpGet]
@@ -77,7 +115,7 @@ namespace MonkeyAssenbly.Controllers
                     UserBirthdate = reader.GetDateTime(4),
                     AccountId = reader.GetInt32(5),
                     Bio = reader.IsDBNull(6) ? "" : reader.GetString(6),
-                    UserAvatar = reader.IsDBNull(7) ? "/uploads/default-avatar.png" : reader.GetString(7),
+                    UserAvatar = reader.IsDBNull(7) ? null : reader.GetString(7),
                     Followers = 0,
                     Following = 0,
                     IsFollowing = false
@@ -131,7 +169,28 @@ namespace MonkeyAssenbly.Controllers
                 avatar = model.AvatarUrl
             });
         }
+        [HttpGet]
+        public IActionResult GetSessionData()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var firstName = HttpContext.Session.GetString("FirstName");
+            var lastName = HttpContext.Session.GetString("LastName");
+            var email = HttpContext.Session.GetString("Email");
 
+            if (userId == null)
+            {
+                return Json(new { isLoggedIn = false });
+            }
+
+            return Json(new
+            {
+                isLoggedIn = true,
+                userId = userId,
+                firstName = firstName,
+                lastName = lastName,
+                email = email
+            });
+        }
         // ---------------- Model สำหรับรับข้อมูล ----------------
         public class UpdateProfileRequest
         {

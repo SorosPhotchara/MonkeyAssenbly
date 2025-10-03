@@ -143,10 +143,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const fullName = data.username.split(" ");
             document.getElementById("first-name").value = fullName[0] || "";
             document.getElementById("last-name").value = fullName[1] || "";
+            const avatarInput = document.getElementById("avatar-url");
 
             profileUsername.textContent = data.username;
             profileBio.textContent = data.bio;
-            profilePic.src = data.avatar || "/uploads/default-avatar.png";
+            profilePic.src = data.avatar ;
+            avatarInput.value = data.avatar ;
+
             followersCount.textContent = data.followers;
             followingCount.textContent = data.following;
         } catch (err) {
@@ -254,28 +257,57 @@ document.addEventListener("DOMContentLoaded", () => {
             if(target) target.classList.add("active");
         });
     });
+    const getSessionData = async () => {
+        try {
+            const res = await fetch("/Profile/GetSessionData", {
+                method: "GET",
+                credentials: "same-origin"
+            });
+
+            const data = await res.json();
+            if (data.isLoggedIn) {
+                console.log("Session:", data);
+                return data;  // ✅ ส่งข้อมูลออกไป
+            } else {
+                console.log("ยังไม่ได้ล็อกอิน");
+                return null;
+            }
+        } catch (err) {
+            console.error("Error fetching session:", err);
+            return null;
+        }
+    };
 
     // -------- Load Posts & History --------
     const loadYourPosts = async () => {
+        const session = await getSessionData();
+        if (!session) return;
+        console.log("useridddd",session.userId);
+        //const res = await fetch(`GetMyPost/${session.userId}`);
+         //console.log(res);
         try {
-            const res = await fetch(`/Profile/GetPosts`);
+            const res = await fetch(`/Post/GetMyPost/${session.userId}`);
             if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
             const posts = await res.json();
             const container = document.getElementById("your-posts");
             
-            if(posts.length === 0){
+            if (posts.length === 0) {
+                console.log(currentUserId);
                 container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
                 return;
             }
 
             container.innerHTML = "";
+            console.log("User posts:", posts);
+            console.log("Fetching my post:", currentUserId);
+
             posts.forEach(p => {
                 const div = document.createElement("div");
                 div.className = "post-item";
                 div.innerHTML = `
-                    <h4>${p.title}</h4>
-                    <p>${p.content}</p>
-                    <small>${new Date(p.date).toLocaleString("th-TH")}</small>
+                    <h4>${p.eventName}</h4>
+                    <p>${p.description}</p>
+                    <small>${new Date(p.dateOpen).toLocaleString("th-TH")}</small>
                 `;
                 container.appendChild(div);
             });
@@ -285,36 +317,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const loadHistory = async () => {
-        try {
-            const res = await fetch(`/Profile/GetHistory`);
-            if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
-            const history = await res.json();
-            const container = document.getElementById("history");
+    //const loadHistory = async () => {
+    //    try {
+    //        const res = await fetch(`/Profile/GetHistory`);
+    //        if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
+    //        const history = await res.json();
+    //        const container = document.getElementById("history");
 
-            if(history.length === 0){
-                container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
-                return;
-            }
+    //        if(history.length === 0){
+    //            container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
+    //            return;
+    //        }
 
-            container.innerHTML = "";
-            history.forEach(h => {
-                const div = document.createElement("div");
-                div.className = "history-item";
-                div.innerHTML = `
-                    <p>${h.event}</p>
-                    <small>${new Date(h.date).toLocaleString("th-TH")}</small>
-                `;
-                container.appendChild(div);
-            });
-        } catch (err) {
-            console.error(err);
-            document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
-        }
-    };
+    //        container.innerHTML = "";
+    //        history.forEach(h => {
+    //            const div = document.createElement("div");
+    //            div.className = "history-item";
+    //            div.innerHTML = `
+    //                <p>${h.event}</p>
+    //                <small>${new Date(h.date).toLocaleString("th-TH")}</small>
+    //            `;
+    //            container.appendChild(div);
+    //        });
+    //    } catch (err) {
+    //        console.error(err);
+    //        document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
+    //    }
+    //};
 
     loadYourPosts();
-    loadHistory();
+    //loadHistory();
 
     updateMenu();
 });
