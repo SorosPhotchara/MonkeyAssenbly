@@ -169,7 +169,28 @@ namespace MonkeyAssenbly.Controllers
                 avatar = model.AvatarUrl
             });
         }
+        [HttpGet]
+        public IActionResult GetSessionData()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            var firstName = HttpContext.Session.GetString("FirstName");
+            var lastName = HttpContext.Session.GetString("LastName");
+            var email = HttpContext.Session.GetString("Email");
 
+            if (userId == null)
+            {
+                return Json(new { isLoggedIn = false });
+            }
+
+            return Json(new
+            {
+                isLoggedIn = true,
+                userId = userId,
+                firstName = firstName,
+                lastName = lastName,
+                email = email
+            });
+        }
         // ---------------- Model สำหรับรับข้อมูล ----------------
         public class UpdateProfileRequest
         {

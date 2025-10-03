@@ -245,12 +245,34 @@ document.addEventListener("DOMContentLoaded", () => {
             if(target) target.classList.add("active");
         });
     });
+    const getSessionData = async () => {
+        try {
+            const res = await fetch("/Profile/GetSessionData", {
+                method: "GET",
+                credentials: "same-origin"
+            });
+
+            const data = await res.json();
+            if (data.isLoggedIn) {
+                console.log("Session:", data);
+                return data;  // ✅ ส่งข้อมูลออกไป
+            } else {
+                console.log("ยังไม่ได้ล็อกอิน");
+                return null;
+            }
+        } catch (err) {
+            console.error("Error fetching session:", err);
+            return null;
+        }
+    };
 
     // -------- Load Posts & History --------
     const loadYourPosts = async () => {
-        //let user_id = localStorage.getItem("userId");
-        const res = await fetch(`GetMyPost/${data.userId}`);
-        console.log(res);
+        const session = await getSessionData();
+        if (!session) return;
+        console.log("useridddd",session.userId);
+        const res = await fetch(`GetMyPost/${session.userId}`);
+        // console.log(res);
         //try {
         //    const res = await fetch(`/Post/GetMyPost/${currentUserId}`);
         //    if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
