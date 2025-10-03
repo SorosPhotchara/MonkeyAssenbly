@@ -37,6 +37,10 @@ public class PostController : Controller
 
             while (reader.Read())
             {
+                int[] currentParticipantsArray = reader.IsDBNull(reader.GetOrdinal("post_current_paticipants"))
+                    ? new int[0]
+                    : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
+
                 posts.Add(new
                 {
                     id = reader.GetInt32(reader.GetOrdinal("post_id")),
@@ -45,15 +49,15 @@ public class PostController : Controller
                     location = reader.GetString(reader.GetOrdinal("post_place")),
                     host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
                     avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
-                             ? "/uploads/default-avatar.png"
-                             : reader.GetString(reader.GetOrdinal("user_avatar")),
+                            ? "/uploads/default-avatar.png"
+                            : reader.GetString(reader.GetOrdinal("user_avatar")),
                     startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
                     endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
                     dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
                     dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
                     maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
-                    currentParticipants = reader.GetInt32(reader.GetOrdinal("post_current_paticipants")),
-                    participants = new List<string>(),
+                    currentParticipants = currentParticipantsArray.Length, // นับจำนวนปัจจุบัน
+                    participants = currentParticipantsArray.Select(x => x.ToString()).ToList(), // แปลงเป็น List<string> ถ้าต้องส่ง JSON
                     status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
                 });
             }
