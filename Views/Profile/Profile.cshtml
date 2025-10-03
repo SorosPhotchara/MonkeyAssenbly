@@ -1,3 +1,4 @@
+@model MonkeyAssenbly.Models.ProfileModel
 @{
     Layout = null;
     ViewData["Title"] = "Profile Page";
@@ -54,11 +55,11 @@
     <!-- Profile Card -->
     <main class="profile-container">
         <div class="profile-card">
-            <img src="/picture/logo.png" id="profile-pic" class="profile-pic">
+            <img src="@Model.AvatarUrl" id="profile-pic" class="profile-pic">
             <!-- แสดงชื่อผู้ใช้จาก Session -->
-            <h2 id="profile-username">@ViewBag.FirstName @ViewBag.LastName</h2>
+            <h2 id="profile-username">@Model.FirstName @Model.LastName</h2>
             <!-- แสดง Email เป็น bio -->
-            <p id="profile-bio">@ViewBag.Email</p>
+            <p id="profile-bio">@Model.Bio</p>
 
             <div class="follow-info">
                 <span><strong id="followers-count">0</strong> Followers</span>
@@ -86,16 +87,16 @@
             <h3>แก้ไขโปรไฟล์</h3>
 
              <label for="first-name">First Name</label>
-            <input type="text" id="first-name" value="@ViewBag.FirstName" placeholder="First Name">
+            <input type="text" id="first-name" value="@Model.FirstName" placeholder="First Name">
 
             <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" value="@ViewBag.LastName" placeholder="Last Name">
+            <input type="text" id="last-name" value="@Model.LastName" placeholder="Last cName">
             
             <label for="bio">คำอธิบายตัวเอง</label>
-            <textarea id="bio" rows="3">@ViewBag.Email</textarea>
+            <textarea id="bio" rows="3">@Model.Bio</textarea>
 
             <label for="avatar-url">Avatar URL</label>
-            <input type="text" id="avatar-url" placeholder="https://example.com/avatar.png" class="form-control" />
+            <input type="text" id="avatar-url" class="form-control" value="@Model.AvatarUrl" />
 
             <div class="btn-group">
                 <button class="btn-cancel">ยกเลิก</button>

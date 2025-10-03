@@ -22,7 +22,7 @@ namespace MonkeyAssenbly.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string username, string password)
+        public async Task<IActionResult> Login(LoginModel model)
         {
             await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
@@ -33,8 +33,8 @@ namespace MonkeyAssenbly.Controllers
                         WHERE a.username = @username AND a.passwd = @password;";
 
             await using var cmd = new NpgsqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("username", username);
-            cmd.Parameters.AddWithValue("password", password);
+            cmd.Parameters.AddWithValue("username", model.Username);
+            cmd.Parameters.AddWithValue("password", model.Password);
 
             await using var reader = await cmd.ExecuteReaderAsync();
 
