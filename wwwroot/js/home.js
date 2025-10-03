@@ -197,6 +197,25 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("เกิดข้อผิดพลาดขณะ join/unjoin");
     }
   }
+    // ---------------- Create Event Modal ----------------
+  const addBtn = document.querySelector(".sidebar .add"); 
+  const createEventModal = document.getElementById("createEventModal");
+  const closeModalBtn = document.querySelector(".close-btn");
+
+  addBtn.addEventListener("click", (e) => {
+    e.preventDefault(); 
+    createEventModal.style.display = "flex";
+  });
+
+  closeModalBtn.addEventListener("click", () => {
+    createEventModal.style.display = "none";
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === createEventModal) {
+      createEventModal.style.display = "none";
+    }
+  });
 
   // ---------------- Popup ----------------
   const popup = document.getElementById("event-popup");

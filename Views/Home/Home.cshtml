@@ -67,32 +67,72 @@
         </ul>
     </div>
 
+    @using static MonkeyAssenbly.Models.PostModel
+    @model Post
+
+    <!-- แสดงข้อความ Success/Error -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" style="padding: 15px; margin: 10px; background-color: #d4edda; color: #155724; border-radius: 5px;">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger" style="padding: 15px; margin: 10px; background-color: #f8d7da; color: #721c24; border-radius: 5px;">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
     <!-- Popup Create Event -->
     <div id="createEventModal" class="modal">
         <div class="modal-content">
             <i class="fa-solid fa-xmark close-btn"></i>
             <h2>Create Event</h2>
-            <form id="createEventForm">
-                <input type="text" name="eventName" placeholder="event name" required>
-                <input type="datetime-local" name="startTime" placeholder="เวลาเริ่มรับผู้เข้าร่วม" required>
-                <input type="datetime-local" name="endTime" placeholder="เวลาปิดรับผู้เข้าร่วม" required>
-                <input type="text" name="location" placeholder="location">
-                <input type="number" name="maxParticipants" placeholder="participants">
+            <form method="post" asp-controller="Post" asp-action="CreatePost">
+                @Html.AntiForgeryToken()
+                
+                <!-- ชื่อกิจกรรม -->
+                <input type="text" name="PostTitile" placeholder="Event Name" required />
+                
+                <!-- รายละเอียด -->
+                <textarea name="PostDescript" placeholder="Details" rows="4"></textarea>
+                
+                <!-- สถานที่ -->
+                <input type="text" name="PostPlace" placeholder="Location" />
+                
+                <!-- วันที่เปิด -->
+                <label>วันที่เปิด:</label>
+                <input type="date" name="PostDateOpen" required />
+                
+                <!-- วันที่ปิด -->
+                <label>วันที่ปิด:</label>
+                <input type="date" name="PostDateClose" required />
+                
+                <!-- เวลาเปิด -->
+                <label>เวลาเปิด:</label>
+                <input type="time" name="PostTimeOpen" />
+                
+                <!-- เวลาปิด -->
+                <label>เวลาปิด:</label>
+                <input type="time" name="PostTimeClose" />
+                
+                <!-- จำนวนผู้เข้าร่วมสูงสุด -->
+                <input type="number" name="PostMaxPaticipants" placeholder="Max Participants" min="1" required />
 
+                <!-- Tag (ถ้าต้องการ) -->
                 <div class="tag-container">
-                    <input type="text" id="tagInput" placeholder="tag">
+                    <input type="text" id="tagInput" placeholder="Tag (optional)" />
                     <div id="tagSuggestions" class="suggestions"></div>
                 </div>
-
-                <textarea name="description" placeholder="detail"></textarea>
 
                 <p class="note">Check the details of your created event!</p>
                 <button type="submit" class="create-btn">Create</button>
             </form>
         </div>
     </div>
-
-    <!-- FEEDS  -->
+    <!--Feed-->
     <section id="for-you" class="tab-content active">
         <!-- Mokup For You -->
         @* <div class="event-card">
@@ -206,7 +246,6 @@
         </div> *@
         <!-- End Mokup Follow -->
     </section>
-
     <!-- Event Popup  -->
     <div id="event-popup" class="event-popup hidden">
         <div class="event-popup-content">
