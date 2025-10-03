@@ -271,38 +271,38 @@ document.addEventListener("DOMContentLoaded", () => {
         const session = await getSessionData();
         if (!session) return;
         console.log("useridddd",session.userId);
-        const res = await fetch(`GetMyPost/${session.userId}`);
-        // console.log(res);
-        //try {
-        //    const res = await fetch(`/Post/GetMyPost/${currentUserId}`);
-        //    if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
-        //    const posts = await res.json();
-        //    const container = document.getElementById("your-posts");
+        //const res = await fetch(`GetMyPost/${session.userId}`);
+         //console.log(res);
+        try {
+            const res = await fetch(`/Post/GetMyPost/${session.userId}`);
+            if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
+            const posts = await res.json();
+            const container = document.getElementById("your-posts");
             
-        //    if (posts.length === 0) {
-        //        console.log(currentUserId);
-        //        container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
-        //        return;
-        //    }
+            if (posts.length === 0) {
+                console.log(currentUserId);
+                container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
+                return;
+            }
 
-        //    container.innerHTML = "";
-        //    console.log("User posts:", posts);
-        //    console.log("Fetching my post:", currentUserId);
+            container.innerHTML = "";
+            console.log("User posts:", posts);
+            console.log("Fetching my post:", currentUserId);
 
-        //    posts.forEach(p => {
-        //        const div = document.createElement("div");
-        //        div.className = "post-item";
-        //        div.innerHTML = `
-        //            <h4>${p.eventName}</h4>
-        //            <p>${p.description}</p>
-        //            <small>${new Date(p.dateOpen).toLocaleString("th-TH")}</small>
-        //        `;
-        //        container.appendChild(div);
-        //    });
-        //} catch (err) {
-        //    console.error(err);
-        //    document.getElementById("your-posts").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดโพสต์</p>";
-        //}
+            posts.forEach(p => {
+                const div = document.createElement("div");
+                div.className = "post-item";
+                div.innerHTML = `
+                    <h4>${p.eventName}</h4>
+                    <p>${p.description}</p>
+                    <small>${new Date(p.dateOpen).toLocaleString("th-TH")}</small>
+                `;
+                container.appendChild(div);
+            });
+        } catch (err) {
+            console.error(err);
+            document.getElementById("your-posts").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดโพสต์</p>";
+        }
     };
 
     //const loadHistory = async () => {
