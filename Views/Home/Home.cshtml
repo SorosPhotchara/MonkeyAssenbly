@@ -126,21 +126,31 @@
     <!-- Event Popup  -->
     <div id="event-popup" class="event-popup hidden">
         <div class="event-popup-content">
-            <button id="close-popup" class="popup-close-btn"><i class="fa-solid fa-arrow-left"></i></button>
+            <button id="close-popup" class="popup-close-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
             <h3 id="event-title">Event Name</h3>
-            <p>Host: <span id="event-host">HostName</span></p>
-            <p>สถานที่: <span id="event-place">ไม่ระบุ</span></p>
+            
+            <p><strong>Host:</strong> <span id="event-host">HostName</span></p>
+            <p><strong>สถานที่:</strong> <span id="event-place">ไม่ระบุ</span></p>
 
-            <h4>ผู้เข้าร่วม:</h4>
-            <ul id="participants-list"></ul>
+            <h4>ผู้เข้าร่วม</h4>
+            <ul id="participants-list">
+                <li>Loading...</li>
+            </ul>
 
             <button id="popup-join-btn" class="popup-join-btn">JOIN</button>
 
-            <h4>Comment:</h4>
+            <h4>Comments</h4>
             <div class="comment-section">
-                <input type="text" id="popup-comment-input" placeholder="เขียนความคิดเห็น...">
-                <button id="popup-comment-send"><i class="fa-solid fa-paper-plane"></i></button>
                 <div id="popup-comment-list"></div>
+                <div class="comment-input-wrapper">
+                    <input type="text" id="popup-comment-input" placeholder="เขียนความคิดเห็น...">
+                    <button id="popup-comment-send">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
