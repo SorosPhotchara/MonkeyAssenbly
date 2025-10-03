@@ -23,6 +23,16 @@
         window.SignupUrl = '@ViewBag.SingupUrl';
     </script>
 </head>
+<script>
+    const userSession = {
+        userId: @(Context.Session.GetInt32("UserId") ?? 0),
+        firstName: '@Context.Session.GetString("FirstName")',
+        lastName: '@Context.Session.GetString("LastName")',
+        email: '@Context.Session.GetString("Email")'
+    };
+
+    console.log("User Session:", userSession);
+</script>
 
 <body data-user-id="123" data-role="host">
     <!-- Header -->
