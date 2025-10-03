@@ -73,6 +73,27 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   updateMenu();
 
+  // ---------------- Create Event Modal ----------------
+  const addBtn = document.querySelector(".sidebar .add"); 
+  const createEventModal = document.getElementById("createEventModal");
+  const closeModalBtn = document.querySelector(".close-btn");
+
+  addBtn.addEventListener("click", (e) => {
+    e.preventDefault(); 
+    createEventModal.style.display = "flex";
+  });
+
+  closeModalBtn.addEventListener("click", () => {
+    createEventModal.style.display = "none";
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === createEventModal) {
+      createEventModal.style.display = "none";
+    }
+  });
+
+  
   // ---------------- Event Feed ----------------
   const forYouFeed = document.getElementById("for-you");
   const followFeed = document.getElementById("follow");
