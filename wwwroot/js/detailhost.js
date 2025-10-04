@@ -60,10 +60,10 @@ function addMenuItem(text, onClick) {
 function updateMenu() {
     menuList.innerHTML = "";
     if (!isLoggedIn) {
-        addMenuItem("เข้าสู่ระบบ", () => window.location.href = "/frontend/HTML/login.html");
-        addMenuItem("สมัครสมาชิก", () => window.location.href = "/frontend/HTML/signup.html");
+        addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
+        addMenuItem("สมัครสมาชิก", () => window.location.href = window.SignupUrl);
     } else {
-        addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = "/frontend/HTML/profile.html");
+        addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
         addMenuItem("ออกจากระบบ", async () => {
             await fetch(`${SERVER_URL}/Account/Logout`, { method: "POST" });
             localStorage.setItem("isLoggedIn", "false");
@@ -89,60 +89,60 @@ async function loadActivity() {
         if (!res.ok) throw new Error("ไม่พบกิจกรรม");
         const data = await res.json();
 
-        document.getElementById("activityTitle").textContent = data.post.eventName;
+        document.getElementById("activityTitle").value = data.post.eventName;
         document.getElementById("activityTag").innerHTML = `<strong>Tag :</strong> ${data.tags}`;
-        document.getElementById("activityDeadline").innerHTML = `${data.post.dateClose}`;
+        document.getElementById("activityDeadline").value = `${data.post.dateClose}`;
         document.getElementById("activityHost").textContent = data.post.host;
-        document.getElementById("activityPlace").textContent = data.post.location;
-        document.getElementById("activityDetails").textContent = data.post.description;
+        document.getElementById("activityPlace").value = data.post.location;
+        document.getElementById("activityDetails").value = data.post.description;
     } catch (err) {
         alert(err.message);
     }
 }
 
 // ---------------- Load Participants ----------------
-async function loadParticipants() {
-    try {
-        const res = await fetch(`${SERVER_URL}/api/activity/${activityId}/participants`);
-        if (!res.ok) throw new Error("โหลดผู้เข้าร่วมไม่สำเร็จ");
-        const participants = await res.json();
+//async function loadParticipants() {
+//    try {
+//        const res = await fetch(`${SERVER_URL}/api/activity/${activityId}/participants`);
+//        if (!res.ok) throw new Error("โหลดผู้เข้าร่วมไม่สำเร็จ");
+//        const participants = await res.json();
 
-        const approvedBox = document.getElementById("approvedBox");
-        const pendingBox = document.getElementById("pendingBox");
-        approvedBox.querySelectorAll(".participant-row").forEach(e => e.remove());
-        pendingBox.querySelectorAll(".participant-row").forEach(e => e.remove());
+//        const approvedBox = document.getElementById("approvedBox");
+//        const pendingBox = document.getElementById("pendingBox");
+//        approvedBox.querySelectorAll(".participant-row").forEach(e => e.remove());
+//        pendingBox.querySelectorAll(".participant-row").forEach(e => e.remove());
 
-        let approvedCount = 0;
-        participants.forEach(p => {
-            const row = document.createElement("div");
-            row.className = "participant-row";
-            row.innerHTML = `<span>${p.name}</span>`;
-            if (p.status === "approved") {
-                approvedBox.appendChild(row);
-                approvedCount++;
-            } else if (p.status === "pending") {
-                row.classList.add("pending");
-                row.innerHTML += `
-                    <div class="participant-actions">
-                        <button class="accept">✔</button>
-                        <button class="reject">✖</button>
-                    </div>`;
-                pendingBox.appendChild(row);
+//        let approvedCount = 0;
+//        participants.forEach(p => {
+//            const row = document.createElement("div");
+//            row.className = "participant-row";
+//            row.innerHTML = `<span>${p.name}</span>`;
+//            if (p.status === "approved") {
+//                approvedBox.appendChild(row);
+//                approvedCount++;
+//            } else if (p.status === "pending") {
+//                row.classList.add("pending");
+//                row.innerHTML += `
+//                    <div class="participant-actions">
+//                        <button class="accept">✔</button>
+//                        <button class="reject">✖</button>
+//                    </div>`;
+//                pendingBox.appendChild(row);
 
-                const userId = p.id;
-                row.querySelector(".accept").addEventListener("click", async () => {
-                    await fetch(`${SERVER_URL}/api/participants/${userId}/accept`, { method: "POST" });
-                    loadParticipants();
-                });
-                row.querySelector(".reject").addEventListener("click", async () => {
-                    await fetch(`${SERVER_URL}/api/participants/${userId}/reject`, { method: "POST" });
-                    loadParticipants();
-                });
-            }
-        });
-        document.getElementById("approvedCount").textContent = approvedCount;
-    } catch (err) { alert(err.message); }
-}
+//                const userId = p.id;
+//                row.querySelector(".accept").addEventListener("click", async () => {
+//                    await fetch(`${SERVER_URL}/api/participants/${userId}/accept`, { method: "POST" });
+//                    loadParticipants();
+//                });
+//                row.querySelector(".reject").addEventListener("click", async () => {
+//                    await fetch(`${SERVER_URL}/api/participants/${userId}/reject`, { method: "POST" });
+//                    loadParticipants();
+//                });
+//            }
+//        });
+//        document.getElementById("approvedCount").textContent = approvedCount;
+//    } catch (err) { alert(err.message); }
+//}
 
 // ---------------- Load Comments ----------------
 //async function loadComments() {

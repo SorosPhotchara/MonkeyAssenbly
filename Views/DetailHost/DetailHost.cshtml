@@ -58,14 +58,16 @@
     <!-- Content -->
     <main class="container">
         <section class="detail-card">
-            <h2 class="activity-title" id="activityTitle"></h2>
+            <input type="text" name="activity-title" value="" id="activityTitle" />
+            @* <h2 class="activity-title" id="activityTitle"></h2> *@
             <p class="tag" id="activityTag"></p>
 
             <div class="meta-grid">
                 <div class="left-meta">
                     <div class="deadline">
                         <strong>Application Deadline</strong>
-                        <p id="activityDeadline"></p>
+                        <input type="date" name="activityDeadline" value="" id="activityDeadline" />
+                        @* <p id="activityDeadline"></p> *@
                     </div>
                     <div class="host">
                         <strong>Host :</strong>
@@ -75,14 +77,16 @@
                 <div class="right-meta">
                     <div class="place">
                         <strong>Place :</strong>
-                        <p id="activityPlace"></p>
+                        <input type="text" name="activityPlace" value="" id="activityPlace" />
+                        @* <p id="activityPlace"></p> *@
                     </div>
                 </div>
             </div>
 
             <div class="details">
                 <strong>Details :</strong>
-                <p id="activityDetails"></p>
+                <input type="text" name="activityDetails" value="" id="activityDetails" />
+                @* <p id="activityDetails"></p> *@
             </div>
 
             <div class="participants-box">

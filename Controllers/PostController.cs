@@ -342,6 +342,43 @@ public class PostController : Controller
     //    return Ok(comments);
     //}
 
+    [HttpPut("UpdatePost/{post_id}")]
+    public IActionResult UpdatePost(int post_id, [FromBody] PostUpdateDto dto)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        var sql = @"
+        UPDATE ""PostTable""
+        SET post_titile = @title,
+            post_descript = @description,
+            post_place = @location,
+            post_date_open = @dateOpen,
+            post_date_close = @dateClose,
+            post_time_open = @startTime,
+            post_time_close = @endTime,
+            post_max_paticipants = @maxParticipants,
+            post_status = @status
+        WHERE post_id = @id
+    ";
+
+        using var cmd = new NpgsqlCommand(sql, connection);
+        cmd.Parameters.AddWithValue("id", post_id);
+        cmd.Parameters.AddWithValue("title", dto.eventName);
+        cmd.Parameters.AddWithValue("description", dto.description);
+        cmd.Parameters.AddWithValue("location", dto.location);
+        cmd.Parameters.AddWithValue("dateOpen", DateTime.Parse(dto.dateOpen));
+        cmd.Parameters.AddWithValue("dateClose", DateTime.Parse(dto.dateClose));
+        cmd.Parameters.AddWithValue("startTime", TimeSpan.Parse(dto.startTime));
+        cmd.Parameters.AddWithValue("endTime", TimeSpan.Parse(dto.endTime));
+        cmd.Parameters.AddWithValue("maxParticipants", dto.maxParticipants);
+        cmd.Parameters.AddWithValue("status", dto.status);
+
+        int affected = cmd.ExecuteNonQuery();
+        return Ok(new { success = affected > 0 });
+    }
+
+
 
     [HttpDelete("DeletePost/{post_id}")]
     public IActionResult DeletePost(int post_id)
