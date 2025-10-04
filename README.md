@@ -115,7 +115,7 @@ dotnet run
 
 ## 🎓 Learning Journey
 
-> *"The only way to do great work is to love what you do"* - Steve Jobs
+> *"be careful salt and sugar look the same"* - Guide
 
 This project represents our journey in mastering modern web development, from front-end finesse to back-end brilliance.
 
