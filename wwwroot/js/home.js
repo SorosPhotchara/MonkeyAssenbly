@@ -202,15 +202,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // ---------------- Popup ----------------
+  // ==================== POPUP & COMMENT SYSTEM START ====================
+
   const popup = document.getElementById("event-popup");
   const closePopupBtn = document.getElementById("close-popup");
+  let currentPostId = null; // เก็บ post_id ปัจจุบันที่เปิดอยู่
 
+  // เปิด popup และโหลด comments
   function openPopup(event) {
+    currentPostId = event.id; // เก็บ post_id ไว้ใช้ตอนส่ง comment
+    
+    // แสดงข้อมูล event
     document.getElementById("event-title").textContent = event.eventName;
     document.getElementById("event-host").textContent = event.host;
     document.getElementById("event-place").textContent = event.location || "ไม่ระบุ";
     
+    // แสดงรายชื่อผู้เข้าร่วม
     const participantsList = document.getElementById("participants-list");
     participantsList.innerHTML = "";
     if(event.participants && event.participants.length > 0) {
@@ -223,12 +230,112 @@ document.addEventListener("DOMContentLoaded", () => {
       participantsList.innerHTML = "<li>ยังไม่มีผู้เข้าร่วม</li>";
     }
     
+    // โหลด comments
+    loadComments(currentPostId);
+    
+    // แสดง popup
     popup.classList.remove("hidden");
   }
 
+  // โหลด comments จาก database
+  async function loadComments(postId) {
+    const commentList = document.getElementById("popup-comment-list");
+    commentList.innerHTML = "<p>กำลังโหลด...</p>";
+    
+    try {
+      const response = await fetch(`/Post/GetComments?postId=${postId}`);
+      if (!response.ok) throw new Error("ไม่สามารถโหลด comments ได้");
+      
+      const comments = await response.json();
+      
+      // ล้างข้อมูลเก่า
+      commentList.innerHTML = "";
+      
+      // แสดง comments
+      if (comments.length === 0) {
+        commentList.innerHTML = "<p style='text-align:center; color:var(--sub-font); padding:20px;'>ยังไม่มีความคิดเห็น</p>";
+      } else {
+        comments.forEach(comment => {
+          const commentDiv = document.createElement("div");
+          commentDiv.className = "comment-item";
+          commentDiv.innerHTML = `
+            <div class="comment-user">${comment.userName}</div>
+            <div class="comment-text">${comment.text}</div>
+            <div class="comment-time">${comment.createdAt}</div>
+          `;
+          commentList.appendChild(commentDiv);
+        });
+      }
+      
+      // Scroll ไปล่างสุด
+      commentList.scrollTop = commentList.scrollHeight;
+      
+    } catch (error) {
+      console.error("Error loading comments:", error);
+      commentList.innerHTML = "<p style='color:red;'>เกิดข้อผิดพลาดในการโหลด comments</p>";
+    }
+  }
+
+  // ส่ง comment ใหม่
+  document.getElementById("popup-comment-send").addEventListener("click", async () => {
+    const input = document.getElementById("popup-comment-input");
+    const text = input.value.trim();
+    
+    // ตรวจสอบว่ากรอกข้อความหรือยัง
+    if (!text) {
+      alert("กรุณากรอกความคิดเห็น");
+      return;
+    }
+    
+    // ตรวจสอบว่าเปิด popup อยู่หรือไม่
+    if (!currentPostId) {
+      alert("เกิดข้อผิดพลาด");
+      return;
+    }
+    
+    try {
+      // ส่งข้อมูลไปยัง server
+      const response = await fetch(`/Post/AddComment?postId=${currentPostId}&commentText=${encodeURIComponent(text)}`, {
+        method: "POST"
+      });
+      
+      if (response.status === 401) {
+        alert("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
+        window.location.href = window.LoginUrl;
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error("ไม่สามารถส่ง comment ได้");
+      }
+      
+      // ล้าง input
+      input.value = "";
+      
+      // โหลด comments ใหม่
+      loadComments(currentPostId);
+      
+    } catch (error) {
+      console.error("Error sending comment:", error);
+      alert("เกิดข้อผิดพลาดในการส่ง comment");
+    }
+  });
+
+  // กด Enter ก็ส่ง comment ได้
+  document.getElementById("popup-comment-input").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      document.getElementById("popup-comment-send").click();
+    }
+  });
+
+  // ปิด popup
   closePopupBtn.addEventListener("click", () => {
     popup.classList.add("hidden");
+    currentPostId = null; // ล้างค่า
+    document.getElementById("popup-comment-input").value = ""; // ล้าง input
   });
+
+// ==================== POPUP & COMMENT SYSTEM END ====================
 
   // ---------------- Initial Load ----------------
   loadEvents();

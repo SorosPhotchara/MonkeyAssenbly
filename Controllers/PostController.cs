@@ -14,7 +14,7 @@ namespace MonkeyAssenbly.Controllers
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
-     
+
         [HttpGet]
         public IActionResult GetAllPost()
         {
@@ -165,13 +165,13 @@ namespace MonkeyAssenbly.Controllers
                 }
 
                 // ---------- ตรวจสอบข้อมูล ----------
-                if (string.IsNullOrEmpty(postTitile) || 
+                if (string.IsNullOrEmpty(postTitile) ||
                     string.IsNullOrEmpty(postDateOpen) || string.IsNullOrEmpty(postDateClose))
                 {
                     TempData["ErrorMessage"] = "กรุณากรอกข้อมูลให้ครบถ้วน (title, dates)";
                     return RedirectToAction("Home", "Home");
                 }
-                
+
                 // ถ้า description ว่าง ให้ใส่ค่า default
                 if (string.IsNullOrEmpty(postDescript))
                 {
@@ -268,5 +268,87 @@ namespace MonkeyAssenbly.Controllers
                 return RedirectToAction("Home", "Home");
             }
         }
+        // ==================== COMMENT SYSTEM START ====================
+
+        // ดึง comments ทั้งหมดของ post
+        [HttpGet]
+        public IActionResult GetComments(int postId)
+        {
+            var comments = new List<object>();
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                // Join กับ UserDetailTable เพื่อดึงชื่อผู้แสดงความคิดเห็น
+                var sql = @"
+                    SELECT c.comment_id, c.comment_text, c.created_at,
+                        u.user_firstname, u.user_lastname, u.user_avatar
+                    FROM ""CommentTable"" c
+                    JOIN ""UserDetailTable"" u ON c.user_id = u.user_id
+                    WHERE c.post_id = @postId
+                    ORDER BY c.created_at ASC";
+
+                using var command = new NpgsqlCommand(sql, connection);
+                command.Parameters.AddWithValue("postId", postId);
+                using var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    comments.Add(new
+                    {
+                        commentId = reader.GetInt32(0),
+                        text = reader.GetString(1),
+                        createdAt = reader.GetDateTime(2).ToString("dd/MM/yyyy HH:mm"),
+                        userName = reader.GetString(3) + " " + reader.GetString(4),
+                        userAvatar = reader.IsDBNull(5) ? "/uploads/default-avatar.png" : reader.GetString(5)
+                    });
+                }
+            }
+
+            return Ok(comments);
+        }
+
+        // เพิ่ม comment ใหม่
+        [HttpPost]
+        public IActionResult AddComment(int postId, string commentText)
+        {
+            // ตรวจสอบว่า login หรือยัง
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            // ตรวจสอบว่ากรอกข้อความหรือยัง
+            if (string.IsNullOrWhiteSpace(commentText))
+            {
+                return BadRequest(new { message = "กรุณากรอกความคิดเห็น" });
+            }
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                // Insert comment ใหม่
+                var sql = @"
+                    INSERT INTO ""CommentTable"" (post_id, user_id, comment_text)
+                    VALUES (@postId, @userId, @text)
+                    RETURNING comment_id";
+
+                using var command = new NpgsqlCommand(sql, connection);
+                command.Parameters.AddWithValue("postId", postId);
+                command.Parameters.AddWithValue("userId", userId.Value);
+                command.Parameters.AddWithValue("text", commentText);
+
+                var commentId = command.ExecuteScalar();
+
+                Console.WriteLine($"[SUCCESS] Comment added: ID={commentId}, PostID={postId}, UserID={userId}");
+            }
+
+            return Ok(new { message = "เพิ่มความคิดเห็นสำเร็จ" });
+        }
+
+        // ==================== COMMENT SYSTEM END ====================
     }
 }
