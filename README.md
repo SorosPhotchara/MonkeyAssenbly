@@ -99,10 +99,10 @@ const projectFeatures = {
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/cedt-group2-project.git
+git clone https://github.com/SorosPhotchara/MonkeyAssenbly.git
 
 # Navigate to project directory
-cd cedt-group2-project
+cd MonkeyAssenbly
 
 # Install dependencies
 dotnet restore
