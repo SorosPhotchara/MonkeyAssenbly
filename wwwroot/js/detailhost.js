@@ -241,31 +241,32 @@ async function loadActivity() {
 //}
 
 // ---------------- Load Comments ----------------
-//async function loadComments() {
-//    try {
-//        const res = await fetch(`/Post/GetCommentByPostId/7`);
-//        if (!res.ok) throw new Error("โหลดคอมเมนต์ไม่สำเร็จ");
-//        const comments = await res.json();
+async function loadComments() {
+    try {
+        const res = await fetch(`/Post/GetCommentByPostId/${activityId}`);
+        if (!res.ok) throw new Error("โหลดคอมเมนต์ไม่สำเร็จ");
+        const comments = await res.json();
+        console.log("comments: ",comments);
 
-//        const commentList = document.getElementById("commentList");
-//        commentList.innerHTML = "";
-//        comments.forEach(c => {
-//            const div = document.createElement("div");
-//            div.className = c.userId === currentUserId ? "comment participant" : "comment host";
-//            div.innerHTML = `
-//                <div class="avatar ${div.className.includes("host") ? "host" : "participant"}">${c.user[0]}</div>
-//                <div class="bubble">
-//                    <div class="meta">
-//                        <span class="name">${c.user}</span>
-//                        <span class="time">${c.time}</span>
-//                    </div>
-//                    <div class="text">${c.text}</div>
-//                </div>`;
-//            commentList.appendChild(div);
-//        });
-//        commentList.scrollTop = commentList.scrollHeight;
-//    } catch (err) { alert(err.message); }
-//}
+        const commentList = document.getElementById("commentList");
+        commentList.innerHTML = "";
+        comments.forEach(c => {
+            const div = document.createElement("div");
+            div.className = c.userId === currentUserId ? "comment participant" : "comment host";
+            div.innerHTML = `
+                <div class="avatar ${div.className.includes("host") ? "host" : "participant"}">${c.user[0]}</div>
+                <div class="bubble">
+                    <div class="meta">
+                        <span class="name">${c.user}</span>
+                        <span class="time">${c.time}</span>
+                    </div>
+                    <div class="text">${c.text}</div>
+                </div>`;
+            commentList.appendChild(div);
+        });
+        commentList.scrollTop = commentList.scrollHeight;
+    } catch (err) { alert(err.message); }
+}
 
 // ---------------- Send Comment ----------------
 document.getElementById("sendComment").addEventListener("click", async () => {
@@ -285,7 +286,7 @@ document.getElementById("sendComment").addEventListener("click", async () => {
         });
         input.value = "";
         showToast.success("ส่งความคิดเห็นสำเร็จ");
-        // loadComments();
+         loadComments();
     } catch (err) {
         showToast.error("ไม่สามารถส่งความคิดเห็นได้");
     }
@@ -371,6 +372,5 @@ document.querySelector(".end").addEventListener("click", async () => {
 
 // ---------------- Initial Load ----------------
 loadActivity();
-//get_all_tags();
 loadParticipants();
 loadComments();
