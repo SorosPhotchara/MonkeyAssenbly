@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle?.addEventListener("change", () => {
         const isDark = root.classList.toggle("dark");
         localStorage.setItem("theme", isDark ? "dark" : "light");
-        sunIcon.className = isDark ? "bx bx-sun" : "bxs-sun";
-        moonIcon.className = isDark ? "bx bx-moon" : "bxs-moon";
+        sunIcon.className = isDark ? "bx bx-sun" : "bx bxs-sun";
+        moonIcon.className = isDark ? "bx bxs-moon" : "bx bx-moon";
     });
 
     // ---------------- Sidebar Menu ----------------
@@ -389,46 +389,107 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const loadHistory = async () => {
-        const session = await getSessionData();
-        if (!session) return;
-        console.log("user_id from history : ", session.userId);
+    const session = await getSessionData();
+    if (!session) return;
+    
+    console.log("user_id from history : ", session.userId);
+    
+    try {
         const res = await fetch(`/Post/GetJoinedPost/${session.userId}`);
-        try {
-            if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
-            const history = await res.json();
-            const container = document.getElementById("history");
+        if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
+        
+        const history = await res.json();
+        const container = document.getElementById("history");
 
-            if(history.length === 0){
-                container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
-                return;
-            }
+        if(history.length === 0){
+            container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
+            return;
+        }
 
-            container.innerHTML = "";
-            history.forEach(h => {
-                const div = document.createElement("div");
-                div.className = "post-item";
-                div.innerHTML = `
-                    <div class="post-header">
-                        <div class="post-user">
-                            <img src="${h.avatar || '/picture/default-avatar.png'}" class="post-avatar">
-                            <div class="post-info">
-                                <h3>${h.host}</h3>
-                                <div class="timestamp">${h.dateOpen} ถึง ${h.dateClose}</div>
-                            </div>
+        container.innerHTML = "";
+        
+        const now = new Date();
+        
+        history.forEach(h => {
+            const div = document.createElement("div");
+            div.className = "post-item";
+            
+            const closeDate = new Date(h.dateClose);
+            const isExpired = closeDate < now;
+            
+            div.innerHTML = `
+                <div class="post-header">
+                    <div class="post-user">
+                        <img src="${h.avatar || '/picture/default-avatar.png'}" class="post-avatar">
+                        <div class="post-info">
+                            <h3>${h.host}</h3>
+                            <div class="timestamp">${h.dateOpen} ถึง ${h.dateClose}</div>
                         </div>
                     </div>
-                    <div class="post-body">
-                        <h4>${h.eventName}</h4>
-                        <p>${h.description}</p>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        } catch (err) {
-            console.error(err);
-            document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
-        }
-    };
+                    ${!isExpired ? `
+                        <button class="unjoin-btn" data-post-id="${h.id}">
+                            <i class="fa-solid fa-user-minus"></i> UNJOIN
+                        </button>
+                    ` : `
+                        <span class="expired-badge">หมดเวลา</span>
+                    `}
+                </div>
+                <div class="post-body">
+                    <h4>${h.eventName}</h4>
+                    <p>${h.description}</p>
+                </div>
+            `;
+            
+            container.appendChild(div);
+        });
+        
+        setupUnjoinButtons();
+        
+    } catch (err) {
+        console.error(err);
+        document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
+    }
+};
+
+// ฟังก์ชันจัดการปุ่ม UNJOIN
+function setupUnjoinButtons() {
+    const unjoinBtns = document.querySelectorAll(".unjoin-btn");
+    
+    unjoinBtns.forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            
+            const postId = btn.dataset.postId;
+            
+            if (!confirm("คุณต้องการออกจากกิจกรรมนี้ใช่หรือไม่?")) return;
+            
+            try {
+                const session = await getSessionData();
+                if (!session) {
+                    alert("กรุณาเข้าสู่ระบบ");
+                    return;
+                }
+
+                const res = await fetch(`/Post/UnjoinPost/${postId}`, {
+                    method: "DELETE",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: session.userId })
+                });
+
+                if (!res.ok) throw new Error("ไม่สามารถออกจากกิจกรรมได้");
+                
+                showToast("ออกจากกิจกรรมเรียบร้อยแล้ว");
+                
+                loadHistory();
+                
+            } catch (err) {
+                console.error(err);
+                alert("เกิดข้อผิดพลาด: " + err.message);
+            }
+        });
+    });
+}
 
     loadYourPosts();
     loadHistory();
