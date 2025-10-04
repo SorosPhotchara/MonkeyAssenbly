@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle?.addEventListener("change", () => {
         const isDark = root.classList.toggle("dark");
         localStorage.setItem("theme", isDark ? "dark" : "light");
-        sunIcon.className = isDark ? "bx bx-sun" : "bxs-sun";
-        moonIcon.className = isDark ? "bx bx-moon" : "bxs-moon";
+        sunIcon.className = isDark ? "bx bx-sun" : "bx bxs-sun";
+        moonIcon.className = isDark ? "bx bxs-moon" : "bx bx-moon";
     });
 
     // ---------------- Sidebar Menu ----------------
@@ -267,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
             if (data.isLoggedIn) {
                 console.log("Session:", data);
-                return data;
+                return data;  // ✅ ส่งข้อมูลออกไป
             } else {
                 console.log("ยังไม่ได้ล็อกอิน");
                 return null;
@@ -290,12 +290,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const container = document.getElementById("your-posts");
             
             if (posts.length === 0) {
+                console.log(currentUserId);
                 container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
                 return;
             }
 
             container.innerHTML = "";
-
             posts.forEach(p => {
                 const div = document.createElement("div");
                 div.className = "post-item";
@@ -304,11 +304,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         <div class="post-user">
                             <img src="${p.avatar || '/picture/default-avatar.png'}" class="post-avatar">
                             <div class="post-info">
-                                <h3>${p.username || "User1234"}</h3>
-                                <div class="timestamp">${new Date(p.dateOpen).toLocaleString("th-TH")}</div>
+                                <h3>${p.host}</h3>
+                                <div class="timestamp">${p.dateOpen} ถึง ${p.dateClose}</div>
                             </div>
                         </div>
-                        <div class="post-menu" data-post-id="${p.postId || p.id}">
+                        <div class="post-menu" data-post-id="${p.id}">
                             ⋯
                             <ul class="post-menu-dropdown">
                                 <li class="edit-post"><i class="fa-solid fa-pen"></i> แก้ไขโพสต์</li>
@@ -325,7 +325,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             setupPostMenus();
-
         } catch (err) {
             console.error(err);
             document.getElementById("your-posts").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดโพสต์</p>";
@@ -334,7 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function setupPostMenus() {
         const postMenus = document.querySelectorAll(".post-menu");
-        
+
         postMenus.forEach(menu => {
             const dropdown = menu.querySelector(".post-menu-dropdown");
             const editBtn = dropdown.querySelector(".edit-post");
@@ -343,87 +342,154 @@ document.addEventListener("DOMContentLoaded", () => {
 
             menu.addEventListener("click", (e) => {
                 e.stopPropagation();
-              
+
                 document.querySelectorAll(".post-menu-dropdown.show").forEach(d => {
                     if (d !== dropdown) d.classList.remove("show");
                 });
-                
+
                 dropdown.classList.toggle("show");
             });
 
-            editBtn.addEventListener("click", async (e) => {
-                e.stopPropagation();
-                dropdown.classList.remove("show");
-                
-                console.log("Edit post:", postId);
-                alert(`แก้ไขโพสต์ ID: ${postId}`);
-                
-                // const post = await fetch(`/Post/GetPost/${postId}`).then(r => r.json());
-                // showEditModal(post);
+            editBtn.addEventListener("click", () => {
+                window.location.href = `/DetailHost/${postId}`;
             });
 
-            // Delete Post
+
             deleteBtn.addEventListener("click", async (e) => {
                 e.stopPropagation();
                 dropdown.classList.remove("show");
-                
+
                 if (!confirm("คุณต้องการลบโพสต์นี้ใช่หรือไม่?")) return;
-                
+
                 try {
                     const res = await fetch(`/Post/DeletePost/${postId}`, {
                         method: "DELETE",
                         credentials: "same-origin"
                     });
-                    
+
                     if (!res.ok) throw new Error("ไม่สามารถลบโพสต์ได้");
-                    
+
                     showToast("ลบโพสต์เรียบร้อยแล้ว");
                     loadYourPosts();
-                    
                 } catch (err) {
                     console.error(err);
                     alert("เกิดข้อผิดพลาด: " + err.message);
                 }
             });
-        });
 
-        document.addEventListener("click", () => {
-            document.querySelectorAll(".post-menu-dropdown.show").forEach(d => {
-                d.classList.remove("show");
+            document.addEventListener("click", () => {
+                document.querySelectorAll(".post-menu-dropdown.show").forEach(d => {
+                    d.classList.remove("show");
+                });
             });
         });
     }
 
-    //const loadHistory = async () => {
-    //    try {
-    //        const res = await fetch(`/Profile/GetHistory`);
-    //        if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
-    //        const history = await res.json();
-    //        const container = document.getElementById("history");
+    const loadHistory = async () => {
+    const session = await getSessionData();
+    if (!session) return;
+    
+    console.log("user_id from history : ", session.userId);
+    
+    try {
+        const res = await fetch(`/Post/GetJoinedPost/${session.userId}`);
+        if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
+        
+        const history = await res.json();
+        const container = document.getElementById("history");
 
-    //        if(history.length === 0){
-    //            container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
-    //            return;
-    //        }
+        if(history.length === 0){
+            container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
+            return;
+        }
 
-    //        container.innerHTML = "";
-    //        history.forEach(h => {
-    //            const div = document.createElement("div");
-    //            div.className = "history-item";
-    //            div.innerHTML = `
-    //                <p>${h.event}</p>
-    //                <small>${new Date(h.date).toLocaleString("th-TH")}</small>
-    //            `;
-    //            container.appendChild(div);
-    //        });
-    //    } catch (err) {
-    //        console.error(err);
-    //        document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
-    //    }
-    //};
+        container.innerHTML = "";
+        
+        const now = new Date();
+        
+        history.forEach(h => {
+            const div = document.createElement("div");
+            div.className = "post-item";
+            
+            const closeDate = new Date(h.dateClose);
+            const isExpired = closeDate < now;
+            
+            div.innerHTML = `
+                <div class="post-header">
+                    <div class="post-user">
+                        <img src="${h.avatar || '/picture/default-avatar.png'}" class="post-avatar">
+                        <div class="post-info">
+                            <h3>${h.host}</h3>
+                            <div class="timestamp">${h.dateOpen} ถึง ${h.dateClose}</div>
+                        </div>
+                    </div>
+                    ${!isExpired ? `
+                        <button class="unjoin-btn" data-post-id="${h.id}">
+                            <i class="fa-solid fa-user-minus"></i> UNJOIN
+                        </button>
+                    ` : `
+                        <span class="expired-badge">หมดเวลา</span>
+                    `}
+                </div>
+                <div class="post-body">
+                    <h4>${h.eventName}</h4>
+                    <p>${h.description}</p>
+                </div>
+            `;
+            
+            container.appendChild(div);
+        });
+        
+        setupUnjoinButtons();
+        
+    } catch (err) {
+        console.error(err);
+        document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
+    }
+};
+
+// ฟังก์ชันจัดการปุ่ม UNJOIN
+function setupUnjoinButtons() {
+    const unjoinBtns = document.querySelectorAll(".unjoin-btn");
+    
+    unjoinBtns.forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            
+            const postId = btn.dataset.postId;
+            
+            if (!confirm("คุณต้องการออกจากกิจกรรมนี้ใช่หรือไม่?")) return;
+            
+            try {
+                const session = await getSessionData();
+                if (!session) {
+                    alert("กรุณาเข้าสู่ระบบ");
+                    return;
+                }
+
+                const res = await fetch(`/Post/UnjoinPost/${postId}`, {
+                    method: "DELETE",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId: session.userId })
+                });
+
+                if (!res.ok) throw new Error("ไม่สามารถออกจากกิจกรรมได้");
+                
+                showToast("ออกจากกิจกรรมเรียบร้อยแล้ว");
+                
+                loadHistory();
+                
+            } catch (err) {
+                console.error(err);
+                alert("เกิดข้อผิดพลาด: " + err.message);
+            }
+        });
+    });
+}
 
     loadYourPosts();
-    //loadHistory();
+    loadHistory();
 
     updateMenu();
 });

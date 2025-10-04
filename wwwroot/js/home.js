@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   toggle.addEventListener("change", () => {
     const isDark = root.classList.toggle("dark");
     localStorage.setItem("theme", isDark?"dark":"light");
-    sunIcon.className = isDark?"bx bx-sun":"bxs-sun";
-    moonIcon.className = isDark?"bx bx-moon":"bxs-moon";
+    sunIcon.className = isDark?"bx bx-sun":"bx bxs-sun";
+    moonIcon.className = isDark?"bx bx-moon":"bx bxs-moon";
   });
 
   // ---------------- Sidebar Tabs ----------------
