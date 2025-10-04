@@ -13,6 +13,7 @@ namespace MonkeyAssenbly.Controllers
             ViewBag.ProfileUrl = Url.Action("Profile", "Profile");
             ViewBag.LoginUrl = Url.Action("Login", "Login");
             ViewBag.SignupUrl = Url.Action("Signup", "Signup");
+            ViewBag.DetailHostUrl = Url.Action("DetailHost", "DetailHost");
             base.OnActionExecuting(filterContext);
         }
     }

@@ -350,13 +350,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 dropdown.classList.toggle("show");
             });
 
-            editBtn.addEventListener("click", async (e) => {
-                e.stopPropagation();
-                dropdown.classList.remove("show");
-
-                console.log("Edit post:", postId);
-                alert(`แก้ไขโพสต์ ID: ${postId}`);
+            editBtn.addEventListener("click", () => {
+                window.location.href = `/DetailHost/${postId}`;
             });
+
 
             deleteBtn.addEventListener("click", async (e) => {
                 e.stopPropagation();

@@ -1,8 +1,10 @@
 // ---------------- Config ----------------
-const SERVER_URL = "http://localhost:3000";
+const SERVER_URL = "http://localhost:7014";
 const currentUserId = localStorage.getItem("userId");
 const urlParams = new URLSearchParams(window.location.search);
-const activityId = urlParams.get("id");
+const activityId = document.body.dataset.postId;
+console.log("Post ID ที่รับมา:", activityId);
+
 if (!activityId) alert("ไม่พบ ID ของกิจกรรม");
 
 // ---------------- Theme / Sidebar ----------------
@@ -33,11 +35,11 @@ sidebarLinks.forEach((link, index) => {
         link.classList.add("active");
 
         switch (index) {
-            case 0: window.location.href = "/frontend/HTML/home.html"; break;
-            case 1: window.location.href = "/frontend/HTML/tags.html"; break;
+            case 0: window.location.href = window.LoginUrl; break;
+            case 1: window.location.href = window.TagsUrl; break;
             case 2: alert("Create event modal here"); break;
-            case 3: window.location.href = "/frontend/HTML/notify.html"; break;
-            case 4: window.location.href = "/frontend/HTML/profile.html"; break;
+            case 3: window.location.href = window.NotifyUrl; break;
+            case 4: window.location.href = window.ProfileUrl; break;
         }
     });
 });
@@ -83,16 +85,16 @@ hamburgerBtn.addEventListener("click", () => {
 // ---------------- Load Activity ----------------
 async function loadActivity() {
     try {
-        const res = await fetch(`${SERVER_URL}/api/activity/${activityId}`);
+        const res = await fetch(`/Post/GetPostById/${activityId}`);
         if (!res.ok) throw new Error("ไม่พบกิจกรรม");
         const data = await res.json();
 
-        document.getElementById("activityTitle").textContent = data.title;
-        document.getElementById("activityTag").innerHTML = `<strong>Tag :</strong> ${data.tag}`;
-        document.getElementById("activityDeadline").innerHTML = `${data.deadline}`;
-        document.getElementById("activityHost").textContent = data.host;
-        document.getElementById("activityPlace").textContent = data.place;
-        document.getElementById("activityDetails").textContent = data.details;
+        document.getElementById("activityTitle").textContent = data.post.eventName;
+        document.getElementById("activityTag").innerHTML = `<strong>Tag :</strong> ${data.tags}`;
+        document.getElementById("activityDeadline").innerHTML = `${data.post.dateClose}`;
+        document.getElementById("activityHost").textContent = data.post.host;
+        document.getElementById("activityPlace").textContent = data.post.location;
+        document.getElementById("activityDetails").textContent = data.post.description;
     } catch (err) {
         alert(err.message);
     }
@@ -143,31 +145,31 @@ async function loadParticipants() {
 }
 
 // ---------------- Load Comments ----------------
-async function loadComments() {
-    try {
-        const res = await fetch(`${SERVER_URL}/api/activity/${activityId}/comments`);
-        if (!res.ok) throw new Error("โหลดคอมเมนต์ไม่สำเร็จ");
-        const comments = await res.json();
+//async function loadComments() {
+//    try {
+//        const res = await fetch(`/Post/GetCommentByPostId/7`);
+//        if (!res.ok) throw new Error("โหลดคอมเมนต์ไม่สำเร็จ");
+//        const comments = await res.json();
 
-        const commentList = document.getElementById("commentList");
-        commentList.innerHTML = "";
-        comments.forEach(c => {
-            const div = document.createElement("div");
-            div.className = c.userId === currentUserId ? "comment participant" : "comment host";
-            div.innerHTML = `
-                <div class="avatar ${div.className.includes("host") ? "host" : "participant"}">${c.user[0]}</div>
-                <div class="bubble">
-                    <div class="meta">
-                        <span class="name">${c.user}</span>
-                        <span class="time">${c.time}</span>
-                    </div>
-                    <div class="text">${c.text}</div>
-                </div>`;
-            commentList.appendChild(div);
-        });
-        commentList.scrollTop = commentList.scrollHeight;
-    } catch (err) { alert(err.message); }
-}
+//        const commentList = document.getElementById("commentList");
+//        commentList.innerHTML = "";
+//        comments.forEach(c => {
+//            const div = document.createElement("div");
+//            div.className = c.userId === currentUserId ? "comment participant" : "comment host";
+//            div.innerHTML = `
+//                <div class="avatar ${div.className.includes("host") ? "host" : "participant"}">${c.user[0]}</div>
+//                <div class="bubble">
+//                    <div class="meta">
+//                        <span class="name">${c.user}</span>
+//                        <span class="time">${c.time}</span>
+//                    </div>
+//                    <div class="text">${c.text}</div>
+//                </div>`;
+//            commentList.appendChild(div);
+//        });
+//        commentList.scrollTop = commentList.scrollHeight;
+//    } catch (err) { alert(err.message); }
+//}
 
 // ---------------- Send Comment ----------------
 document.getElementById("sendComment").addEventListener("click", async () => {
