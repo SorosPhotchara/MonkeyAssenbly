@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MonkeyAssenbly.Models;
+using Npgsql; // เพิ่มบรรทัดนี้
+
 // using Npgsql; // ไม่ต้องใช้ถ้า mock ข้อมูล
 
 namespace MonkeyAssenbly.Controllers
@@ -97,30 +99,56 @@ namespace MonkeyAssenbly.Controllers
         /// ส่ง mock ข้อมูลแจ้งเตือนล่าสุด (ไม่ดึงจาก database)
         /// </summary>
         [HttpGet]
-        public IActionResult Latest()
+        public async Task<IActionResult> Latest()
         {
-            // สร้าง mock ข้อมูลแจ้งเตือน
-            var notifications = new List<object>
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
             {
-                new {
-                    type = "comment",
-                    message = "คุณ A คอมเมนต์ในโพสต์ 'เที่ยวเชียงใหม่'",
-                    time = "09:01"
-                },
-                new {
-                    type = "join",
-                    message = "คุณ B เข้าร่วมโพสต์ 'เที่ยวเชียงใหม่'",
-                    time = "09:00"
-                },
-                new {
-                    type = "full",
-                    message = "โพสต์ 'เที่ยวเชียงใหม่' มีผู้เข้าร่วมครบแล้ว",
-                    time = "08:59"
-                }
-            };
+                return Unauthorized();
+            }
 
-            // ส่งข้อมูล mock กลับไปเป็น JSON
+            var notifications = new List<object>();
+            await using var conn = new NpgsqlConnection(_connectionString);
+            await conn.OpenAsync();
+
+            // เพิ่ม notification_id ใน SELECT
+            var sql = @"SELECT notification_id, type, message, created_at
+                        FROM ""NotificationTable""
+                        WHERE user_id = @user_id
+                        ORDER BY created_at DESC
+                        LIMIT 20";
+            await using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@user_id", userId.Value);
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                notifications.Add(new
+                {
+                    notification_id = reader.GetInt32(0), // index 0 คือ notification_id
+                    type = reader.GetString(1),
+                    message = reader.GetString(2),
+                    time = reader.GetDateTime(3).ToString("HH:mm")
+                });
+            }
             return Json(notifications);
+        }
+
+        /// <summary>
+        /// ฟังก์ชันสำหรับบันทึกแจ้งเตือนใหม่ลง database
+        /// </summary>
+        private async Task AddNotificationAsync(string type, string message, int? userId, int? postId)
+        {
+            await using var conn = new NpgsqlConnection(_connectionString);
+            await conn.OpenAsync();
+            var sql = @"INSERT INTO ""NotificationTable"" (type, message, user_id, post_id, created_at)
+                        VALUES (@type, @message, @user_id, @post_id, NOW())";
+            await using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@type", type);
+            cmd.Parameters.AddWithValue("@message", message);
+            cmd.Parameters.AddWithValue("@user_id", (object?)userId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@post_id", (object?)postId ?? DBNull.Value);
+            await cmd.ExecuteNonQueryAsync();
         }
     }
 }

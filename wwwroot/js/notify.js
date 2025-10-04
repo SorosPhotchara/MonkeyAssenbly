@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const SERVER_URL = "http://localhost:3000"; // backend URL
   const notifyList = document.querySelector('.notify-list');
   const currentUserId = localStorage.getItem("userId") || "";
@@ -98,7 +98,9 @@ document.addEventListener("DOMContentLoaded", () => {
       let icon = "";
       if(item.type === "comment") icon = "💬";
       else if(item.type === "join") icon = "👤";
+      else if(item.type === "unjoin") icon = "❌";
       else if(item.type === "full") icon = "⚠️";
+      else if(item.type === "follow") icon = "⭐";
       const notifyItem = document.createElement('div');
       notifyItem.className = 'notify-item';
       notifyItem.innerHTML = `
@@ -111,6 +113,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // โหลดซ้ำทุก 1 นาที
-  setInterval(loadNotifications, 60000);
+  setInterval(loadNotifications, 15000);
   loadNotifications();
+
+  // โหลดข้อมูลแจ้งเตือนที่สุดท้าย
+  try {
+    const res = await fetch("/Notify/Latest");
+    const notifications = await res.json();
+    if (notifications.length > 0) {
+      sessionStorage.setItem("lastReadNotificationId", notifications[0].notification_id);
+    }
+  } catch (e) {}
 });

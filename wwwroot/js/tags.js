@@ -1,8 +1,8 @@
 // --------------------------------- Tag หน้า Tags --------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const SERVER_URL = "http://localhost:5122";
-  let currentUserId = localStorage.getItem("userId") || "";
-  let isLoggedIn = !!currentUserId;
+  let currentUserId = null;
+  let isLoggedIn = false;
 
   // ---------------- Theme ----------------
   const root = document.documentElement;
@@ -111,5 +111,55 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  loadTags();
+  // ---------------- Notification ----------------
+  // ====== Notification Dot ======
+const notifyDot = document.querySelector('.notify-dot');
+const notifyLink = document.querySelector('.notify-link');
+
+async function checkNotification() {
+  if (!notifyDot || !isLoggedIn) return;
+  try {
+    const res = await fetch("/Notify/Latest");
+    const notifications = await res.json();
+    if (notifications.length === 0) {
+      notifyDot.style.display = "none";
+      return;
+    }
+    // notification ใหม่สุดอยู่ index 0
+    const latestId = notifications[0].notification_id;
+    const lastReadId = Number(sessionStorage.getItem("lastReadNotificationId") || 0);
+
+    if (latestId > lastReadId) {
+      notifyDot.style.display = "block";
+    } else {
+      notifyDot.style.display = "none";
+    }
+  } catch (e) {
+    notifyDot.style.display = "none";
+  }
+}
+
+if (notifyLink) {
+  notifyLink.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/Notify/Latest");
+      const notifications = await res.json();
+      if (notifications.length > 0) {
+        sessionStorage.setItem("lastReadNotificationId", notifications[0].notification_id);
+      }
+      notifyDot.style.display = "none";
+    } catch (e) {}
+  });
+}
+
+setInterval(checkNotification, 5000);
+
+checkNotification();
+   loadTags();
+
+  // ---------------- Session Data ----------------
+  const response = await fetch('/Profile/GetSessionData');
+  const data = await response.json();
+  currentUserId = data.userId || null;
+  isLoggedIn = data.isLoggedIn || false;
 });
