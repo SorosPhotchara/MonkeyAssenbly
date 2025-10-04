@@ -75,21 +75,16 @@ document.addEventListener("DOMContentLoaded", () => {
   async function loadNotifications(){
     if(!notifyList) return;
 
-    if(!isLoggedIn){
-    notifyList.innerHTML = "<div class='login-prompt'>กรุณา Login ก่อน</div>";
-    return;
-    }
-        notifyList.innerHTML = "กำลังโหลด...";
+    // ไม่ต้องเช็ค login ถ้าไม่จำเป็น
+    notifyList.innerHTML = "กำลังโหลด...";
 
     try{
-      const res = await fetch(`${SERVER_URL}/notifications?userId=${currentUserId}`);
-      const notifications = await res.json(); // [{id, postId, msg, color, createdAt}, ...]
-
-      if(notifications.length === 0){
+      const res = await fetch("/Notify/Latest");
+      const notifications = await res.json(); // [{type, message, time}, ...]
+      if(!notifications || notifications.length === 0){
         notifyList.innerHTML = "<p class='notify-empty'>ไม่มีแจ้งเตือน</p>";
         return;
       }
-
       renderNotifications(notifications);
     } catch(err){
       notifyList.innerHTML = "ไม่สามารถโหลดแจ้งเตือนได้";
@@ -100,22 +95,22 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderNotifications(notifications){
     notifyList.innerHTML = "";
     notifications.forEach(item => {
+      let icon = "";
+      if(item.type === "comment") icon = "💬";
+      else if(item.type === "join") icon = "👤";
+      else if(item.type === "full") icon = "⚠️";
       const notifyItem = document.createElement('div');
       notifyItem.className = 'notify-item';
       notifyItem.innerHTML = `
-        <span class="notify-avatar" style="background:${item.color||"#7B2FF2"}"></span>
-        <div class="notify-content">
-          <span class="notify-msg">${item.msg}</span>
-          <small>${item.createdAt ? new Date(item.createdAt).toLocaleString() : ""}</small>
-        </div>
+        <span class="notify-icon">${icon}</span>
+        <span class="notify-msg">${item.message}</span>
+        <span class="notify-time">${item.time}</span>
       `;
-      notifyItem.style.cursor = "pointer";
-      notifyItem.addEventListener("click", () => {
-        window.location.href = `/frontend/HTML/detailhost.html?postId=${item.postId}`;
-      });
       notifyList.appendChild(notifyItem);
     });
   }
 
+  // โหลดซ้ำทุก 1 นาที
+  setInterval(loadNotifications, 60000);
   loadNotifications();
 });
