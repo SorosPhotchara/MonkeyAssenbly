@@ -403,10 +403,21 @@ document.addEventListener("DOMContentLoaded", () => {
             container.innerHTML = "";
             history.forEach(h => {
                 const div = document.createElement("div");
-                div.className = "history-item";
+                div.className = "post-item";
                 div.innerHTML = `
-                    <p>${h.eventName}</p>
-                    <small>${h.dateOpen}</small>
+                    <div class="post-header">
+                        <div class="post-user">
+                            <img src="${h.avatar || '/picture/default-avatar.png'}" class="post-avatar">
+                            <div class="post-info">
+                                <h3>${h.host}</h3>
+                                <div class="timestamp">${h.dateOpen} ถึง ${h.dateClose}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-body">
+                        <h4>${h.eventName}</h4>
+                        <p>${h.description}</p>
+                    </div>
                 `;
                 container.appendChild(div);
             });
