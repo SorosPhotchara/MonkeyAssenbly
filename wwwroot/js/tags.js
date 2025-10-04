@@ -1,8 +1,16 @@
-// --------------------------------- Tag หน้า Tags --------------------------------------------
 document.addEventListener("DOMContentLoaded", async () => {
   const SERVER_URL = "http://localhost:5122";
-  let currentUserId = null;
-  let isLoggedIn = false;
+  
+  // ✅ 1. Fetch session ก่อนอื่นหมด
+  console.log("🔍 Starting session check...");
+  const response = await fetch('/Profile/GetSessionData');
+  const data = await response.json();
+  let currentUserId = data.userId || null;
+  let isLoggedIn = data.isLoggedIn || false;
+
+  console.log("📋 Session Data:", data);
+  console.log("✅ Login Status:", isLoggedIn ? "Logged in" : "Not logged in");
+  console.log("👤 User ID:", currentUserId);
 
   // ---------------- Theme ----------------
   const root = document.documentElement;
@@ -55,17 +63,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   function updateMenu(){
     menuList.innerHTML = "";
     if(!isLoggedIn){
-      addMenuItem("เข้าสู่ระบบ", ()=>window.location.href="/frontend/HTML/login.html");
-      addMenuItem("สมัครสมาชิก", ()=>window.location.href="/frontend/HTML/signup.html");
+      addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
+      addMenuItem("สมัครสมาชิก", () => window.location.href = window.SignupUrl);
     } else {
-      addMenuItem("โปรไฟล์ของฉัน", ()=>window.location.href="/frontend/HTML/profile.html");
+      addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
       addMenuItem("ออกจากระบบ", async ()=>{
         try{
           await fetch("/Account/Logout",{method:"POST"});
           localStorage.removeItem("userId");
-          currentUserId=""; isLoggedIn=false;
-          updateMenu();
           alert("ออกจากระบบเรียบร้อย");
+          location.reload();
         } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
       });
     }
@@ -95,9 +102,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const card = document.createElement("div");
       card.className = "tag-card";
-      card.textContent = tag.name;  // ชื่อ tag จาก JSON
+      card.textContent = tag.name;
       card.addEventListener("click", () => {
-        // ไปหน้า Home พร้อม filter tag
         window.location.href = `/Home?tag=${encodeURIComponent(tag.name)}`;
       });
 
@@ -111,55 +117,71 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  // ---------------- Notification ----------------
   // ====== Notification Dot ======
-const notifyDot = document.querySelector('.notify-dot');
-const notifyLink = document.querySelector('.notify-link');
+  const notifyDot = document.querySelector('.notify-dot');
+  const notifyLink = document.querySelector('.notify-link');
 
-async function checkNotification() {
-  if (!notifyDot || !isLoggedIn) return;
-  try {
-    const res = await fetch("/Notify/Latest");
-    const notifications = await res.json();
-    if (notifications.length === 0) {
-      notifyDot.style.display = "none";
+  async function checkNotification() {
+    console.log("🔔 checkNotification called");
+    console.log("  - notifyDot exists:", !!notifyDot);
+    console.log("  - isLoggedIn:", isLoggedIn);
+    
+    if (!notifyDot) {
+      console.log("❌ notifyDot not found in DOM!");
       return;
     }
-    // notification ใหม่สุดอยู่ index 0
-    const latestId = notifications[0].notification_id;
-    const lastReadId = Number(sessionStorage.getItem("lastReadNotificationId") || 0);
-
-    if (latestId > lastReadId) {
-      notifyDot.style.display = "block";
-    } else {
-      notifyDot.style.display = "none";
+    
+    if (!isLoggedIn) {
+      console.log("❌ User not logged in, skipping notification check");
+      return;
     }
-  } catch (e) {
-    notifyDot.style.display = "none";
-  }
-}
-
-if (notifyLink) {
-  notifyLink.addEventListener("click", async () => {
+    
     try {
+      console.log("📡 Fetching notifications...");
       const res = await fetch("/Notify/Latest");
       const notifications = await res.json();
-      if (notifications.length > 0) {
-        sessionStorage.setItem("lastReadNotificationId", notifications[0].notification_id);
+      console.log("📬 Notifications received:", notifications);
+      
+      if (notifications.length === 0) {
+        console.log("ℹ️ No notifications");
+        notifyDot.style.display = "none";
+        return;
       }
+      
+      const latestId = notifications[0].notification_id;
+      const lastReadId = Number(sessionStorage.getItem("lastReadNotificationId") || 0);
+      console.log("🆔 Latest ID:", latestId, "Last Read ID:", lastReadId);
+
+      if (latestId > lastReadId) {
+        console.log("🔴 Showing notification dot");
+        notifyDot.style.display = "block";
+      } else {
+        console.log("✅ All notifications read");
+        notifyDot.style.display = "none";
+      }
+    } catch (e) {
+      console.error("❌ Error checking notifications:", e);
       notifyDot.style.display = "none";
-    } catch (e) {}
-  });
-}
+    }
+  }
 
-setInterval(checkNotification, 5000);
+  if (notifyLink) {
+    notifyLink.addEventListener("click", async () => {
+      try {
+        const res = await fetch("/Notify/Latest");
+        const notifications = await res.json();
+        if (notifications.length > 0) {
+          sessionStorage.setItem("lastReadNotificationId", notifications[0].notification_id);
+        }
+        notifyDot.style.display = "none";
+      } catch (e) {}
+    });
+  }
 
-checkNotification();
-   loadTags();
+  // ✅ เรียกใช้งานหลังจาก session ถูก fetch แล้ว
+  console.log("⏰ Setting up notification check interval");
+  checkNotification(); // เรียกทันที
+  setInterval(checkNotification, 5000); // เรียกทุก 5 วินาที
 
-  // ---------------- Session Data ----------------
-  const response = await fetch('/Profile/GetSessionData');
-  const data = await response.json();
-  currentUserId = data.userId || null;
-  isLoggedIn = data.isLoggedIn || false;
+  loadTags();
 });
