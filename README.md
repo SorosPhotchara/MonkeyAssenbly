@@ -40,7 +40,7 @@ We're a team of passionate developers from KMITL, crafting cutting-edge web appl
 | 💅 CSS3 | Styling | ![Active](https://img.shields.io/badge/Active-brightgreen) |
 | ⚡ JavaScript | Interactivity | ![Active](https://img.shields.io/badge/Active-brightgreen) |
 | 🔷 ASP.NET MVC | Backend Framework | ![Active](https://img.shields.io/badge/Active-brightgreen) |
-| 🗄️ NEONDB | Database | ![Active](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_NQW1VigWa6PmBSLnIhxoXGbmLeaS-5htFg&s) |
+| 🗄️ NEONDB | Database | ![Active](https://img.shields.io/badge/Active-brightgreen) |
 
 </div>
 
@@ -52,9 +52,9 @@ We're a team of passionate developers from KMITL, crafting cutting-edge web appl
 const projectFeatures = {
   design: "Modern & Responsive 📱",
   performance: "Lightning Fast ⚡",
-  security: "Fort Knox Level 🔒",
+  security: "Don't have 🔒",
   ux: "Smooth as Butter 🧈",
-  innovation: "Next-Gen Tech 🚀"
+  innovation: "No need🚀"
 };
 ```
 
@@ -76,16 +76,6 @@ const projectFeatures = {
 
 </div>
 
----
-
-## 🔥 Why This Project Rocks
-
-- ✅ **Industry-Standard Practices** - Following best practices from day one
-- ✅ **Cutting-Edge Technologies** - Using the latest and greatest tools
-- ✅ **Team Synergy** - Collaboration at its finest
-- ✅ **Innovation Mindset** - Always pushing boundaries
-- ✅ **Quality Assurance** - Testing, testing, and more testing
-
 
 
 ## 🌟 Team Members
@@ -99,8 +89,7 @@ const projectFeatures = {
 
 **CEDT KMITL Group 2** | Building Tomorrow's Web Today
 
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SorosPhotchara/MonkeyAssenbly)
 
 </div>
 
