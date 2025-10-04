@@ -1,7 +1,47 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const TIMEZONE = "Asia/Bangkok";
-  let currentUserId = localStorage.getItem("userId") || "";
-  let isLoggedIn = !!currentUserId;
+  const addBtn = document.querySelector(".sidebar .add"); 
+  const createEventModal = document.getElementById("createEventModal");
+  const closeModalBtn = document.querySelector(".close-btn");
+  const response = await fetch('/Profile/GetSessionData');
+  const data = await response.json();
+
+  // ==================== เช็ค LOGIN จาก SESSION START ====================
+  let currentUserId = null;
+  let isLoggedIn = false;
+  let currentUserName = "";
+  
+  // เช็ค login status จาก server session (ไม่ใช่ localStorage)
+  async function checkLoginStatus() {
+    try {
+      
+      const response = await fetch('/Profile/GetSessionData');
+      const data = await response.json();
+      
+      if (data.isLoggedIn) {
+        isLoggedIn = true;
+        currentUserId = data.userId;
+        currentUserName = `${data.firstName} ${data.lastName}`;
+        console.log("✅ User logged in:", currentUserName, "ID:", currentUserId);
+      } else {
+        isLoggedIn = false;
+        currentUserId = null;
+        console.log("❌ User not logged in");
+      }
+      
+      // อัพเดท menu หลังเช็ค login เสร็จ
+      updateMenu();
+      
+    } catch (error) {
+      console.error("Error checking login:", error);
+      isLoggedIn = false;
+      currentUserId = null;
+    }
+  }
+
+  // เรียกเช็ค login ตอนโหลดหน้า
+  await checkLoginStatus();
+  // ==================== เช็ค LOGIN จาก SESSION END ====================
 
   // ---------------- Theme ----------------
   const root = document.documentElement;
@@ -44,26 +84,31 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------- Sidebar Menu Items ----------------
-  const addMenuItem = (text,onClick)=>{ const li=document.createElement("li"); li.textContent=text; li.addEventListener("click", onClick); menuList.appendChild(li); };
+  const addMenuItem = (text,onClick)=>{ 
+    const li=document.createElement("li"); 
+    li.textContent=text; 
+    li.addEventListener("click", onClick); 
+    menuList.appendChild(li); 
+  };
+  
   const updateMenu = ()=>{
     menuList.innerHTML="";
     if(!isLoggedIn){
       addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
       addMenuItem("สมัครสมาชิก",()=>window.location.href= window.SignupUrl);
     } else {
-      addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
+      addMenuItem(`โปรไฟล์: ${currentUserName}`, () => window.location.href = window.ProfileUrl);
       addMenuItem("ออกจากระบบ", async ()=>{
         try{
           await fetch("/Login/Logout",{method:"POST"});
-          localStorage.removeItem("userId");
-          currentUserId=""; isLoggedIn=false; updateMenu();
           alert("ออกจากระบบเรียบร้อย");
           window.location.reload();
-        } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
+        } catch(err){ 
+          alert("เกิดข้อผิดพลาด: "+err.message); 
+        }
       });
     }
   };
-  updateMenu();
 
   // ---------------- Event Feed ----------------
   const forYouFeed = document.getElementById("for-you");
@@ -183,12 +228,19 @@ document.addEventListener("DOMContentLoaded", () => {
   updateEventCards();
 
   // ---------------- Create Event Modal ----------------
-  const addBtn = document.querySelector(".sidebar .add"); 
-  const createEventModal = document.getElementById("createEventModal");
-  const closeModalBtn = document.querySelector(".close-btn");
-
+  
   addBtn.addEventListener("click", (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
+    
+    // ✅ เช็คว่า login หรือยัง
+    console.log("hellotest",data.isLoggedIn);
+    if (!data.isLoggedIn) {
+      
+      alert("กรุณาเข้าสู่ระบบก่อนสร้างกิจกรรม");
+      window.location.href = window.LoginUrl;
+      return;
+    }
+    
     createEventModal.style.display = "flex";
   });
 
@@ -206,18 +258,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const popup = document.getElementById("event-popup");
   const closePopupBtn = document.getElementById("close-popup");
-  let currentPostId = null; // เก็บ post_id ปัจจุบันที่เปิดอยู่
+  let currentPostId = null;
 
-  // เปิด popup และโหลด comments
   function openPopup(event) {
-    currentPostId = event.id; // เก็บ post_id ไว้ใช้ตอนส่ง comment
+    currentPostId = event.id;
     
-    // แสดงข้อมูล event
     document.getElementById("event-title").textContent = event.eventName;
     document.getElementById("event-host").textContent = event.host;
     document.getElementById("event-place").textContent = event.location || "ไม่ระบุ";
     
-    // แสดงรายชื่อผู้เข้าร่วม
     const participantsList = document.getElementById("participants-list");
     participantsList.innerHTML = "";
     if(event.participants && event.participants.length > 0) {
@@ -230,14 +279,10 @@ document.addEventListener("DOMContentLoaded", () => {
       participantsList.innerHTML = "<li>ยังไม่มีผู้เข้าร่วม</li>";
     }
     
-    // โหลด comments
     loadComments(currentPostId);
-    
-    // แสดง popup
     popup.classList.remove("hidden");
   }
 
-  // โหลด comments จาก database
   async function loadComments(postId) {
     const commentList = document.getElementById("popup-comment-list");
     commentList.innerHTML = "<p>กำลังโหลด...</p>";
@@ -247,11 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error("ไม่สามารถโหลด comments ได้");
       
       const comments = await response.json();
-      
-      // ล้างข้อมูลเก่า
       commentList.innerHTML = "";
       
-      // แสดง comments
       if (comments.length === 0) {
         commentList.innerHTML = "<p style='text-align:center; color:var(--sub-font); padding:20px;'>ยังไม่มีความคิดเห็น</p>";
       } else {
@@ -267,7 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
       
-      // Scroll ไปล่างสุด
       commentList.scrollTop = commentList.scrollHeight;
       
     } catch (error) {
@@ -276,29 +317,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ส่ง comment ใหม่
+  // ส่ง comment
   document.getElementById("popup-comment-send").addEventListener("click", async () => {
     const input = document.getElementById("popup-comment-input");
     const text = input.value.trim();
     
-    // ตรวจสอบว่ากรอกข้อความหรือยัง
+    // ✅ เช็คว่า login หรือยัง
+    console.log("hellotest",data.isLoggedIn);
+    if (!data.isLoggedIn) {
+      
+      alert("กรุณาเข้าสู่ระบบก่อน Comment");
+      window.location.href = window.LoginUrl;
+      return;
+    }
+
     if (!text) {
       alert("กรุณากรอกความคิดเห็น");
       return;
     }
     
-    // ตรวจสอบว่าเปิด popup อยู่หรือไม่
     if (!currentPostId) {
       alert("เกิดข้อผิดพลาด");
       return;
     }
     
     try {
-      // ส่งข้อมูลไปยัง server
+      // ส่ง request ไป backend จะเช็ค session เอง
       const response = await fetch(`/Post/AddComment?postId=${currentPostId}&commentText=${encodeURIComponent(text)}`, {
         method: "POST"
       });
       
+      // ถ้า backend ตอบว่า unauthorized
       if (response.status === 401) {
         alert("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
         window.location.href = window.LoginUrl;
@@ -309,10 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("ไม่สามารถส่ง comment ได้");
       }
       
-      // ล้าง input
       input.value = "";
-      
-      // โหลด comments ใหม่
       loadComments(currentPostId);
       
     } catch (error) {
@@ -321,26 +367,56 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // กด Enter ก็ส่ง comment ได้
   document.getElementById("popup-comment-input").addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       document.getElementById("popup-comment-send").click();
     }
   });
 
-  // ปิด popup
-  closePopupBtn.addEventListener("click", () => {
-    popup.classList.add("hidden");
-    currentPostId = null; // ล้างค่า
-    document.getElementById("popup-comment-input").value = ""; // ล้าง input
+  // ปุ่ม JOIN
+  document.getElementById("popup-join-btn").addEventListener("click", async () => {
+    
+    if (!currentPostId) {
+      alert("เกิดข้อผิดพลาด");
+      return;
+    }
+    
+    try {
+      // ส่ง request ไป backend จะเช็ค session เอง
+      const response = await fetch(`/Post/JoinEvent?postId=${currentPostId}`, {
+        method: "POST"
+      });
+      
+      // ถ้า backend ตอบว่า unauthorized
+      if (response.status === 401) {
+        alert("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
+        window.location.href = window.LoginUrl;
+        return;
+      }
+      
+      if (!response.ok) throw new Error("ไม่สามารถเข้าร่วมได้");
+      
+      alert("เข้าร่วมกิจกรรมสำเร็จ!");
+      loadEvents();
+      popup.classList.add("hidden");
+      
+    } catch (error) {
+      console.error("Error joining event:", error);
+      alert("คุณอยู่ในกิจกรรมนี้อยู่แล้ว");
+    }
   });
 
-// ==================== POPUP & COMMENT SYSTEM END ====================
+  closePopupBtn.addEventListener("click", () => {
+    popup.classList.add("hidden");
+    currentPostId = null;
+    document.getElementById("popup-comment-input").value = "";
+  });
+
+  // ==================== POPUP & COMMENT SYSTEM END ====================
 
   // ---------------- Initial Load ----------------
   loadEvents();
   
-  // Auto-hide alerts after 5 seconds
   setTimeout(() => {
     document.querySelectorAll('.alert').forEach(alert => {
       alert.style.display = 'none';

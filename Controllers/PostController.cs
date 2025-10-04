@@ -352,5 +352,109 @@ namespace MonkeyAssenbly.Controllers
         }
 
         // ==================== COMMENT SYSTEM END ====================
+
+        // ==================== JOIN EVENT SYSTEM START ====================
+
+        // เข้าร่วมกิจกรรม
+        [HttpPost]
+        public IActionResult JoinEvent(int postId)
+        {
+            // เช็คว่า login หรือยัง
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+                using var tran = connection.BeginTransaction();
+
+                try
+                {
+                    // 1. ดึงข้อมูล post ปัจจุบัน
+                    var selectSql = @"
+                        SELECT post_current_paticipants, post_max_paticipants, post_status, post_owner_id
+                        FROM ""PostTable""
+                        WHERE post_id = @postId";
+
+                    int[] currentParticipants;
+                    int maxParticipants;
+                    bool postStatus;
+                    int ownerId;
+
+                    using (var selectCmd = new NpgsqlCommand(selectSql, connection, tran))
+                    {
+                        selectCmd.Parameters.AddWithValue("postId", postId);
+                        using var reader = selectCmd.ExecuteReader();
+
+                        if (!reader.Read())
+                        {
+                            return NotFound(new { message = "ไม่พบกิจกรรมนี้" });
+                        }
+
+                        currentParticipants = reader.IsDBNull(0) 
+                            ? new int[0] 
+                            : reader.GetFieldValue<int[]>(0);
+                        maxParticipants = reader.GetInt32(1);
+                        postStatus = reader.GetBoolean(2);
+                        ownerId = reader.GetInt32(3);
+                    }
+
+                    // 2. ตรวจสอบเงื่อนไข
+
+                    // เช็คว่าเป็น host หรือไม่
+                    if (ownerId == userId.Value)
+                    {
+                        return BadRequest(new { message = "คุณเป็นเจ้าของกิจกรรมนี้ ไม่สามารถ join ได้" });
+                    }
+
+                    // 2. ตรวจสอบเงื่อนไข
+                    if (!postStatus)
+                    {
+                        return BadRequest(new { message = "กิจกรรมนี้ปิดรับสมัครแล้ว" });
+                    }
+
+                    if (currentParticipants.Contains(userId.Value))
+                    {
+                        return BadRequest(new { message = "คุณเข้าร่วมกิจกรรมนี้แล้ว" });
+                    }
+
+                    if (currentParticipants.Length >= maxParticipants)
+                    {
+                        return BadRequest(new { message = "กิจกรรมเต็มแล้ว" });
+                    }
+
+                    // 3. เพิ่ม user เข้า participants array
+                    var newParticipants = currentParticipants.Append(userId.Value).ToArray();
+
+                    var updateSql = @"
+                        UPDATE ""PostTable""
+                        SET post_current_paticipants = @participants
+                        WHERE post_id = @postId";
+
+                    using (var updateCmd = new NpgsqlCommand(updateSql, connection, tran))
+                    {
+                        updateCmd.Parameters.AddWithValue("participants", newParticipants);
+                        updateCmd.Parameters.AddWithValue("postId", postId);
+                        updateCmd.ExecuteNonQuery();
+                    }
+
+                    tran.Commit();
+
+                    Console.WriteLine($"[SUCCESS] User {userId} joined post {postId}");
+                    return Ok(new { message = "เข้าร่วมกิจกรรมสำเร็จ" });
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    Console.WriteLine($"[ERROR] JoinEvent: {ex.Message}");
+                    return StatusCode(500, new { message = "เกิดข้อผิดพลาด" });
+                }
+            }
+        }
+
+        // ==================== JOIN EVENT SYSTEM END ====================
     }
 }
