@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="event-header">
         <div class="host-info">
           ${avatarHTML}
-          <span class="host">${eventData.host}</span>
+          <span class="host" data-host-id="${eventData.hostId || ''}" style="cursor: pointer;">${eventData.host}</span>
           <small class="time">0 นาที</small>
         </div>
         <span class="status ${status}">${status.toUpperCase()}</span>
@@ -255,6 +255,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       e.stopPropagation();
       if (status !== "closed") {
         joinEvent(eventData.id, isJoined);
+      }
+    });
+    
+    // ✨ เพิ่มส่วนนี้: ทำให้ชื่อ host คลิกได้
+    const hostElement = card.querySelector(".host");
+    hostElement.addEventListener("click", e => {
+      e.stopPropagation();
+      if (eventData.hostId) {
+        window.location.href = `${window.DetailHostUrl}?userId=${eventData.hostId}`;
+      } else {
+        showToast.warning("ไม่พบข้อมูลผู้สร้างโพสต์");
       }
     });
     
@@ -330,7 +341,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Participants:", eventData.participants);
     
     document.getElementById("event-title").textContent = eventData.eventName;
-    document.getElementById("event-host").textContent = eventData.host;
+    
+    // ✨ เพิ่มส่วนนี้: ทำให้ชื่อ host ใน popup คลิกได้พร้อม hover effect
+    const hostElement = document.getElementById("event-host");
+    hostElement.textContent = eventData.host;
+    hostElement.style.cursor = "pointer";
+    hostElement.style.color = "var(--head-font)";
+    hostElement.style.transition = "color 0.2s ease";
+    
+    // Click event สำหรับ host ใน popup
+    hostElement.onclick = (e) => {
+      e.stopPropagation();
+      if (eventData.hostId) {
+        window.location.href = `${window.DetailHostUrl}?userId=${eventData.hostId}`;
+      } else {
+        showToast.warning("ไม่พบข้อมูลผู้สร้างโพสต์");
+      }
+    };
+    
+    // Hover effect
+    hostElement.onmouseenter = () => {
+      hostElement.style.color = "var(--border)";
+      hostElement.style.textDecoration = "underline";
+    };
+    hostElement.onmouseleave = () => {
+      hostElement.style.color = "var(--head-font)";
+      hostElement.style.textDecoration = "none";
+    };
+    
     document.getElementById("event-place").textContent = eventData.location || "ไม่ระบุ";
     
     const participantsList = document.getElementById("participants-list");

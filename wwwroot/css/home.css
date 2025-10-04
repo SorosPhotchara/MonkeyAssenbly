@@ -562,6 +562,14 @@ html.dark .create-btn:hover {
 .host {
   font-weight: 600;
   color: var(--head-font);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-decoration: none;
+}
+
+.host:hover {
+  color: var(--border);
+  text-decoration: underline;
 }
 
 .time {
