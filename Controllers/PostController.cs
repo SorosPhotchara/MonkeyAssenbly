@@ -124,16 +124,16 @@ namespace MonkeyAssenbly.Controllers
             return Ok(posts);
         }
 
-    [HttpGet("GetPostsByTag")]
-    public IActionResult GetPostsByTag([FromQuery] string tag)
-    {
-        var posts = new List<object>();
-
-        using (var connection = new NpgsqlConnection(_connectionString))
+        [HttpGet]
+        public IActionResult GetPostsByTag([FromQuery] string tag)
         {
-            connection.Open();
+            var posts = new List<object>();
 
-            var sql = @"
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var sql = @"
                 SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
                     p.post_time_open, p.post_time_close, 
                     p.post_date_open, p.post_date_close,
@@ -146,41 +146,41 @@ namespace MonkeyAssenbly.Controllers
                 JOIN ""TagTable"" t ON pt.tag_id = t.tag_id
                 WHERE LOWER(t.tag_name) = LOWER(@tag)";
 
-            using var command = new NpgsqlCommand(sql, connection);
-            command.Parameters.AddWithValue("tag", tag);
-            using var reader = command.ExecuteReader();
+                using var command = new NpgsqlCommand(sql, connection);
+                command.Parameters.AddWithValue("tag", tag);
+                using var reader = command.ExecuteReader();
 
-            while (reader.Read())
-            {
-                int[] currentParticipantsArray = reader.IsDBNull(reader.GetOrdinal("post_current_paticipants"))
-                    ? new int[0]
-                    : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
-
-                posts.Add(new
+                while (reader.Read())
                 {
-                    id = reader.GetInt32(reader.GetOrdinal("post_id")),
-                    eventName = reader.GetString(reader.GetOrdinal("post_titile")),
-                    description = reader.GetString(reader.GetOrdinal("post_descript")),
-                    location = reader.GetString(reader.GetOrdinal("post_place")),
-                    host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
-                    avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
-                            ? "/uploads/default-avatar.png"
-                            : reader.GetString(reader.GetOrdinal("user_avatar")),
-                    startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
-                    endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
-                    dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
-                    dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
-                    maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
-                    currentParticipants = currentParticipantsArray.Length,
-                    participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
-                    status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
-                    tag = reader.GetString(reader.GetOrdinal("tag_name"))
-                });
-            }
-        }
+                    int[] currentParticipantsArray = reader.IsDBNull(reader.GetOrdinal("post_current_paticipants"))
+                        ? new int[0]
+                        : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
 
-        return Ok(posts);
-    }
+                    posts.Add(new
+                    {
+                        id = reader.GetInt32(reader.GetOrdinal("post_id")),
+                        eventName = reader.GetString(reader.GetOrdinal("post_titile")),
+                        description = reader.GetString(reader.GetOrdinal("post_descript")),
+                        location = reader.GetString(reader.GetOrdinal("post_place")),
+                        host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                        avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
+                                ? "/uploads/default-avatar.png"
+                                : reader.GetString(reader.GetOrdinal("user_avatar")),
+                        startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
+                        endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
+                        dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
+                        dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
+                        maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
+                        currentParticipants = currentParticipantsArray.Length,
+                        participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        tag = reader.GetString(reader.GetOrdinal("tag_name"))
+                    });
+                }
+            }
+
+            return Ok(posts);
+        }
 
         // ============ CREATE POST ============
         [HttpPost]
@@ -451,8 +451,8 @@ namespace MonkeyAssenbly.Controllers
                             return NotFound(new { message = "ไม่พบกิจกรรมนี้" });
                         }
 
-                        currentParticipants = reader.IsDBNull(0) 
-                            ? new int[0] 
+                        currentParticipants = reader.IsDBNull(0)
+                            ? new int[0]
                             : reader.GetFieldValue<int[]>(0);
                         maxParticipants = reader.GetInt32(1);
                         postStatus = reader.GetBoolean(2);
@@ -513,5 +513,79 @@ namespace MonkeyAssenbly.Controllers
         }
 
         // ==================== JOIN EVENT SYSTEM END ====================
+        // ออกจากกิจกรรม
+        [HttpPost]
+        public IActionResult UnjoinEvent(int postId)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return Unauthorized(new { message = "กรุณาเข้าสู่ระบบ" });
+            }
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+                using var tran = connection.BeginTransaction();
+
+                try
+                {
+                    // ดึงข้อมูล participants ปัจจุบัน
+                    var selectSql = @"
+                        SELECT post_current_paticipants
+                        FROM ""PostTable""
+                        WHERE post_id = @postId";
+
+                    int[] currentParticipants;
+
+                    using (var selectCmd = new NpgsqlCommand(selectSql, connection, tran))
+                    {
+                        selectCmd.Parameters.AddWithValue("postId", postId);
+                        using var reader = selectCmd.ExecuteReader();
+
+                        if (!reader.Read())
+                        {
+                            return NotFound(new { message = "ไม่พบกิจกรรมนี้" });
+                        }
+
+                        currentParticipants = reader.IsDBNull(0) 
+                            ? new int[0] 
+                            : reader.GetFieldValue<int[]>(0);
+                    }
+
+                    // เช็คว่าเข้าร่วมอยู่หรือไม่
+                    if (!currentParticipants.Contains(userId.Value))
+                    {
+                        return BadRequest(new { message = "คุณไม่ได้เข้าร่วมกิจกรรมนี้" });
+                    }
+
+                    // ลบ user ออกจาก array
+                    var newParticipants = currentParticipants.Where(id => id != userId.Value).ToArray();
+
+                    var updateSql = @"
+                        UPDATE ""PostTable""
+                        SET post_current_paticipants = @participants
+                        WHERE post_id = @postId";
+
+                    using (var updateCmd = new NpgsqlCommand(updateSql, connection, tran))
+                    {
+                        updateCmd.Parameters.AddWithValue("participants", newParticipants);
+                        updateCmd.Parameters.AddWithValue("postId", postId);
+                        updateCmd.ExecuteNonQuery();
+                    }
+
+                    tran.Commit();
+
+                    Console.WriteLine($"[SUCCESS] User {userId} left post {postId}");
+                    return Ok(new { message = "ออกจากกิจกรรมสำเร็จ" });
+                }
+                catch (Exception ex)
+                {
+                    tran.Rollback();
+                    Console.WriteLine($"[ERROR] UnjoinEvent: {ex.Message}");
+                    return StatusCode(500, new { message = "เกิดข้อผิดพลาด" });
+                }
+            }
+        }
     }
 }

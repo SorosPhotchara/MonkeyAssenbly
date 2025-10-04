@@ -3,44 +3,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   const addBtn = document.querySelector(".sidebar .add"); 
   const createEventModal = document.getElementById("createEventModal");
   const closeModalBtn = document.querySelector(".close-btn");
+  
+  // ==================== เช็ค LOGIN จาก SESSION START ====================
   const response = await fetch('/Profile/GetSessionData');
   const data = await response.json();
-
-  // ==================== เช็ค LOGIN จาก SESSION START ====================
-  let currentUserId = null;
-  let isLoggedIn = false;
-  let currentUserName = "";
   
-  // เช็ค login status จาก server session (ไม่ใช่ localStorage)
-  async function checkLoginStatus() {
-    try {
-      
-      const response = await fetch('/Profile/GetSessionData');
-      const data = await response.json();
-      
-      if (data.isLoggedIn) {
-        isLoggedIn = true;
-        currentUserId = data.userId;
-        currentUserName = `${data.firstName} ${data.lastName}`;
-        console.log("✅ User logged in:", currentUserName, "ID:", currentUserId);
-      } else {
-        isLoggedIn = false;
-        currentUserId = null;
-        console.log("❌ User not logged in");
-      }
-      
-      // อัพเดท menu หลังเช็ค login เสร็จ
-      updateMenu();
-      
-    } catch (error) {
-      console.error("Error checking login:", error);
-      isLoggedIn = false;
-      currentUserId = null;
-    }
-  }
-
-  // เรียกเช็ค login ตอนโหลดหน้า
-  await checkLoginStatus();
+  let currentUserId = data.userId || null;
+  let isLoggedIn = data.isLoggedIn || false;
+  let currentUserName = data.isLoggedIn ? `${data.firstName} ${data.lastName}` : "";
+  
+  console.log("📋 Login Status:", isLoggedIn ? "✅ Logged in" : "❌ Not logged in");
+  console.log("👤 User ID:", currentUserId, "Name:", currentUserName);
   // ==================== เช็ค LOGIN จาก SESSION END ====================
 
   // ---------------- Theme ----------------
@@ -52,8 +25,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   toggle.addEventListener("change", () => {
     const isDark = root.classList.toggle("dark");
     localStorage.setItem("theme", isDark?"dark":"light");
-    sunIcon.className = isDark?"bx bx-sun":"bxs-sun";
-    moonIcon.className = isDark?"bx bx-moon":"bxs-moon";
+    sunIcon.className = isDark?"bx bx-sun":"bx bxs-sun";
+    moonIcon.className = isDark?"bx bx-moon":"bx bxs-moon";
   });
 
   // ---------------- Sidebar Tabs ----------------
@@ -102,8 +75,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           try{
             await fetch("/Account/Logout",{method:"POST"});
             localStorage.removeItem("userId");
-            currentUserId=""; isLoggedIn=false; updateMenu();
             alert("ออกจากระบบเรียบร้อย");
+            location.reload();
           } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
         });
     }
@@ -111,10 +84,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateMenu();
 
   // ---------------- Create Event Modal ----------------
-  const addBtn = document.querySelector(".sidebar .add"); 
-  const createEventModal = document.getElementById("createEventModal");
-  const closeModalBtn = document.querySelector(".close-btn");
-
   addBtn.addEventListener("click", (e) => {
     e.preventDefault(); 
     createEventModal.style.display = "flex";
@@ -135,7 +104,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const followFeed = document.getElementById("follow");
   let cachedEvents=[];
 
-  // ตรวจสอบ query string ว่ามี tag หรือไม่
   const urlParams = new URLSearchParams(window.location.search);
   const tagQuery = urlParams.get("tag");
 
@@ -157,6 +125,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  // ฟังก์ชันเช็คว่า user join แล้วหรือยัง
+  function isUserJoined(participants) {
+    if (!participants || !currentUserId) return false;
+    return participants.some(p => String(p) === String(currentUserId));
+  }
 
   function renderEventsCache(){
      forYouFeed.innerHTML=""; 
@@ -171,46 +144,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  function createEventCard(event) {
+  function createEventCard(eventData) {
     const card = document.createElement("div");
     card.className = "event-card";
-    card.dataset.eventId = event.id;
-    const status = updatePostStatus(event);
-    const avatarHTML = `<img src="${event.avatar}" alt="avatar" class="avatar">`;
+    card.dataset.eventId = eventData.id;
+    const status = updatePostStatus(eventData);
+    const avatarHTML = `<img src="${eventData.avatar}" alt="avatar" class="avatar">`;
+    const isJoined = isUserJoined(eventData.participants);
 
     card.innerHTML = `
       <div class="event-header">
         <div class="host-info">
           ${avatarHTML}
-          <span class="host">${event.host}</span>
+          <span class="host">${eventData.host}</span>
           <small class="time">0 นาที</small>
         </div>
         <span class="status ${status}">${status.toUpperCase()}</span>
       </div>
       <div class="event-body">
-        <h3>${event.eventName}</h3>
-        <p>${event.description}</p>
-        <small>สถานที่: ${event.location || "ไม่ระบุ"}</small><br>
-        <small>เวลาเปิดรับ: ${event.startTime || ""} - ${event.endTime || ""}</small><br>
-        <small>วันที่: ${event.dateOpen || ""} ถึง ${event.dateClose || ""}</small><br>
-        <small>ผู้เข้าร่วม: ${event.currentParticipants}/${event.maxParticipants || 0}</small>
+        <h3>${eventData.eventName}</h3>
+        <p>${eventData.description}</p>
+        <small>สถานที่: ${eventData.location || "ไม่ระบุ"}</small><br>
+        <small>เวลาเปิดรับ: ${eventData.startTime || ""} - ${eventData.endTime || ""}</small><br>
+        <small>วันที่: ${eventData.dateOpen || ""} ถึง ${eventData.dateClose || ""}</small><br>
+        <small>ผู้เข้าร่วม: ${eventData.currentParticipants}/${eventData.maxParticipants || 0}</small>
       </div>
       <div class="event-footer">
-        <button class="join-btn" ${status === "closed" ? "disabled" : ""}>
-          ${status === "closed" ? "CLOSED" : "JOIN"}
+        <button class="join-btn ${isJoined ? 'joined' : ''}" ${status === "closed" ? "disabled" : ""}>
+          ${status === "closed" ? "CLOSED" : (isJoined ? "UNJOIN" : "JOIN")}
         </button>
       </div>
     `;
+    
     const joinBtn = card.querySelector(".join-btn");
-    joinBtn.addEventListener("click", e=>{
+    joinBtn.addEventListener("click", e => {
       e.stopPropagation();
-      if(!isLoggedIn){ alert("กรุณาเข้าสู่ระบบเพื่อเข้าร่วม"); window.location.href=window.LoginUrl; return; }
-      joinEvent(event);
+      if (status !== "closed") {
+        joinEvent(eventData.id, isJoined);
+      }
     });
-    card.addEventListener("click", ()=>openPopup(event));
+    
+    card.addEventListener("click", () => {
+      openPopup(eventData);
+    });
+    
     return card;
   }
-
 
   function updatePostStatus(event){
     const now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
@@ -221,35 +200,70 @@ document.addEventListener("DOMContentLoaded", async () => {
     return event.status;
   }
 
-  async function joinEvent(event){
-    try{
-      const action = event.participants.includes(currentUserId)?"unjoin":"join";
-      await fetch(`${SERVER_URL}/events/${event.id}/${action}`,{
-        method:"PUT",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({userId:currentUserId})
+  // ฟังก์ชัน Join/Unjoin Event
+  async function joinEvent(postId, isCurrentlyJoined = false) {
+    if (!isLoggedIn) {
+      alert("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
+      window.location.href = window.LoginUrl;
+      return;
+    }
+    
+    const action = isCurrentlyJoined ? "Unjoin" : "Join";
+    const endpoint = `/Post/${action}Event?postId=${postId}`;
+    
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        credentials: "same-origin"
       });
+      
+      if (response.status === 401) {
+        alert("กรุณาเข้าสู่ระบบ");
+        window.location.href = window.LoginUrl;
+        return;
+      }
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        alert(result.message || "ไม่สามารถดำเนินการได้");
+        return;
+      }
+      
+      alert(result.message);
       await loadEventsByTag(tagQuery);
-    } catch(err){ alert("เกิดข้อผิดพลาดขณะ join/unjoin"); }
+      
+      if (!popup.classList.contains("hidden")) {
+        popup.classList.add("hidden");
+      }
+      
+    } catch (error) {
+      console.error("Error join/unjoin:", error);
+      alert("เกิดข้อผิดพลาด");
+    }
   }
 
   // ==================== POPUP & COMMENT SYSTEM START ====================
-
   const popup = document.getElementById("event-popup");
   const closePopupBtn = document.getElementById("close-popup");
   let currentPostId = null;
 
-  function openPopup(event) {
-    currentPostId = event.id;
+  function openPopup(eventData) {
+    currentPostId = eventData.id;
     
-    document.getElementById("event-title").textContent = event.eventName;
-    document.getElementById("event-host").textContent = event.host;
-    document.getElementById("event-place").textContent = event.location || "ไม่ระบุ";
+    console.log("=== POPUP DEBUG ===");
+    console.log("Event ID:", eventData.id);
+    console.log("Current User ID:", currentUserId, "Type:", typeof currentUserId);
+    console.log("Participants:", eventData.participants);
+    
+    document.getElementById("event-title").textContent = eventData.eventName;
+    document.getElementById("event-host").textContent = eventData.host;
+    document.getElementById("event-place").textContent = eventData.location || "ไม่ระบุ";
     
     const participantsList = document.getElementById("participants-list");
     participantsList.innerHTML = "";
-    if(event.participants && event.participants.length > 0) {
-      event.participants.forEach(p => {
+    if(eventData.participants && eventData.participants.length > 0) {
+      eventData.participants.forEach(p => {
         const li = document.createElement("li");
         li.textContent = `User ${p}`;
         participantsList.appendChild(li);
@@ -257,6 +271,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     } else {
       participantsList.innerHTML = "<li>ยังไม่มีผู้เข้าร่วม</li>";
     }
+    
+    const isJoined = isUserJoined(eventData.participants);
+    const joinBtn = document.getElementById("popup-join-btn");
+    joinBtn.textContent = isJoined ? "UNJOIN" : "JOIN";
+    joinBtn.style.backgroundColor = isJoined ? "#6c757d" : "";
     
     loadComments(currentPostId);
     popup.classList.remove("hidden");
@@ -301,10 +320,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const input = document.getElementById("popup-comment-input");
     const text = input.value.trim();
     
-    // ✅ เช็คว่า login หรือยัง
-    console.log("hellotest",data.isLoggedIn);
-    if (!data.isLoggedIn) {
-      
+    if (!isLoggedIn) {
       alert("กรุณาเข้าสู่ระบบก่อน Comment");
       window.location.href = window.LoginUrl;
       return;
@@ -321,12 +337,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     
     try {
-      // ส่ง request ไป backend จะเช็ค session เอง
       const response = await fetch(`/Post/AddComment?postId=${currentPostId}&commentText=${encodeURIComponent(text)}`, {
         method: "POST"
       });
       
-      // ถ้า backend ตอบว่า unauthorized
       if (response.status === 401) {
         alert("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
         window.location.href = window.LoginUrl;
@@ -352,37 +366,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // ปุ่ม JOIN
+  // ปุ่ม JOIN/UNJOIN ใน popup
   document.getElementById("popup-join-btn").addEventListener("click", async () => {
-    
     if (!currentPostId) {
       alert("เกิดข้อผิดพลาด");
       return;
     }
     
-    try {
-      // ส่ง request ไป backend จะเช็ค session เอง
-      const response = await fetch(`/Post/JoinEvent?postId=${currentPostId}`, {
-        method: "POST"
-      });
-      
-      // ถ้า backend ตอบว่า unauthorized
-      if (response.status === 401) {
-        alert("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
-        window.location.href = window.LoginUrl;
-        return;
-      }
-      
-      if (!response.ok) throw new Error("ไม่สามารถเข้าร่วมได้");
-      
-      alert("เข้าร่วมกิจกรรมสำเร็จ!");
-      loadEvents();
-      popup.classList.add("hidden");
-      
-    } catch (error) {
-      console.error("Error joining event:", error);
-      alert("คุณอยู่ในกิจกรรมนี้อยู่แล้ว");
-    }
+    const currentEvent = cachedEvents.find(e => e.id === currentPostId);
+    if (!currentEvent) return;
+    
+    const isJoined = isUserJoined(currentEvent.participants);
+    await joinEvent(currentPostId, isJoined);
   });
 
   closePopupBtn.addEventListener("click", () => {
@@ -395,10 +390,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---------------- Initial Load ----------------
   loadEventsByTag(tagQuery);
-  
-  setTimeout(() => {
-    document.querySelectorAll('.alert').forEach(alert => {
-      alert.style.display = 'none';
-    });
-  }, 5000);
 });
