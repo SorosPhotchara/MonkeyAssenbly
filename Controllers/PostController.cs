@@ -177,22 +177,47 @@ public class PostController : Controller
         return Ok(posts);
     }
 
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult CreatePost(
-            string eventName,
-            string description,
-            string location,
-            string lastNhostame,
-            string gender,
-            string birthdate,
-            string email,
-            string avatarUrl,
-            string bio)
+    [HttpDelete("DeletePost/{post_id}")]
+    public IActionResult DeletePost(int post_id)
     {
-        var res = "got it man";
-        return Ok(res);
+        using (var connection = new NpgsqlConnection(_connectionString))
+        {
+            connection.Open();
+
+            var sql = @"DELETE FROM ""PostTable"" WHERE post_id = @post_id";
+
+            using var command = new NpgsqlCommand(sql, connection);
+            command.Parameters.AddWithValue("post_id", post_id);
+
+            int rowsAffected = command.ExecuteNonQuery();
+
+            if (rowsAffected == 0)
+            {
+                return NotFound(new { success = false, message = "Post not found" });
+            }
+
+            return Ok(new { success = true, message = "Post deleted successfully" });
+        }
     }
+
+
+
+
+    //[HttpPost]
+    //[ValidateAntiForgeryToken]
+    //public IActionResult CreatePost(
+    //        string eventName,
+    //        string description,
+    //        string location,
+    //        string lastNhostame,
+    //        string gender,
+    //        string birthdate,
+    //        string email,
+    //        string avatarUrl,
+    //        string bio)
+    //{
+    //    var res = "got it man";
+    //    return Ok(res);
+    //}
 
 }
