@@ -86,19 +86,40 @@ hamburgerBtn.addEventListener("click", () => {
 async function loadActivity() {
     try {
         const res = await fetch(`/Post/GetPostById/${activityId}`);
+        const tags = await fetch(`/Post/GetAllTags`);
+
         if (!res.ok) throw new Error("ไม่พบกิจกรรม");
         const data = await res.json();
 
+        if (!tags.ok) throw new Error("ไม่พบ tags");
+        const tags_data = await tags.json();
+
+        const tagSelect = document.getElementById("tagSelect");
+        tagSelect.innerHTML = `<option disabled selected>-- เลือกแท็ก --</option>`;
+
+        tags_data.forEach(tag => {
+            const option = document.createElement("option");
+            option.value = tag.id;
+            option.textContent = tag.name;
+            tagSelect.appendChild(option);
+        });
+
+
+            const selectedTag = tags_data.find(t => t.name === data.tags[0]);
+            if (selectedTag) tagSelect.value = selectedTag.id;
+
         document.getElementById("activityTitle").value = data.post.eventName;
-        document.getElementById("activityTag").innerHTML = `<strong>Tag :</strong> ${data.tags}`;
-        document.getElementById("activityDeadline").value = `${data.post.dateClose}`;
+        document.getElementById("activityDeadline").value = data.post.dateClose;
         document.getElementById("activityHost").textContent = data.post.host;
         document.getElementById("activityPlace").value = data.post.location;
         document.getElementById("activityDetails").value = data.post.description;
+
     } catch (err) {
         alert(err.message);
+        console.error("❌ ERROR:", err);
     }
 }
+
 
 // ---------------- Load Participants ----------------
 //async function loadParticipants() {
@@ -177,7 +198,7 @@ document.getElementById("sendComment").addEventListener("click", async () => {
     const text = input.value.trim();
     if (!text) return;
 
-    await fetch(`${SERVER_URL}/api/comments`, {
+    await fetch(`/Post/UpdatePost/${activityId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ activityId, text })
@@ -188,9 +209,43 @@ document.getElementById("sendComment").addEventListener("click", async () => {
 
 // ---------------- Action Buttons ----------------
 document.querySelector(".update").addEventListener("click", async () => {
-    await fetch(`${SERVER_URL}/api/activity/${activityId}`, { method: "PUT" });
-    alert("อัปเดตเรียบร้อย");
+    const title = document.getElementById("activityTitle").value;
+    const description = document.getElementById("activityDetails").value;
+    const location = document.getElementById("activityPlace").value;
+    const date = document.getElementById("activityDeadline").value;
+    const tagSelect = document.getElementById("tagSelect");
+    console.log("select : ",tagSelect);
+    const tagId = tagSelect.value;
+
+    const data = {
+        eventName: title,
+        description: description,
+        location: location,
+        dateOpen: date,
+        dateClose: date,
+        startTime: "00:00",         // เพิ่มหากจำเป็น
+        endTime: "23:59",           // เพิ่มหากจำเป็น
+        maxParticipants: 10,        // เพิ่มหากจำเป็น
+        status: true,
+        tagId: tagId                // ถ้าคุณรองรับ tagId ใน DTO
+    };
+
+    const res = await fetch(`/Post/UpdatePost/${activityId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+        alert("✅ อัปเดตเรียบร้อย");
+        window.location.href = window.ProfileUrl;
+    } else {
+        alert("❌ อัปเดตล้มเหลว");
+    }
 });
+
 
 document.querySelector(".leave").addEventListener("click", async () => {
     await fetch(`${SERVER_URL}/api/activity/${activityId}/leave`, { method: "POST" });
@@ -204,5 +259,6 @@ document.querySelector(".end").addEventListener("click", async () => {
 
 // ---------------- Initial Load ----------------
 loadActivity();
+//get_all_tags();
 loadParticipants();
 loadComments();

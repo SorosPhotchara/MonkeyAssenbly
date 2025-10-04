@@ -59,15 +59,17 @@
     <main class="container">
         <section class="detail-card">
             <input type="text" name="activity-title" value="" id="activityTitle" />
-            @* <h2 class="activity-title" id="activityTitle"></h2> *@
-            <p class="tag" id="activityTag"></p>
+            <select id="tagSelect">
+                <option disabled selected>-- เลือกแท็ก --</option>
+            </select>
+
+
 
             <div class="meta-grid">
                 <div class="left-meta">
                     <div class="deadline">
                         <strong>Application Deadline</strong>
                         <input type="date" name="activityDeadline" value="" id="activityDeadline" />
-                        @* <p id="activityDeadline"></p> *@
                     </div>
                     <div class="host">
                         <strong>Host :</strong>
@@ -78,7 +80,6 @@
                     <div class="place">
                         <strong>Place :</strong>
                         <input type="text" name="activityPlace" value="" id="activityPlace" />
-                        @* <p id="activityPlace"></p> *@
                     </div>
                 </div>
             </div>
@@ -86,7 +87,6 @@
             <div class="details">
                 <strong>Details :</strong>
                 <input type="text" name="activityDetails" value="" id="activityDetails" />
-                @* <p id="activityDetails"></p> *@
             </div>
 
             <div class="participants-box">

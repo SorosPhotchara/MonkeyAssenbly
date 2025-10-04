@@ -309,38 +309,30 @@ public class PostController : Controller
         });
     }
 
-    //[HttpGet("GetCommentByPostId/{post_id}")]
-    //public IActionResult GetCommentByPostId(int post_id)
-    //{
-    //    var comments = new List<object>();
+    [HttpGet("GetAllTags")]
+    public IActionResult GetAllTags()
+    {
+        var tags = new List<object>();
 
-    //    using var connection = new NpgsqlConnection(_connectionString);
-    //    connection.Open();
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
 
-    //    var sql = @"
-    //    SELECT comment_id, user_id, comment_text, created_at
-    //    FROM ""CommentTable""
-    //    WHERE post_id = @post_id
-    //    ORDER BY created_at ASC
-    //";
+        var sql = @"SELECT tag_id, tag_name FROM ""TagTable"" ORDER BY tag_id";
 
-    //    using var cmd = new NpgsqlCommand(sql, connection);
-    //    cmd.Parameters.AddWithValue("post_id", post_id);
+        using var cmd = new NpgsqlCommand(sql, connection);
+        using var reader = cmd.ExecuteReader();
 
-    //    using var reader = cmd.ExecuteReader();
-    //    while (reader.Read())
-    //    {
-    //        comments.Add(new
-    //        {
-    //            id = reader.GetInt32(reader.GetOrdinal("comment_id")),
-    //            userId = reader.GetInt32(reader.GetOrdinal("user_id")),
-    //            text = reader.GetString(reader.GetOrdinal("comment_text")),
-    //            createdAt = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("yyyy-MM-dd HH:mm:ss")
-    //        });
-    //    }
+        while (reader.Read())
+        {
+            tags.Add(new
+            {
+                id = reader.GetInt32(reader.GetOrdinal("tag_id")),
+                name = reader.GetString(reader.GetOrdinal("tag_name"))
+            });
+        }
 
-    //    return Ok(comments);
-    //}
+        return Ok(tags);
+    }
 
     [HttpPut("UpdatePost/{post_id}")]
     public IActionResult UpdatePost(int post_id, [FromBody] PostUpdateDto dto)
@@ -375,6 +367,31 @@ public class PostController : Controller
         cmd.Parameters.AddWithValue("status", dto.status);
 
         int affected = cmd.ExecuteNonQuery();
+
+        var checkTagSql = @"SELECT COUNT(*) FROM ""PostTagTable"" WHERE post_id = @postId";
+        using var checkCmd = new NpgsqlCommand(checkTagSql, connection);
+        checkCmd.Parameters.AddWithValue("postId", post_id);
+
+        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+        if (count > 0)
+        {
+            var updateTagSql = @"UPDATE ""PostTagTable"" SET tag_id = @tagId WHERE post_id = @postId";
+            using var updateCmd = new NpgsqlCommand(updateTagSql, connection);
+            updateCmd.Parameters.AddWithValue("tagId", dto.tagId);
+            updateCmd.Parameters.AddWithValue("postId", post_id);
+            updateCmd.ExecuteNonQuery();
+        }
+        else
+        {
+            var insertTagSql = @"INSERT INTO ""PostTagTable"" (post_id, tag_id) VALUES (@postId, @tagId)";
+            using var insertCmd = new NpgsqlCommand(insertTagSql, connection);
+            insertCmd.Parameters.AddWithValue("postId", post_id);
+            insertCmd.Parameters.AddWithValue("tagId", dto.tagId);
+            insertCmd.ExecuteNonQuery();
+        }
+
+
         return Ok(new { success = affected > 0 });
     }
 

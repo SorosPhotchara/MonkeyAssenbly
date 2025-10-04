@@ -11,5 +11,6 @@
         public string endTime { get; set; }
         public int maxParticipants { get; set; }
         public bool status { get; set; }
+        public int tagId { get; set; }
     }
 }
