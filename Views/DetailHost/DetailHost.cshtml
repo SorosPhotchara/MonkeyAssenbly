@@ -20,10 +20,14 @@
         window.ProfileUrl = '@ViewBag.ProfileUrl';
         window.LoginUrl = '@ViewBag.LoginUrl';
         window.SignupUrl = '@ViewBag.SignupUrl';
+        window.DetailHostUrl = '@ViewBag.DetailHostUrl';
+
     </script>
 </head>
 
-<body>
+<
+<body data-post-id="@ViewBag.PostId">
+    >
     <!-- Header -->
     <header class="navbar">
         <div class="logo">
@@ -110,105 +114,6 @@
             </div>
         </section>
     </main> 
-    <!-- Content mokup-->
-    <main class="container">
-        <section class="detail-card">
-            <h2 class="activity-title">Activity : เล่นฟุตบอลสนุก</h2>
-            <p class="tag"><strong>Tag :</strong> กีฬา</p>
-
-            <div class="meta-grid">
-                <div class="left-meta">
-                    <div class="deadline">
-                        <strong>Application Deadline</strong>
-                        <p>Friday, 16 September<br>14:00 to 17:00</p>
-                    </div>
-                    <div class="host">
-                        <strong>Host :</strong>
-                        <p>User1234</p>
-                    </div>
-                </div>
-
-                <div class="right-meta">
-                    <div class="place">
-                        <strong>Place :</strong>
-                        <p>KMITL Stadium</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="details">
-                <strong>Details :</strong>
-                <p>คนที่สมัครเข้าร่วมกิจกรรมถึงเวลา 17.00 น. จะทำการปิดรับสมัครโดยอัตโนมัติ</p>
-            </div>
-
-            <div class="participants-box">
-                <div class="participants-approved">
-                    <div class="participants-header">
-                        <div class="participants-label">Participants</div>
-                        <div class="participants-count" id="approvedCount">2</div>
-                    </div>
-                    <div class="participant-row">
-                        <span>John Doe</span>
-                    </div>
-                    <div class="participant-row">
-                        <span>Jane Smith</span>
-                    </div>
-                </div>
-
-                <div class="participants-pending">
-                    <div class="participants-label">รอการอนุมัติ</div>
-                    <div class="participant-row pending" data-id="1">
-                        <span>Alex Carter</span>
-                        <div class="participant-actions">
-                            <button class="accept">✔</button>
-                            <button class="reject">✖</button>
-                        </div>
-                    </div>
-                    <div class="participant-row pending" data-id="2">
-                        <span>Lisa Wong</span>
-                        <div class="participant-actions">
-                            <button class="accept">✔</button>
-                            <button class="reject">✖</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="comment-box">
-                <h3>Comments</h3>
-                <div class="comment-list" id="commentList">
-                    <div class="comment-item host">
-                        <div class="avatar host">U</div>
-                        <div class="bubble">
-                            <div class="meta">
-                                <span class="name">User1234 [Host]</span>
-                                <span class="time">10 minutes ago</span>
-                            </div>
-                            <div class="text">มาเล่นกันครับ</div>
-                        </div>
-                    </div>
-                    <div class="comment-item participant">
-                        <div class="avatar participant">U</div>
-                        <div class="bubble">
-                            <div class="meta">
-                                <span class="name">User4567</span>
-                                <span class="time">7 minutes ago</span>
-                            </div>
-                            <div class="text">ไปด้วย</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="comment-input">
-                    <input id="commentInput" placeholder="พิมพ์ความคิดเห็น..." autocomplete="off" />
-                    <button id="sendComment" aria-label="Send comment"><i class="fa-regular fa-paper-plane"></i></button>
-                </div>
-            </div>
-            <div class="actions">
-                <button class="update">Update</button>
-                <button class="leave">Leave</button>
-                <button class="end">End Registration</button>
-            </div>
-        </section>
-    </main>
 
     <!-- Hamburger Menu -->
     <div class="hamburger" id="hamburgerBtn">
@@ -220,7 +125,11 @@
         </ul>
     </div>
 
-    <script src="/frontend/JS/detailhost.js"></script>
+    <script src="/js/detailhost.js"></script>
+    <script>
+        const postId = @ViewBag.PostId;
+        console.log("กำลังแก้ไขโพสต์ ID:", postId);
+    </script>
 </body>
 
 </html>

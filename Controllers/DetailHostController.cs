@@ -4,9 +4,14 @@ namespace MonkeyAssenbly.Controllers
 {
     public class DetailHostController : BaseController
     {
-        public IActionResult DetailHost()
+        [HttpGet("DetailHost/{postId}")]
+        public IActionResult DetailHost(int postId)
         {
-            return View();
+            ViewBag.PostId = postId; 
+            return View(postId);
         }
+
+
+
     }
 }
