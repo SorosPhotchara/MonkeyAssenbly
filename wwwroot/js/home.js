@@ -86,8 +86,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let isLoggedIn = data.isLoggedIn || false;
   let currentUserName = data.isLoggedIn ? `${data.firstName} ${data.lastName}` : "";
   
-  console.log("📋 Login Status:", isLoggedIn ? "✅ Logged in" : "❌ Not logged in");
-  console.log("👤 User ID:", currentUserId, "Name:", currentUserName);
+  console.log("Login Status:", isLoggedIn ? "Logged in" : "Not logged in");
+  console.log("User ID:", currentUserId, "Name:", currentUserName);
   // ==================== เช็ค LOGIN จาก SESSION END ====================
 
   // ---------------- Theme ----------------

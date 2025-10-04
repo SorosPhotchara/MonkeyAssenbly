@@ -407,6 +407,46 @@ html.dark .sidebar a.add:hover i {
 }
 
 /* =======================
+   Form Group 
+======================= */
+.form-group-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.form-group-pair {
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+}
+
+.form-group-pair label {
+  flex-shrink: 0;
+  min-width: 75px; 
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--head-font);
+  white-space: nowrap;
+}
+
+.form-group-pair input {
+  flex: 1;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 10px;
+  background: var(--highlight);
+  font-size: 14px;
+  outline: none;
+  color: var(--head-font);
+}
+
+.form-group-pair input:focus {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* =======================
    Tag Suggestions
 ======================= */
 .tag-container {
