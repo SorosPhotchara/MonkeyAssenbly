@@ -313,14 +313,12 @@ namespace MonkeyAssenbly.Controllers
         [HttpPost]
         public IActionResult AddComment(int postId, string commentText)
         {
-            // ตรวจสอบว่า login หรือยัง
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
                 return Unauthorized(new { message = "กรุณาเข้าสู่ระบบ" });
             }
 
-            // ตรวจสอบว่ากรอกข้อความหรือยัง
             if (string.IsNullOrWhiteSpace(commentText))
             {
                 return BadRequest(new { message = "กรุณากรอกความคิดเห็น" });
@@ -330,20 +328,24 @@ namespace MonkeyAssenbly.Controllers
             {
                 connection.Open();
 
-                // Insert comment ใหม่
+                // ✅ ใช้ TimeZoneInfo (ถูกต้องกว่าเพราะรองรับ daylight saving)
+                var bangkokTz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var thaiTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, bangkokTz);
+
                 var sql = @"
-                    INSERT INTO ""CommentTable"" (post_id, user_id, comment_text)
-                    VALUES (@postId, @userId, @text)
+                    INSERT INTO ""CommentTable"" (post_id, user_id, comment_text, created_at)
+                    VALUES (@postId, @userId, @text, @createdAt)
                     RETURNING comment_id";
 
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("postId", postId);
                 command.Parameters.AddWithValue("userId", userId.Value);
                 command.Parameters.AddWithValue("text", commentText);
+                command.Parameters.AddWithValue("createdAt", thaiTime);
 
                 var commentId = command.ExecuteScalar();
 
-                Console.WriteLine($"[SUCCESS] Comment added: ID={commentId}, PostID={postId}, UserID={userId}");
+                Console.WriteLine($"[SUCCESS] Comment added at {thaiTime:yyyy-MM-dd HH:mm:ss}");
             }
 
             return Ok(new { message = "เพิ่มความคิดเห็นสำเร็จ" });
