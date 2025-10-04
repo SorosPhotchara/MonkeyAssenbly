@@ -20,18 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- Sidebar Tabs ----------------
   document.querySelectorAll(".menu h2").forEach(item => {
     item.addEventListener("click", () => {
-      // รอ ใช้งานค่อยเปิด
-      // if (!isLoggedIn && item.dataset.tab === "follow") {
-      //   window.location.href = "/frontend/HTML/login.html";
-      //   return;
-      // }
-
-
       document.querySelectorAll(".menu h2").forEach(el=>el.classList.remove("active"));
       item.classList.add("active");
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
       document.getElementById(item.dataset.tab).classList.add("active");
-
       renderEventsCache();
     });
   });
@@ -58,17 +50,17 @@ document.addEventListener("DOMContentLoaded", () => {
     menuList.innerHTML="";
     if(!isLoggedIn){
         addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
-      addMenuItem("สมัครสมาชิก",()=>window.location.href= window.SignupUrl);
+        addMenuItem("สมัครสมาชิก",()=>window.location.href= window.SignupUrl);
     } else {
         addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
-      addMenuItem("ออกจากระบบ", async ()=>{
-        try{
-          await fetch("/Account/Logout",{method:"POST"});
-          localStorage.removeItem("userId");
-          currentUserId=""; isLoggedIn=false; updateMenu();
-          alert("ออกจากระบบเรียบร้อย");
-        } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
-      });
+        addMenuItem("ออกจากระบบ", async ()=>{
+          try{
+            await fetch("/Account/Logout",{method:"POST"});
+            localStorage.removeItem("userId");
+            currentUserId=""; isLoggedIn=false; updateMenu();
+            alert("ออกจากระบบเรียบร้อย");
+          } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
+        });
     }
   };
   updateMenu();
@@ -93,19 +85,26 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  
   // ---------------- Event Feed ----------------
   const forYouFeed = document.getElementById("for-you");
   const followFeed = document.getElementById("follow");
   let cachedEvents=[];
-  
 
-  async function loadEvents(){
+  // ตรวจสอบ query string ว่ามี tag หรือไม่
+  const urlParams = new URLSearchParams(window.location.search);
+  const tagQuery = urlParams.get("tag");
+
+  async function loadEventsByTag(tag){
     try{
-        const res = await fetch(`/Post/GetAllPost`);
-        if (!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
-        cachedEvents = await res.json();
-        renderEventsCache();
+      let res;
+      if(tag){
+        res = await fetch(`/Post/GetPostsByTag?tag=${encodeURIComponent(tag)}`);
+      } else {
+        res = await fetch(`/Post/GetAllPost`);
+      }
+      if (!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
+      cachedEvents = await res.json();
+      renderEventsCache();
     } catch(err){
       console.error("Error fetching events:", err);
       cachedEvents = [];
@@ -116,13 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderEventsCache(){
      forYouFeed.innerHTML=""; 
      followFeed.innerHTML="";
-
     cachedEvents.forEach(event => {
-      // --- For You Feed ---
       const cardForYou = createEventCard(event);
       forYouFeed.appendChild(cardForYou);
-
-      // --- Follow Feed ---
       if (isLoggedIn && event.hostsFollowing && event.hostsFollowing.includes(currentUserId)) {
         const cardFollow = createEventCard(event, true);
         followFeed.appendChild(cardFollow);
@@ -157,19 +152,12 @@ document.addEventListener("DOMContentLoaded", () => {
         </button>
       </div>
     `;
-
     const joinBtn = card.querySelector(".join-btn");
-
     joinBtn.addEventListener("click", e=>{
       e.stopPropagation();
-      if(!isLoggedIn){
-        alert("กรุณาเข้าสู่ระบบเพื่อเข้าร่วม"); 
-        window.location.href=window.LoginUrl; 
-        return; 
-      }
+      if(!isLoggedIn){ alert("กรุณาเข้าสู่ระบบเพื่อเข้าร่วม"); window.location.href=window.LoginUrl; return; }
       joinEvent(event);
     });
-
     card.addEventListener("click", ()=>openPopup(event));
     return card;
   }
@@ -183,27 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return event.status;
   }
 
-  function updateEventCards(){
-    const now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
-    document.querySelectorAll(".event-card").forEach(card=>{
-      const eventId = card.dataset.eventId;
-      const event = cachedEvents.find(ev=>ev.id==eventId);
-      if(!event) return;
-      const startTime = new Date(event.startTime); const endTime=new Date(event.endTime);
-      const timeElem = card.querySelector(".time"); const joinBtn = card.querySelector(".join-btn"); const statusElem = card.querySelector(".status");
-      const diffMs = now-startTime; const diffMin=Math.floor(diffMs/60000); const diffHour=Math.floor(diffMin/60);
-      timeElem.textContent = diffHour>0?`${diffHour} ชั่วโมง`:`${diffMin} นาที`;
-      const status = updatePostStatus(event);
-      joinBtn.disabled = status==="closed";
-      joinBtn.textContent = status==="closed"?"CLOSED":"JOIN";
-      statusElem.textContent = status.toUpperCase();
-      statusElem.className = `status ${status}`;
-    });
-  }
-  setInterval(updateEventCards,30000);
-  updateEventCards();
-
-  // ---------------- Join / Unjoin ----------------
   async function joinEvent(event){
     try{
       const action = event.participants.includes(currentUserId)?"unjoin":"join";
@@ -212,11 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({userId:currentUserId})
       });
-      await loadEvents();
-    } catch(err){
-      console.error("join/unjoin error:",err);
-      alert("เกิดข้อผิดพลาดขณะ join/unjoin");
-    }
+      await loadEventsByTag(tagQuery);
+    } catch(err){ alert("เกิดข้อผิดพลาดขณะ join/unjoin"); }
   }
 
   // ---------------- Popup ----------------
@@ -256,10 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   popupJoinBtn.addEventListener("click", async ()=>{
-    if(!isLoggedIn){
-        window.location.href = window.LoginUrl;
-      return;
-    }
+    if(!isLoggedIn){ window.location.href = window.LoginUrl; return; }
     if(!currentEventId) return;
     const action = isJoined?"unjoin":"join";
     try{
@@ -268,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({userId:currentUserId})
       });
-      await loadEvents();
+      await loadEventsByTag(tagQuery);
       openPopup(cachedEvents.find(ev=>ev.id===currentEventId));
       isJoined = !isJoined;
       popupJoinBtn.textContent = isJoined?"UNJOIN":"JOIN";
@@ -276,10 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   commentSend.addEventListener("click", async ()=>{
-    if(!isLoggedIn){
-        window.location.href = window.LoginUrl;
-      return;
-    }
+    if(!isLoggedIn){ window.location.href = window.LoginUrl; return; }
     const text = commentInput.value.trim(); if(!text || !currentEventId) return;
     try{
       await fetch(`${SERVER_URL}/events/${currentEventId}/comments`,{
@@ -288,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
         body:JSON.stringify({user:currentUserId,text})
       });
       commentInput.value="";
-      await loadEvents();
+      await loadEventsByTag(tagQuery);
       openPopup(cachedEvents.find(ev=>ev.id===currentEventId));
     } catch(err){ alert("เกิดข้อผิดพลาดขณะส่ง comment"); }
   });
@@ -298,5 +256,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ---------------- Initial Load ----------------
-  loadEvents();
+  loadEventsByTag(tagQuery);
 });
