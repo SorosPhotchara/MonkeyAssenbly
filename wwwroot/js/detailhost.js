@@ -70,7 +70,7 @@ class ToastNotification {
 }
 
 const showToast = new ToastNotification();
-// ==================== TOAST NOTIFICATION SYSTEM END ====================
+// ==================== TOAST NOTIFICATION SYSTEM END ====================  
 
 // ---------------- Config ----------------
 const SERVER_URL = "http://localhost:7014";
@@ -144,7 +144,7 @@ function updateMenu() {
             isLoggedIn = false;
             updateMenu();
             showToast.success("ออกจากระบบเรียบร้อย");
-            setTimeout(() => location.reload(), 1500);alert("ออกจากระบบเรียบร้อย");
+            setTimeout(() => location.reload(), 1000);alert("ออกจากระบบเรียบร้อย");
         });
     }
 }
@@ -331,7 +331,7 @@ document.querySelector(".update").addEventListener("click", async () => {
             showToast.success("อัปเดตกิจกรรมสำเร็จ");
             setTimeout(() => {
                 window.location.href = window.ProfileUrl;
-            }, 1500);
+            }, 1000);
         } else {
             showToast.error("อัปเดตกิจกรรมล้มเหลว");
         }
@@ -349,7 +349,7 @@ document.querySelector(".leave").addEventListener("click", async () => {
         showToast.success("ยกเลิกกิจกรรมเรียบร้อย");
         setTimeout(() => {
             window.location.href = window.ProfileUrl;
-        }, 1500);
+        }, 1000);
     } catch (err) {
         showToast.error("ไม่สามารถยกเลิกได้");
     }
@@ -363,7 +363,7 @@ document.querySelector(".end").addEventListener("click", async () => {
         showToast.success("ปิดรับสมัครเรียบร้อย");
         setTimeout(() => {
             location.reload();
-        }, 1500);
+        }, 1000);
     } catch (err) {
         showToast.error("ไม่สามารถปิดรับสมัครได้");
     }

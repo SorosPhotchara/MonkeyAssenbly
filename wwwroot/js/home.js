@@ -287,7 +287,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function joinEvent(postId, isCurrentlyJoined = false) {
     if (!isLoggedIn) {
       showToast.warning("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
-      setTimeout(() => window.location.href = window.LoginUrl, 1500);
+      setTimeout(() => window.location.href = window.LoginUrl, 1000);
       return;
     }
     
@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       if (response.status === 401) {
         showToast.warning("กรุณาเข้าสู่ระบบ");
-        setTimeout(() => window.location.href = window.LoginUrl, 1500);
+        setTimeout(() => window.location.href = window.LoginUrl, 1000);
         return;
       }
       
@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     if (!isLoggedIn) {
       showToast.warning("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
-      setTimeout(() => window.location.href = window.LoginUrl, 1500);
+      setTimeout(() => window.location.href = window.LoginUrl, 1000);
       return;
     }
 
@@ -450,7 +450,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           
     if (response.status === 401) {
       showToast.warning("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
-      setTimeout(() => window.location.href = window.LoginUrl, 1500);
+      setTimeout(() => window.location.href = window.LoginUrl, 1000);
         return;
       }
       
