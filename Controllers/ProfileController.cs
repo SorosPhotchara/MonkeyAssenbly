@@ -6,7 +6,8 @@ using Microsoft.Extensions.Configuration;
 
 namespace MonkeyAssenbly.Controllers
 {
-    public class ProfileController : Controller
+    // ✅ แก้ไขตรงนี้ - inherit BaseController แทน Controller
+    public class ProfileController : BaseController
     {
         private readonly string _connectionString;
 
@@ -40,7 +41,7 @@ namespace MonkeyAssenbly.Controllers
                     UserLastname = reader.GetString(1),
                     UserEmail = reader.GetString(2),
                     Bio = reader.IsDBNull(3) ? "" : reader.GetString(3),
-                    UserAvatar = reader.IsDBNull(4) ? null : reader.GetString(4),
+                    UserAvatar = reader.IsDBNull(4) ? "/uploads/default-avatar.png" : reader.GetString(4),
                     Followers = 0,
                     Following = 0,
                     IsFollowing = false
@@ -60,12 +61,9 @@ namespace MonkeyAssenbly.Controllers
                 IsFollowing = user.IsFollowing
             };
 
-            return View(model); // ส่ง model ไปยัง View
+            return View(model);
         }
 
-
-
-        // ---------------- ตรวจสอบสถานะ Login ----------------
         [HttpGet]
         public IActionResult CheckLoginStatus()
         {
@@ -85,7 +83,6 @@ namespace MonkeyAssenbly.Controllers
             });
         }
 
-        // ---------------- ดึงข้อมูลโปรไฟล์ ----------------
         [HttpGet]
         public IActionResult GetProfile()
         {
@@ -115,7 +112,7 @@ namespace MonkeyAssenbly.Controllers
                     UserBirthdate = reader.GetDateTime(4),
                     AccountId = reader.GetInt32(5),
                     Bio = reader.IsDBNull(6) ? "" : reader.GetString(6),
-                    UserAvatar = reader.IsDBNull(7) ? null : reader.GetString(7),
+                    UserAvatar = reader.IsDBNull(7) ? "/uploads/default-avatar.png" : reader.GetString(7),
                     Followers = 0,
                     Following = 0,
                     IsFollowing = false
@@ -135,7 +132,6 @@ namespace MonkeyAssenbly.Controllers
             });
         }
 
-        // ---------------- แก้ไขโปรไฟล์ ----------------
         [HttpPost]
         public IActionResult UpdateProfile([FromBody] UpdateProfileRequest model)
         {
@@ -156,7 +152,7 @@ namespace MonkeyAssenbly.Controllers
             cmd.Parameters.AddWithValue("firstname", model.FirstName);
             cmd.Parameters.AddWithValue("lastname", model.LastName);
             cmd.Parameters.AddWithValue("bio", model.Bio ?? "");
-            cmd.Parameters.AddWithValue("avatar", model.AvatarUrl ?? "");
+            cmd.Parameters.AddWithValue("avatar", model.AvatarUrl ?? "/uploads/default-avatar.png");
             cmd.Parameters.AddWithValue("userId", userId.Value);
 
             var rows = cmd.ExecuteNonQuery();
@@ -169,6 +165,7 @@ namespace MonkeyAssenbly.Controllers
                 avatar = model.AvatarUrl
             });
         }
+
         [HttpGet]
         public IActionResult GetSessionData()
         {
@@ -191,7 +188,7 @@ namespace MonkeyAssenbly.Controllers
                 email = email
             });
         }
-        // ---------------- Model สำหรับรับข้อมูล ----------------
+
         public class UpdateProfileRequest
         {
             public string FirstName { get; set; }
