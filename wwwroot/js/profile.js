@@ -282,9 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const loadYourPosts = async () => {
         const session = await getSessionData();
         if (!session) return;
-        console.log("useridddd",session.userId);
-        //const res = await fetch(`GetMyPost/${session.userId}`);
-         //console.log(res);
+        
         try {
             const res = await fetch(`/Post/GetMyPost/${session.userId}`);
             if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
@@ -298,24 +296,97 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             container.innerHTML = "";
-            //console.log("User posts:", posts);
-            //console.log("Fetching my post:", currentUserId);
-
             posts.forEach(p => {
                 const div = document.createElement("div");
                 div.className = "post-item";
                 div.innerHTML = `
-                    <h4>${p.eventName}</h4>
-                    <p>${p.description}</p>
-                    <small>${new Date(p.dateOpen).toLocaleString("th-TH")}</small>
+                    <div class="post-header">
+                        <div class="post-user">
+                            <img src="${p.avatar || '/picture/default-avatar.png'}" class="post-avatar">
+                            <div class="post-info">
+                                <h3>${p.host}</h3>
+                                <div class="timestamp">${p.dateOpen} ถึง ${p.dateClose}</div>
+                            </div>
+                        </div>
+                        <div class="post-menu" data-post-id="${p.id}">
+                            ⋯
+                            <ul class="post-menu-dropdown">
+                                <li class="edit-post"><i class="fa-solid fa-pen"></i> แก้ไขโพสต์</li>
+                                <li class="delete-post"><i class="fa-solid fa-trash"></i> ลบโพสต์</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="post-body">
+                        <h4>${p.eventName}</h4>
+                        <p>${p.description}</p>
+                    </div>
                 `;
                 container.appendChild(div);
             });
+
+            setupPostMenus();
         } catch (err) {
             console.error(err);
             document.getElementById("your-posts").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดโพสต์</p>";
         }
     };
+
+    function setupPostMenus() {
+        const postMenus = document.querySelectorAll(".post-menu");
+
+        postMenus.forEach(menu => {
+            const dropdown = menu.querySelector(".post-menu-dropdown");
+            const editBtn = dropdown.querySelector(".edit-post");
+            const deleteBtn = dropdown.querySelector(".delete-post");
+            const postId = menu.dataset.postId;
+
+            menu.addEventListener("click", (e) => {
+                e.stopPropagation();
+
+                document.querySelectorAll(".post-menu-dropdown.show").forEach(d => {
+                    if (d !== dropdown) d.classList.remove("show");
+                });
+
+                dropdown.classList.toggle("show");
+            });
+
+            editBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                dropdown.classList.remove("show");
+
+                console.log("Edit post:", postId);
+                alert(`แก้ไขโพสต์ ID: ${postId}`);
+            });
+
+            deleteBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                dropdown.classList.remove("show");
+
+                if (!confirm("คุณต้องการลบโพสต์นี้ใช่หรือไม่?")) return;
+
+                try {
+                    const res = await fetch(`/Post/DeletePost/${postId}`, {
+                        method: "DELETE",
+                        credentials: "same-origin"
+                    });
+
+                    if (!res.ok) throw new Error("ไม่สามารถลบโพสต์ได้");
+
+                    showToast("ลบโพสต์เรียบร้อยแล้ว");
+                    loadYourPosts();
+                } catch (err) {
+                    console.error(err);
+                    alert("เกิดข้อผิดพลาด: " + err.message);
+                }
+            });
+
+            document.addEventListener("click", () => {
+                document.querySelectorAll(".post-menu-dropdown.show").forEach(d => {
+                    d.classList.remove("show");
+                });
+            });
+        });
+    }
 
     const loadHistory = async () => {
         const session = await getSessionData();
@@ -338,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 div.className = "history-item";
                 div.innerHTML = `
                     <p>${h.eventName}</p>
-                    <small>${new Date(h.dateOpen).toLocaleString("th-TH")}</small>
+                    <small>${h.dateOpen}</small>
                 `;
                 container.appendChild(div);
             });

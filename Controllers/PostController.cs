@@ -109,8 +109,8 @@ public class PostController : Controller
                             : reader.GetString(reader.GetOrdinal("user_avatar")),
                     startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
                     endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
-                    dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
-                    dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
+                    dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("dd-MM-yyy"),
+                    dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("dd-MM-yyy"),
                     maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                     currentParticipants = currentParticipantsArray.Length, // นับจำนวนปัจจุบัน
                     participants = currentParticipantsArray.Select(x => x.ToString()).ToList(), // แปลงเป็น List<string> ถ้าต้องส่ง JSON
@@ -164,8 +164,8 @@ public class PostController : Controller
                             : reader.GetString(reader.GetOrdinal("user_avatar")),
                     startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
                     endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
-                    dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
-                    dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
+                    dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("dd-MM-yyy"),
+                    dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("dd-MM-yyy"),
                     maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                     currentParticipants = participantsArray.Length,
                     participants = participantsArray.Select(x => x.ToString()).ToList(),
