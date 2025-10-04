@@ -6,6 +6,8 @@ using MonkeyAssenbly.Models;
 
 namespace MonkeyAssenbly.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class PostController : Controller
     {
         private readonly string _connectionString;
@@ -15,7 +17,7 @@ namespace MonkeyAssenbly.Controllers
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        [HttpGet]
+        [HttpGet("GetAllPost")]
         public IActionResult GetAllPost()
         {
             var posts = new List<object>();
@@ -68,8 +70,7 @@ namespace MonkeyAssenbly.Controllers
             return Ok(posts);
         }
 
-
-        [HttpGet]
+        [HttpGet("GetMyPost/{user_id}")]
         public IActionResult GetMyPost(int user_id)
         {
             var posts = new List<object>();
@@ -80,10 +81,10 @@ namespace MonkeyAssenbly.Controllers
 
                 var sql = @"
                 SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
-                       p.post_time_open, p.post_time_close, 
-                       p.post_date_open, p.post_date_close,
-                       p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                       u.user_firstname, u.user_lastname, u.user_avatar
+                    p.post_time_open, p.post_time_close, 
+                    p.post_date_open, p.post_date_close,
+                    p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                    u.user_firstname, u.user_lastname, u.user_avatar
                 FROM ""PostTable"" p
                 JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
                 WHERE p.post_owner_id = @user_id
@@ -107,12 +108,12 @@ namespace MonkeyAssenbly.Controllers
                         location = reader.GetString(reader.GetOrdinal("post_place")),
                         host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
                         avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
-                                 ? "/uploads/default-avatar.png"
-                                 : reader.GetString(reader.GetOrdinal("user_avatar")),
+                                ? "/uploads/default-avatar.png"
+                                : reader.GetString(reader.GetOrdinal("user_avatar")),
                         startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
                         endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
-                        dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
-                        dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
+                        dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("dd-MM-yyyy"),
+                        dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("dd-MM-yyyy"),
                         maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
@@ -124,7 +125,7 @@ namespace MonkeyAssenbly.Controllers
             return Ok(posts);
         }
 
-        [HttpGet]
+        [HttpGet("GetPostsByTag")]
         public IActionResult GetPostsByTag([FromQuery] string tag)
         {
             var posts = new List<object>();
@@ -144,7 +145,8 @@ namespace MonkeyAssenbly.Controllers
                 JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
                 JOIN ""PostTagTable"" pt ON p.post_id = pt.post_id
                 JOIN ""TagTable"" t ON pt.tag_id = t.tag_id
-                WHERE LOWER(t.tag_name) = LOWER(@tag)";
+                WHERE LOWER(t.tag_name) = LOWER(@tag)
+                ORDER BY p.post_date_open DESC";
 
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("tag", tag);
@@ -182,8 +184,156 @@ namespace MonkeyAssenbly.Controllers
             return Ok(posts);
         }
 
+        [HttpGet("GetJoinedPost/{user_id}")]
+        public IActionResult GetJoinedPost(int user_id)
+        {
+            var posts = new List<object>();
+
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var sql = @"
+                SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+                       p.post_time_open, p.post_time_close, 
+                       p.post_date_open, p.post_date_close,
+                       p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                       u.user_firstname, u.user_lastname, u.user_avatar
+                FROM ""PostTable"" p
+                JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+                ORDER BY p.post_date_open DESC";
+
+                using var command = new NpgsqlCommand(sql, connection);
+                using var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int[] participantsArray = reader.IsDBNull(reader.GetOrdinal("post_current_paticipants"))
+                        ? new int[0]
+                        : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
+
+                    if (!participantsArray.Contains(user_id)) continue;
+
+                    posts.Add(new
+                    {
+                        id = reader.GetInt32(reader.GetOrdinal("post_id")),
+                        eventName = reader.GetString(reader.GetOrdinal("post_titile")),
+                        description = reader.GetString(reader.GetOrdinal("post_descript")),
+                        location = reader.GetString(reader.GetOrdinal("post_place")),
+                        host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                        avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
+                                ? "/uploads/default-avatar.png"
+                                : reader.GetString(reader.GetOrdinal("user_avatar")),
+                        startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
+                        endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
+                        dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("dd-MM-yyyy"),
+                        dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("dd-MM-yyyy"),
+                        maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
+                        currentParticipants = participantsArray.Length,
+                        participants = participantsArray.Select(x => x.ToString()).ToList(),
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+                    });
+                }
+            }
+
+            return Ok(posts);
+        }
+
+        [HttpGet("GetPostById/{id}")]
+        public IActionResult GetPostById(int id)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+
+            var postSql = @"
+            SELECT p.post_id, p.post_titile, p.post_descript, p.post_place,
+                   p.post_time_open, p.post_time_close, 
+                   p.post_date_open, p.post_date_close,
+                   p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                   u.user_firstname, u.user_lastname, u.user_avatar
+            FROM ""PostTable"" p
+            JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+            WHERE p.post_id = @id";
+
+            using var postCmd = new NpgsqlCommand(postSql, connection);
+            postCmd.Parameters.AddWithValue("id", id);
+
+            using var reader = postCmd.ExecuteReader();
+            if (!reader.Read()) return NotFound(new { success = false, message = "Post not found" });
+
+            int[] participantsArray = reader.IsDBNull(reader.GetOrdinal("post_current_paticipants"))
+                ? new int[0]
+                : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
+
+            var postData = new
+            {
+                id = reader.GetInt32(reader.GetOrdinal("post_id")),
+                eventName = reader.GetString(reader.GetOrdinal("post_titile")),
+                description = reader.GetString(reader.GetOrdinal("post_descript")),
+                location = reader.GetString(reader.GetOrdinal("post_place")),
+                host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
+                            ? "/uploads/default-avatar.png"
+                            : reader.GetString(reader.GetOrdinal("user_avatar")),
+                startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
+                endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
+                dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
+                dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
+                maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
+                currentParticipants = participantsArray.Length,
+                participants = participantsArray.Select(p => p.ToString()).ToList(),
+                status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+            };
+            reader.Close();
+
+            var tagSql = @"
+            SELECT t.tag_name
+            FROM ""PostTagTable"" pt
+            JOIN ""TagTable"" t ON pt.tag_id = t.tag_id
+            WHERE pt.post_id = @id";
+
+            using var tagCmd = new NpgsqlCommand(tagSql, connection);
+            tagCmd.Parameters.AddWithValue("id", id);
+
+            var tags = new List<string>();
+            using var tagReader = tagCmd.ExecuteReader();
+            while (tagReader.Read())
+            {
+                tags.Add(tagReader.GetString(0));
+            }
+
+            return Ok(new
+            {
+                post = postData,
+                tags = tags
+            });
+        }
+
+        [HttpDelete("DeletePost/{post_id}")]
+        public IActionResult DeletePost(int post_id)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                var sql = @"DELETE FROM ""PostTable"" WHERE post_id = @post_id";
+
+                using var command = new NpgsqlCommand(sql, connection);
+                command.Parameters.AddWithValue("post_id", post_id);
+
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected == 0)
+                {
+                    return NotFound(new { success = false, message = "Post not found" });
+                }
+
+                return Ok(new { success = true, message = "Post deleted successfully" });
+            }
+        }
+
         // ============ CREATE POST ============
-        [HttpPost]
+        [HttpPost("CreatePost")]
         [ValidateAntiForgeryToken]
         public IActionResult CreatePost(
             string? postTitile,
@@ -197,7 +347,6 @@ namespace MonkeyAssenbly.Controllers
         {
             try
             {
-                // ---------- Debug: แสดงค่าที่ได้รับ ----------
                 Console.WriteLine($"[DEBUG] postTitile: {postTitile}");
                 Console.WriteLine($"[DEBUG] postDescript: {postDescript}");
                 Console.WriteLine($"[DEBUG] postPlace: {postPlace}");
@@ -207,13 +356,11 @@ namespace MonkeyAssenbly.Controllers
                 Console.WriteLine($"[DEBUG] postTimeClose: {postTimeClose}");
                 Console.WriteLine($"[DEBUG] postMaxPaticipants: {postMaxPaticipants}");
 
-                // ---------- Force Gregorian Calendar ----------
                 var cultureInfo = new CultureInfo("en-US");
                 cultureInfo.DateTimeFormat.Calendar = new GregorianCalendar();
                 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
                 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
-                // ---------- ตรวจสอบว่า User Login หรือยัง ----------
                 var userId = HttpContext.Session.GetInt32("UserId");
                 if (userId == null)
                 {
@@ -221,7 +368,6 @@ namespace MonkeyAssenbly.Controllers
                     return RedirectToAction("Login", "Login");
                 }
 
-                // ---------- ตรวจสอบข้อมูล ----------
                 if (string.IsNullOrEmpty(postTitile) ||
                     string.IsNullOrEmpty(postDateOpen) || string.IsNullOrEmpty(postDateClose))
                 {
@@ -229,7 +375,6 @@ namespace MonkeyAssenbly.Controllers
                     return RedirectToAction("Home", "Home");
                 }
 
-                // ถ้า description ว่าง ให้ใส่ค่า default
                 if (string.IsNullOrEmpty(postDescript))
                 {
                     postDescript = "ไม่มีรายละเอียด";
@@ -241,7 +386,6 @@ namespace MonkeyAssenbly.Controllers
                     return RedirectToAction("Home", "Home");
                 }
 
-                // ---------- Parse Date ----------
                 if (!DateTime.TryParseExact(postDateOpen, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateOpen))
                 {
                     TempData["ErrorMessage"] = "รูปแบบวันที่เปิดไม่ถูกต้อง";
@@ -254,7 +398,6 @@ namespace MonkeyAssenbly.Controllers
                     return RedirectToAction("Home", "Home");
                 }
 
-                // ---------- Parse Time (Optional) ----------
                 TimeSpan parsedTimeOpen = TimeSpan.Zero;
                 TimeSpan parsedTimeClose = TimeSpan.Zero;
 
@@ -276,7 +419,6 @@ namespace MonkeyAssenbly.Controllers
                     }
                 }
 
-                // ---------- ตรวจสอบวันที่ ----------
                 if (parsedDateClose < parsedDateOpen)
                 {
                     TempData["ErrorMessage"] = "วันที่ปิดต้องมากกว่าหรือเท่ากับวันที่เปิด";
@@ -287,7 +429,6 @@ namespace MonkeyAssenbly.Controllers
                 conn.Open();
                 using var tran = conn.BeginTransaction();
 
-                // ---------- Insert to PostTable ----------
                 var insertPostSql = @"
                     INSERT INTO ""PostTable"" 
                     (post_titile, post_descript, post_place, post_time_open, post_time_close,
@@ -325,10 +466,9 @@ namespace MonkeyAssenbly.Controllers
                 return RedirectToAction("Home", "Home");
             }
         }
-        // ==================== COMMENT SYSTEM START ====================
 
-        // ดึง comments ทั้งหมดของ post
-        [HttpGet]
+        // ==================== COMMENT SYSTEM START ====================
+        [HttpGet("GetComments")]
         public IActionResult GetComments(int postId)
         {
             var comments = new List<object>();
@@ -337,7 +477,6 @@ namespace MonkeyAssenbly.Controllers
             {
                 connection.Open();
 
-                // Join กับ UserDetailTable เพื่อดึงชื่อผู้แสดงความคิดเห็น
                 var sql = @"
                     SELECT c.comment_id, c.comment_text, c.created_at,
                         u.user_firstname, u.user_lastname, u.user_avatar
@@ -366,8 +505,7 @@ namespace MonkeyAssenbly.Controllers
             return Ok(comments);
         }
 
-        // เพิ่ม comment ใหม่
-        [HttpPost]
+        [HttpPost("AddComment")]
         public IActionResult AddComment(int postId, string commentText)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -385,7 +523,6 @@ namespace MonkeyAssenbly.Controllers
             {
                 connection.Open();
 
-                // ✅ ใช้ TimeZoneInfo (ถูกต้องกว่าเพราะรองรับ daylight saving)
                 var bangkokTz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 var thaiTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, bangkokTz);
 
@@ -407,16 +544,12 @@ namespace MonkeyAssenbly.Controllers
 
             return Ok(new { message = "เพิ่มความคิดเห็นสำเร็จ" });
         }
-
         // ==================== COMMENT SYSTEM END ====================
 
         // ==================== JOIN EVENT SYSTEM START ====================
-
-        // เข้าร่วมกิจกรรม
-        [HttpPost]
+        [HttpPost("JoinEvent")]
         public IActionResult JoinEvent(int postId)
         {
-            // เช็คว่า login หรือยัง
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
             {
@@ -430,7 +563,6 @@ namespace MonkeyAssenbly.Controllers
 
                 try
                 {
-                    // 1. ดึงข้อมูล post ปัจจุบัน
                     var selectSql = @"
                         SELECT post_current_paticipants, post_max_paticipants, post_status, post_owner_id
                         FROM ""PostTable""
@@ -459,15 +591,11 @@ namespace MonkeyAssenbly.Controllers
                         ownerId = reader.GetInt32(3);
                     }
 
-                    // 2. ตรวจสอบเงื่อนไข
-
-                    // เช็คว่าเป็น host หรือไม่
                     if (ownerId == userId.Value)
                     {
                         return BadRequest(new { message = "คุณเป็นเจ้าของกิจกรรมนี้ ไม่สามารถ join ได้" });
                     }
 
-                    // 2. ตรวจสอบเงื่อนไข
                     if (!postStatus)
                     {
                         return BadRequest(new { message = "กิจกรรมนี้ปิดรับสมัครแล้ว" });
@@ -483,7 +611,6 @@ namespace MonkeyAssenbly.Controllers
                         return BadRequest(new { message = "กิจกรรมเต็มแล้ว" });
                     }
 
-                    // 3. เพิ่ม user เข้า participants array
                     var newParticipants = currentParticipants.Append(userId.Value).ToArray();
 
                     var updateSql = @"
@@ -512,9 +639,7 @@ namespace MonkeyAssenbly.Controllers
             }
         }
 
-        // ==================== JOIN EVENT SYSTEM END ====================
-        // ออกจากกิจกรรม
-        [HttpPost]
+        [HttpPost("UnjoinEvent")]
         public IActionResult UnjoinEvent(int postId)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -530,7 +655,6 @@ namespace MonkeyAssenbly.Controllers
 
                 try
                 {
-                    // ดึงข้อมูล participants ปัจจุบัน
                     var selectSql = @"
                         SELECT post_current_paticipants
                         FROM ""PostTable""
@@ -553,13 +677,11 @@ namespace MonkeyAssenbly.Controllers
                             : reader.GetFieldValue<int[]>(0);
                     }
 
-                    // เช็คว่าเข้าร่วมอยู่หรือไม่
                     if (!currentParticipants.Contains(userId.Value))
                     {
                         return BadRequest(new { message = "คุณไม่ได้เข้าร่วมกิจกรรมนี้" });
                     }
 
-                    // ลบ user ออกจาก array
                     var newParticipants = currentParticipants.Where(id => id != userId.Value).ToArray();
 
                     var updateSql = @"
@@ -587,5 +709,6 @@ namespace MonkeyAssenbly.Controllers
                 }
             }
         }
+        // ==================== JOIN EVENT SYSTEM END ====================
     }
 }

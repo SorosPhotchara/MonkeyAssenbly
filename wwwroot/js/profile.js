@@ -493,50 +493,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 };
 
-// ฟังก์ชันจัดการปุ่ม UNJOIN
-function setupUnjoinButtons() {
-    const unjoinBtns = document.querySelectorAll(".unjoin-btn");
-    
-    unjoinBtns.forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            
-            const postId = btn.dataset.postId;
-            
-            const confirmed = await showConfirm(
-                "คุณต้องการออกจากกิจกรรมนี้ใช่หรือไม่?",
-                "ยืนยันการออกจากกิจกรรม"
-            );
 
-            if (!confirmed) return;
-                        
-            try {
-                const session = await getSessionData();
-                if (!session) {
-                    alert("กรุณาเข้าสู่ระบบ");
-                    return;
+    function setupUnjoinButtons() {
+        const unjoinBtns = document.querySelectorAll(".unjoin-btn");
+
+        unjoinBtns.forEach(btn => {
+            btn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+
+                const postId = btn.dataset.postId;  // ดึง postId จาก dataset ของปุ่ม
+
+                const confirmed = await showConfirm(
+                    "คุณต้องการออกจากกิจกรรมนี้ใช่หรือไม่?",
+                    "ยืนยันการออกจากกิจกรรม"
+                );
+
+                if (!confirmed) return;
+
+                try {
+                    const session = await getSessionData();  // ตรวจสอบข้อมูล session ของผู้ใช้
+                    if (!session) {
+                        alert("กรุณาเข้าสู่ระบบ");
+                        return;
+                    }
+
+                    // เรียกใช้งาน action Unjoin จาก controller
+                    const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {  // แก้ไข URL ให้ถูกต้องตาม controller action
+                        method: "POST",  // ใช้ POST ตามที่คุณกำหนดใน controller
+                        credentials: "same-origin",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ userId: session.userId })  // ส่งข้อมูล userId ไปใน body
+                    });
+
+                    if (!res.ok) throw new Error("ไม่สามารถออกจากกิจกรรมได้");
+
+                    showToast("ออกจากกิจกรรมเรียบร้อยแล้ว");
+
+                    loadHistory();  // รีเฟรชประวัติการเข้าร่วม
+
+                } catch (err) {
+                    console.error(err);
+                    alert("เกิดข้อผิดพลาด: " + err.message);
                 }
-
-                const res = await fetch(`/Post/UnjoinPost/${postId}`, {
-                    method: "DELETE",
-                    credentials: "same-origin",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ userId: session.userId })
-                });
-
-                if (!res.ok) throw new Error("ไม่สามารถออกจากกิจกรรมได้");
-                
-                showToast("ออกจากกิจกรรมเรียบร้อยแล้ว");
-                
-                loadHistory();
-                
-            } catch (err) {
-                console.error(err);
-                alert("เกิดข้อผิดพลาด: " + err.message);
-            }
+            });
         });
-    });
-}
+    }
+
 
     loadYourPosts();
     loadHistory();
