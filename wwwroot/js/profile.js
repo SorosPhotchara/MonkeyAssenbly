@@ -298,8 +298,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             container.innerHTML = "";
-            console.log("User posts:", posts);
-            console.log("Fetching my post:", currentUserId);
+            //console.log("User posts:", posts);
+            //console.log("Fetching my post:", currentUserId);
 
             posts.forEach(p => {
                 const div = document.createElement("div");
@@ -317,36 +317,39 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    //const loadHistory = async () => {
-    //    try {
-    //        const res = await fetch(`/Profile/GetHistory`);
-    //        if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
-    //        const history = await res.json();
-    //        const container = document.getElementById("history");
+    const loadHistory = async () => {
+        const session = await getSessionData();
+        if (!session) return;
+        console.log("user_id from history : ", session.userId);
+        const res = await fetch(`/Post/GetJoinedPost/${session.userId}`);
+        try {
+            if (!res.ok) throw new Error("ไม่สามารถโหลดประวัติได้");
+            const history = await res.json();
+            const container = document.getElementById("history");
 
-    //        if(history.length === 0){
-    //            container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
-    //            return;
-    //        }
+            if(history.length === 0){
+                container.innerHTML = "<p>คุณยังไม่มีประวัติการเข้าร่วม</p>";
+                return;
+            }
 
-    //        container.innerHTML = "";
-    //        history.forEach(h => {
-    //            const div = document.createElement("div");
-    //            div.className = "history-item";
-    //            div.innerHTML = `
-    //                <p>${h.event}</p>
-    //                <small>${new Date(h.date).toLocaleString("th-TH")}</small>
-    //            `;
-    //            container.appendChild(div);
-    //        });
-    //    } catch (err) {
-    //        console.error(err);
-    //        document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
-    //    }
-    //};
+            container.innerHTML = "";
+            history.forEach(h => {
+                const div = document.createElement("div");
+                div.className = "history-item";
+                div.innerHTML = `
+                    <p>${h.eventName}</p>
+                    <small>${new Date(h.dateOpen).toLocaleString("th-TH")}</small>
+                `;
+                container.appendChild(div);
+            });
+        } catch (err) {
+            console.error(err);
+            document.getElementById("history").innerHTML = "<p>เกิดข้อผิดพลาดในการโหลดประวัติ</p>";
+        }
+    };
 
     loadYourPosts();
-    //loadHistory();
+    loadHistory();
 
     updateMenu();
 });
