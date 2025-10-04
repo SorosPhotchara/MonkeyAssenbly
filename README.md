@@ -40,7 +40,7 @@ We're a team of passionate developers from KMITL, crafting cutting-edge web appl
 | 💅 CSS3 | Styling | ![Active](https://img.shields.io/badge/Active-brightgreen) |
 | ⚡ JavaScript | Interactivity | ![Active](https://img.shields.io/badge/Active-brightgreen) |
 | 🔷 ASP.NET MVC | Backend Framework | ![Active](https://img.shields.io/badge/Active-brightgreen) |
-| 🗄️ MSSQL | Database | ![Active](https://img.shields.io/badge/Active-brightgreen) |
+| 🗄️ NEONDB | Database | ![Active](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_NQW1VigWa6PmBSLnIhxoXGbmLeaS-5htFg&s) |
 
 </div>
 
