@@ -1,3 +1,77 @@
+// ==================== TOAST NOTIFICATION SYSTEM START ====================
+class ToastNotification {
+  constructor() {
+    this.container = null;
+    this.init();
+  }
+
+  init() {
+    if (!document.querySelector('.toast-container')) {
+      this.container = document.createElement('div');
+      this.container.className = 'toast-container';
+      document.body.appendChild(this.container);
+    } else {
+      this.container = document.querySelector('.toast-container');
+    }
+  }
+
+  show(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+
+    const icons = {
+      success: '<i class="fa-solid fa-circle-check"></i>',
+      error: '<i class="fa-solid fa-circle-xmark"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
+      info: '<i class="fa-solid fa-circle-info"></i>'
+    };
+
+    const titles = {
+      success: 'สำเร็จ',
+      error: 'ข้อผิดพลาด',
+      warning: 'คำเตือน',
+      info: 'แจ้งเตือน'
+    };
+
+    toast.innerHTML = `
+      <div class="toast-icon">${icons[type]}</div>
+      <div class="toast-content">
+        <div class="toast-title">${titles[type]}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    `;
+
+    this.container.appendChild(toast);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => this.remove(toast));
+
+    if (duration > 0) {
+      setTimeout(() => this.remove(toast), duration);
+    }
+
+    return toast;
+  }
+
+  remove(toast) {
+    toast.classList.add('removing');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }
+
+  success(message, duration) { return this.show(message, 'success', duration); }
+  error(message, duration) { return this.show(message, 'error', duration); }
+  warning(message, duration) { return this.show(message, 'warning', duration); }
+  info(message, duration) { return this.show(message, 'info', duration); }
+}
+
+const showToast = new ToastNotification();
+// ==================== TOAST NOTIFICATION SYSTEM END ====================
+
 document.addEventListener("DOMContentLoaded", async () => {
   const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
@@ -75,9 +149,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           try{
             await fetch("/Account/Logout",{method:"POST"});
             localStorage.removeItem("userId");
-            alert("ออกจากระบบเรียบร้อย");
-            location.reload();
-          } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
+            showToast.success("ออกจากระบบเรียบร้อย");
+            setTimeout(() => location.reload(), 1000);
+            } catch(err){ showToast.error("เกิดข้อผิดพลาด: "+err.message); }
         });
     }
   };
@@ -120,12 +194,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderEventsCache();
     } catch(err){
       console.error("Error fetching events:", err);
+      showToast.error("ไม่สามารถโหลดข้อมูลได้");
       cachedEvents = [];
       renderEventsCache();
     }
   }
 
-  // ฟังก์ชันเช็คว่า user join แล้วหรือยัง
   function isUserJoined(participants) {
     if (!participants || !currentUserId) return false;
     return participants.some(p => String(p) === String(currentUserId));
@@ -200,11 +274,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     return event.status;
   }
 
-  // ฟังก์ชัน Join/Unjoin Event
   async function joinEvent(postId, isCurrentlyJoined = false) {
     if (!isLoggedIn) {
-      alert("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
-      window.location.href = window.LoginUrl;
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
+      setTimeout(() => window.location.href = window.LoginUrl, 1500);
       return;
     }
     
@@ -218,19 +291,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       
       if (response.status === 401) {
-        alert("กรุณาเข้าสู่ระบบ");
-        window.location.href = window.LoginUrl;
+        showToast.warning("กรุณาเข้าสู่ระบบ");
+        setTimeout(() => window.location.href = window.LoginUrl, 1500);
         return;
       }
       
       const result = await response.json();
       
       if (!response.ok) {
-        alert(result.message || "ไม่สามารถดำเนินการได้");
+        showToast.error(result.message || "ไม่สามารถดำเนินการได้");
         return;
       }
       
-      alert(result.message);
+      showToast.success(result.message);
       await loadEventsByTag(tagQuery);
       
       if (!popup.classList.contains("hidden")) {
@@ -239,7 +312,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       
     } catch (error) {
       console.error("Error join/unjoin:", error);
-      alert("เกิดข้อผิดพลาด");
+      showToast.error("เกิดข้อผิดพลาด");
     }
   }
 
@@ -312,27 +385,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("Error loading comments:", error);
       commentList.innerHTML = "<p style='color:red;'>เกิดข้อผิดพลาดในการโหลด comments</p>";
+      showToast.error("ไม่สามารถโหลดความคิดเห็นได้");
     }
   }
 
-  // ส่ง comment
   document.getElementById("popup-comment-send").addEventListener("click", async () => {
     const input = document.getElementById("popup-comment-input");
     const text = input.value.trim();
     
     if (!isLoggedIn) {
-      alert("กรุณาเข้าสู่ระบบก่อน Comment");
-      window.location.href = window.LoginUrl;
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
+      setTimeout(() => window.location.href = window.LoginUrl, 1500);
       return;
     }
 
     if (!text) {
-      alert("กรุณากรอกความคิดเห็น");
+      showToast.warning("กรุณากรอกความคิดเห็น");
       return;
     }
     
     if (!currentPostId) {
-      alert("เกิดข้อผิดพลาด");
+      showToast.error("เกิดข้อผิดพลาด");
       return;
     }
     
@@ -340,10 +413,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const response = await fetch(`/Post/AddComment?postId=${currentPostId}&commentText=${encodeURIComponent(text)}`, {
         method: "POST"
       });
-      
-      if (response.status === 401) {
-        alert("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
-        window.location.href = window.LoginUrl;
+          
+    if (response.status === 401) {
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
+      setTimeout(() => window.location.href = window.LoginUrl, 1500);
         return;
       }
       
@@ -352,11 +425,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       
       input.value = "";
+      showToast.success("ส่งความคิดเห็นสำเร็จ");
       loadComments(currentPostId);
       
     } catch (error) {
       console.error("Error sending comment:", error);
-      alert("เกิดข้อผิดพลาดในการส่ง comment");
+      showToast.error("เกิดข้อผิดพลาดในการส่งความคิดเห็น");
     }
   });
 
@@ -366,10 +440,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // ปุ่ม JOIN/UNJOIN ใน popup
   document.getElementById("popup-join-btn").addEventListener("click", async () => {
     if (!currentPostId) {
-      alert("เกิดข้อผิดพลาด");
+      showToast.error("เกิดข้อผิดพลาด");
       return;
     }
     
