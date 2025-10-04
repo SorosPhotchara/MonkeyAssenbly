@@ -4,6 +4,46 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentUserId = localStorage.getItem("userId") || "";
     let isLoggedIn = !!currentUserId;
 
+    function showConfirm(message, title = "ยืนยันการดำเนินการ") {
+        return new Promise((resolve) => {
+            const modal = document.getElementById("confirmModal");
+            const titleEl = modal.querySelector(".confirm-title");
+            const messageEl = modal.querySelector(".confirm-message");
+            const okBtn = document.getElementById("confirmOk");
+            const cancelBtn = document.getElementById("confirmCancel");
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.classList.add("show");
+
+            const closeModal = (result) => {
+                modal.classList.remove("show");
+                okBtn.removeEventListener("click", handleOk);
+                cancelBtn.removeEventListener("click", handleCancel);
+                modal.removeEventListener("click", handleBackdrop);
+                resolve(result);
+            };
+
+            const handleOk = () => closeModal(true);
+            const handleCancel = () => closeModal(false);
+            const handleBackdrop = (e) => {
+                if (e.target === modal) closeModal(false);
+            };
+
+            okBtn.addEventListener("click", handleOk);
+            cancelBtn.addEventListener("click", handleCancel);
+            modal.addEventListener("click", handleBackdrop);
+            
+            const handleEsc = (e) => {
+                if (e.key === "Escape") {
+                    document.removeEventListener("keydown", handleEsc);
+                    closeModal(false);
+                }
+            };
+            document.addEventListener("keydown", handleEsc);
+        });
+    }
+
     // ---------------- Theme Toggle ----------------
     const root = document.documentElement;
     const toggle = document.getElementById("toggle");
@@ -359,7 +399,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 e.stopPropagation();
                 dropdown.classList.remove("show");
 
-                if (!confirm("คุณต้องการลบโพสต์นี้ใช่หรือไม่?")) return;
+                const confirmed = await showConfirm(
+                    "คุณต้องการลบโพสต์นี้ใช่หรือไม่?",
+                    "ยืนยันการลบ"
+                );
+                
+                if (!confirmed) return;
 
                 try {
                     const res = await fetch(`/Post/DeletePost/${postId}`, {
@@ -458,8 +503,13 @@ function setupUnjoinButtons() {
             
             const postId = btn.dataset.postId;
             
-            if (!confirm("คุณต้องการออกจากกิจกรรมนี้ใช่หรือไม่?")) return;
-            
+            const confirmed = await showConfirm(
+                "คุณต้องการออกจากกิจกรรมนี้ใช่หรือไม่?",
+                "ยืนยันการออกจากกิจกรรม"
+            );
+
+            if (!confirmed) return;
+                        
             try {
                 const session = await getSessionData();
                 if (!session) {
