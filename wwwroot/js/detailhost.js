@@ -1,3 +1,77 @@
+// ==================== TOAST NOTIFICATION SYSTEM START ====================
+class ToastNotification {
+  constructor() {
+    this.container = null;
+    this.init();
+  }
+
+  init() {
+    if (!document.querySelector('.toast-container')) {
+      this.container = document.createElement('div');
+      this.container.className = 'toast-container';
+      document.body.appendChild(this.container);
+    } else {
+      this.container = document.querySelector('.toast-container');
+    }
+  }
+
+  show(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+
+    const icons = {
+      success: '<i class="fa-solid fa-circle-check"></i>',
+      error: '<i class="fa-solid fa-circle-xmark"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
+      info: '<i class="fa-solid fa-circle-info"></i>'
+    };
+
+    const titles = {
+      success: 'สำเร็จ',
+      error: 'ข้อผิดพลาด',
+      warning: 'คำเตือน',
+      info: 'แจ้งเตือน'
+    };
+
+    toast.innerHTML = `
+      <div class="toast-icon">${icons[type]}</div>
+      <div class="toast-content">
+        <div class="toast-title">${titles[type]}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    `;
+
+    this.container.appendChild(toast);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => this.remove(toast));
+
+    if (duration > 0) {
+      setTimeout(() => this.remove(toast), duration);
+    }
+
+    return toast;
+  }
+
+  remove(toast) {
+    toast.classList.add('removing');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }
+
+  success(message, duration) { return this.show(message, 'success', duration); }
+  error(message, duration) { return this.show(message, 'error', duration); }
+  warning(message, duration) { return this.show(message, 'warning', duration); }
+  info(message, duration) { return this.show(message, 'info', duration); }
+}
+
+const showToast = new ToastNotification();
+// ==================== TOAST NOTIFICATION SYSTEM END ====================
+
 // ---------------- Config ----------------
 const SERVER_URL = "http://localhost:7014";
 const currentUserId = localStorage.getItem("userId");
@@ -5,7 +79,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const activityId = document.body.dataset.postId;
 console.log("Post ID ที่รับมา:", activityId);
 
-if (!activityId) alert("ไม่พบ ID ของกิจกรรม");
+if (!activityId) showToast.error("ไม่พบ ID ของกิจกรรม");
 
 // ---------------- Theme / Sidebar ----------------
 const menuItems = document.querySelectorAll(".menu h2");
@@ -37,7 +111,7 @@ sidebarLinks.forEach((link, index) => {
         switch (index) {
             case 0: window.location.href = window.LoginUrl; break;
             case 1: window.location.href = window.TagsUrl; break;
-            case 2: alert("Create event modal here"); break;
+            case 2: showToast.info("คุณสามารถสร้างกิจกรรมได้ที่หน้าหลัก"); break;
             case 3: window.location.href = window.NotifyUrl; break;
             case 4: window.location.href = window.ProfileUrl; break;
         }
@@ -69,7 +143,8 @@ function updateMenu() {
             localStorage.setItem("isLoggedIn", "false");
             isLoggedIn = false;
             updateMenu();
-            alert("ออกจากระบบเรียบร้อย");
+            showToast.success("ออกจากระบบเรียบร้อย");
+            setTimeout(() => location.reload(), 1500);alert("ออกจากระบบเรียบร้อย");
         });
     }
 }
@@ -115,7 +190,7 @@ async function loadActivity() {
         document.getElementById("activityDetails").value = data.post.description;
 
     } catch (err) {
-        alert(err.message);
+        showToast.error(err.message);
         console.error("❌ ERROR:", err);
     }
 }
@@ -196,15 +271,24 @@ async function loadActivity() {
 document.getElementById("sendComment").addEventListener("click", async () => {
     const input = document.getElementById("commentInput");
     const text = input.value.trim();
-    if (!text) return;
+    
+    if (!text) {
+        showToast.warning("กรุณากรอกความคิดเห็น");
+        return;
+    }
 
-    await fetch(`/Post/UpdatePost/${activityId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ activityId, text })
-    });
-    input.value = "";
-    loadComments();
+    try {
+        await fetch(`/Post/UpdatePost/${activityId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ activityId, text })
+        });
+        input.value = "";
+        showToast.success("ส่งความคิดเห็นสำเร็จ");
+        // loadComments();
+    } catch (err) {
+        showToast.error("ไม่สามารถส่งความคิดเห็นได้");
+    }
 });
 
 // ---------------- Action Buttons ----------------
@@ -214,8 +298,12 @@ document.querySelector(".update").addEventListener("click", async () => {
     const location = document.getElementById("activityPlace").value;
     const date = document.getElementById("activityDeadline").value;
     const tagSelect = document.getElementById("tagSelect");
-    console.log("select : ",tagSelect);
     const tagId = tagSelect.value;
+
+    if (!title || !description || !location || !date || !tagId) {
+        showToast.warning("กรุณากรอกข้อมูลให้ครบถ้วน");
+        return;
+    }
 
     const data = {
         eventName: title,
@@ -223,38 +311,62 @@ document.querySelector(".update").addEventListener("click", async () => {
         location: location,
         dateOpen: date,
         dateClose: date,
-        startTime: "00:00",         // เพิ่มหากจำเป็น
-        endTime: "23:59",           // เพิ่มหากจำเป็น
-        maxParticipants: 10,        // เพิ่มหากจำเป็น
+        startTime: "00:00",
+        endTime: "23:59",
+        maxParticipants: 10,
         status: true,
-        tagId: tagId                // ถ้าคุณรองรับ tagId ใน DTO
+        tagId: tagId
     };
 
-    const res = await fetch(`/Post/UpdatePost/${activityId}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
-    });
+    try {
+        const res = await fetch(`/Post/UpdatePost/${activityId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
 
-    if (res.ok) {
-        alert("✅ อัปเดตเรียบร้อย");
-        window.location.href = window.ProfileUrl;
-    } else {
-        alert("❌ อัปเดตล้มเหลว");
+        if (res.ok) {
+            showToast.success("อัปเดตกิจกรรมสำเร็จ");
+            setTimeout(() => {
+                window.location.href = window.ProfileUrl;
+            }, 1500);
+        } else {
+            showToast.error("อัปเดตกิจกรรมล้มเหลว");
+        }
+    } catch (err) {
+        showToast.error("เกิดข้อผิดพลาด: " + err.message);
     }
 });
 
 
 document.querySelector(".leave").addEventListener("click", async () => {
-    await fetch(`${SERVER_URL}/api/activity/${activityId}/leave`, { method: "POST" });
-    alert("ยกเลิกเรียบร้อย");
+    if (!confirm("คุณต้องการยกเลิกกิจกรรมนี้หรือไม่?")) return;
+    
+    try {
+        await fetch(`${SERVER_URL}/api/activity/${activityId}/leave`, { method: "POST" });
+        showToast.success("ยกเลิกกิจกรรมเรียบร้อย");
+        setTimeout(() => {
+            window.location.href = window.ProfileUrl;
+        }, 1500);
+    } catch (err) {
+        showToast.error("ไม่สามารถยกเลิกได้");
+    }
 });
 
 document.querySelector(".end").addEventListener("click", async () => {
-    await fetch(`${SERVER_URL}/api/activity/${activityId}/end`, { method: "POST" });
-    alert("ปิดรับสมัครเรียบร้อย");
+    if (!confirm("คุณต้องการปิดรับสมัครกิจกรรมนี้หรือไม่?")) return;
+    
+    try {
+        await fetch(`${SERVER_URL}/api/activity/${activityId}/end`, { method: "POST" });
+        showToast.success("ปิดรับสมัครเรียบร้อย");
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+    } catch (err) {
+        showToast.error("ไม่สามารถปิดรับสมัครได้");
+    }
 });
 
 // ---------------- Initial Load ----------------

@@ -290,14 +290,38 @@ html.dark .sidebar a.add:hover i {
 
 .detail-card {
   background: var(--card-bg);
-  padding: 25px;
+  padding: 30px;
   border-radius: 20px;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   box-shadow: 0 6px 14px rgba(0,0,0,0.1);
   color: var(--head-font);
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.detail-card input[type="text"],
+.detail-card input[type="date"],
+.detail-card select,
+.detail-card textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--highlight);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--head-font);
+  font-size: 14px;
+  font-family: 'Nunito', 'Prompt', sans-serif;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.detail-card input:focus,
+.detail-card select:focus,
+.detail-card textarea:focus {
+  border-color: var(--border);
+  box-shadow: 0 0 0 3px rgba(255, 126, 95, 0.1);
 }
 
 .activity-title { 
@@ -630,6 +654,235 @@ html.dark .participants-pending .participant-row {
   transform: scale(1.03);
 }
 
+/* =======================
+   Toast Notification System - Improved
+======================= */
+.toast-container {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+  pointer-events: none;
+}
+
+.toast-notification {
+  background: var(--card-bg);
+  border-radius: 14px;
+  padding: 18px 22px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 320px;
+  animation: toastSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-left: 4px solid;
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toast-notification:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18),
+              0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Progress Bar */
+.toast-notification::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background: currentColor;
+  opacity: 0.3;
+  animation: toastProgress 3s linear;
+}
+
+/* Animations */
+@keyframes toastSlideIn {
+  0% { 
+    opacity: 0; 
+    transform: translateX(100%) scale(0.8);
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  0% { 
+    opacity: 1; 
+    transform: translateX(0) scale(1);
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateX(120%) scale(0.9);
+  }
+}
+
+@keyframes toastProgress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.toast-notification.removing {
+  animation: toastSlideOut 0.3s ease-in forwards;
+}
+
+/* Toast Icon */
+.toast-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  position: relative;
+}
+
+.toast-icon i {
+  position: relative;
+  z-index: 1;
+}
+
+/* Toast Content */
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--head-font);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.toast-message {
+  font-size: 14px;
+  color: var(--sub-font);
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+/* Close Button */
+.toast-close {
+  background: transparent;
+  border: none;
+  color: var(--sub-font);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-top: -2px;
+}
+
+.toast-close:hover {
+  background: var(--highlight);
+  color: var(--head-font);
+  transform: scale(1.1);
+}
+
+.toast-close:active {
+  transform: scale(0.95);
+}
+
+/* Success Toast */
+.toast-notification.success {
+  border-left-color: #10b981;
+}
+
+.toast-notification.success .toast-icon {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #059669;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Error Toast */
+.toast-notification.error {
+  border-left-color: #ef4444;
+}
+
+.toast-notification.error .toast-icon {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* Warning Toast */
+.toast-notification.warning {
+  border-left-color: #f59e0b;
+}
+
+.toast-notification.warning .toast-icon {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+/* Info Toast */
+.toast-notification.info {
+  border-left-color: #3b82f6;
+}
+
+.toast-notification.info .toast-icon {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #2563eb;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+/* Dark Mode */
+html.dark .toast-notification {
+  background: var(--card-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
+              0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--highlight);
+}
+
+html.dark .toast-notification:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5),
+              0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .toast-notification.success .toast-icon {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.15) 100%);
+  color: #34d399;
+}
+
+html.dark .toast-notification.error .toast-icon {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.15) 100%);
+  color: #f87171;
+}
+
+html.dark .toast-notification.warning .toast-icon {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.15) 100%);
+  color: #fbbf24;
+}
+
+html.dark .toast-notification.info .toast-icon {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0.15) 100%);
+  color: #60a5fa;
+}
 
 /* =======================
    Responsive Sidebar  for Detail Host Page
@@ -702,4 +955,52 @@ html.dark .participants-pending .participant-row {
   html.dark .toggle .ball {
     transform: translateX(30px);
   }
+
+    .toast-container {
+    right: 10px;
+    left: 10px;
+    top: 80px;
+    max-width: none;
+  }
+  
+  .toast-notification {
+    min-width: auto;
+    width: 100%;
+    padding: 16px 18px;
+  }
+  
+  .toast-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  
+  .toast-title {
+    font-size: 14px;
+  }
+  
+  .toast-message {
+    font-size: 13px;
+  }
+}
+
+
+.toast-notification:nth-child(1) {
+  z-index: 9999;
+}
+
+.toast-notification:nth-child(2) {
+  z-index: 9998;
+  opacity: 0.95;
+}
+
+.toast-notification:nth-child(3) {
+  z-index: 9997;
+  opacity: 0.9;
+}
+
+.toast-notification:nth-child(n+4) {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
 }
