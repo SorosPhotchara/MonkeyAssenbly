@@ -21,6 +21,7 @@
         window.ProfileUrl = '@ViewBag.ProfileUrl';
         window.LoginUrl = '@ViewBag.LoginUrl';
         window.SignupUrl = '@ViewBag.SingupUrl';
+        window.DetailHostUrl = '@ViewBag.DetailHostUrl';
     </script>
 </head>
 <script>
@@ -126,6 +127,20 @@
     </div>
 
     <div id="toast" class="toast hidden">บันทึกข้อมูลเรียบร้อยแล้ว</div>
+
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-modal-content">
+            <div class="confirm-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="confirm-title">ยืนยันการลบ</h3>
+            <p class="confirm-message">คุณต้องการลบโพสต์นี้ใช่หรือไม่?</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn-cancel" id="confirmCancel">ยกเลิก</button>
+                <button class="confirm-btn-ok" id="confirmOk">ตกลง</button>
+            </div>
+        </div>
+    </div>
 
     <script src="/js/profile.js"></script>
     @* <script>

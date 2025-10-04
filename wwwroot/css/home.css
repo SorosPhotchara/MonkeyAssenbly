@@ -701,66 +701,380 @@ html.dark .join-btn:hover {
   visibility: visible;
 }
 
-/* =======================
-   Event Popup
-======================= */
-.event-popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 5000;
-}
+  /* =======================
+    Event Popup - Improved
+  ======================= */
+  .event-popup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    backdrop-filter: blur(4px);
+  }
 
-.event-popup.hidden {
-  display: none;
-}
+  .event-popup.hidden {
+    display: none;
+  }
 
-.event-popup-content {
-  background: #fff;
-  border-radius: 15px;
-  padding: 20px;
-  width: 420px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-}
+  .event-popup-content {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: popupSlideIn 0.3s ease-out;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
 
-.popup-close-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  cursor: pointer;
-}
+  .event-popup-content::-webkit-scrollbar {
+    display: none;
+  }
 
-.event-popup .participants-box,
-.event-popup .comment-box {
-  background: #f9f9f9;
-  padding: 10px;
-  margin: 15px 0;
-  border-radius: 10px;
-}
+  .popup-close-btn {
+    background: var(--highlight);
+    border: none;
+    font-size: 20px;
+    color: var(--head-font);
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
 
-.popup-join-btn {
-  background: #ff7e5f;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  width: 100%;
-  font-size: 16px;
-  cursor: pointer;
-}
+  .popup-close-btn:hover {
+    background: var(--border);
+    color: var(--white);
+    transform: scale(1.1);
+  }
 
-.popup-join-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
+  .event-popup-content h3 {
+    font-size: 24px;
+    color: var(--head-font);
+    margin: 0 0 20px 0;
+    padding-right: 40px;
+    line-height: 1.3;
+  }
+
+  .event-popup-content > p {
+    color: var(--sub-font);
+    margin: 8px 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .event-popup-content > p span {
+    color: var(--head-font);
+    font-weight: 600;
+  }
+
+  .event-popup-content h4 {
+    color: var(--head-font);
+    font-size: 16px;
+    margin: 24px 0 12px 0;
+    font-weight: 600;
+  }
+
+  /* Participants List */
+  #participants-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
+    background: var(--highlight);
+    border-radius: 12px;
+    padding: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+
+  #participants-list li {
+    padding: 8px 12px;
+    margin: 4px 0;
+    background: var(--card-bg);
+    border-radius: 8px;
+    color: var(--head-font);
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  #participants-list li:hover {
+    background: var(--border);
+    color: var(--white);
+    transform: translateX(4px);
+  }
+
+  #participants-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #participants-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #participants-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  /* Join Button */
+  .popup-join-btn {
+    background: var(--border);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .popup-join-btn:hover:not(:disabled) {
+    background: var(--bar-font);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .popup-join-btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .popup-join-btn:disabled {
+    background: var(--sub-font);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* Comment Section */
+  .comment-section {
+    background: var(--highlight);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+  }
+
+  #popup-comment-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    padding-right: 8px;
+  }
+
+  #popup-comment-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #popup-comment-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #popup-comment-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .comment-item {
+    background: var(--card-bg);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    animation: commentSlideIn 0.3s ease-out;
+  }
+
+  @keyframes commentSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .comment-item .comment-user {
+    font-weight: 600;
+    color: var(--head-font);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .comment-item .comment-text {
+    color: var(--sub-font);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .comment-item .comment-time {
+    color: var(--sub-font);
+    font-size: 12px;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* Comment Input */
+  .comment-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #popup-comment-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--head-font);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  #popup-comment-input:focus {
+    box-shadow: 0 0 0 2px var(--border);
+  }
+
+  #popup-comment-input::placeholder {
+    color: var(--sub-font);
+    opacity: 0.6;
+  }
+
+  #popup-comment-send {
+    background: var(--border);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  #popup-comment-send:hover {
+    background: var(--bar-font);
+    transform: scale(1.1);
+  }
+
+  #popup-comment-send:active {
+    transform: scale(0.95);
+  }
+
+  #popup-comment-send i {
+    font-size: 18px;
+  }
+
+  /* Dark Mode Adjustments */
+  html.dark .event-popup {
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  html.dark .event-popup-content {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  }
+
+  html.dark .popup-close-btn {
+    background: var(--highlight);
+    color: var(--bar-font);
+  }
+
+  html.dark .popup-close-btn:hover {
+    background: var(--bar-font);
+    color: var(--highlight);
+  }
+
+  html.dark #participants-list {
+    background: var(--highlight);
+  }
+
+  html.dark #participants-list li {
+    background: var(--card-bg);
+    border: 1px solid var(--highlight);
+  }
+
+  html.dark #participants-list li:hover {
+    background: var(--bar-font);
+    color: var(--bg);
+    border-color: var(--bar-font);
+  }
+
+  html.dark .popup-join-btn {
+    background: var(--bar-font);
+    color: var(--bg);
+  }
+
+  html.dark .popup-join-btn:hover:not(:disabled) {
+    background: var(--border);
+    color: var(--highlight);
+  }
+
+  html.dark .comment-section {
+    background: var(--highlight);
+  }
+
+  html.dark .comment-item {
+    background: var(--card-bg);
+    border: 1px solid var(--highlight);
+  }
+
+  html.dark #popup-comment-input {
+    background: var(--card-bg);
+    border: 1px solid var(--highlight);
+  }
+
+  html.dark #popup-comment-send {
+    background: var(--bar-font);
+    color: var(--bg);
+  }
+
+  html.dark #popup-comment-send:hover {
+    background: var(--border);
+    color: var(--highlight);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .event-popup-content {
+      width: 95%;
+      max-width: none;
+      padding: 24px 20px;
+      max-height: 90vh;
+    }
+    
+    .event-popup-content h3 {
+      font-size: 20px;
+    }
+    
+    #participants-list {
+      max-height: 120px;
+    }
+    
+    #popup-comment-list {
+      max-height: 150px;
+    }
+  }
 
 /* =======================
    Responsive Sidebar  for Home Page
@@ -838,4 +1152,82 @@ html.dark .join-btn:hover {
   html.dark .toggle .ball {
     transform: translateX(30px);
   }
+  /* =======================
+   Alert Messages & Animation
+  ======================= */
+  .alert {
+    animation: slideIn 0.3s ease-out;
+    padding: 15px;
+    margin: 10px auto;
+    border-radius: 10px;
+    max-width: 400px;
+    text-align: center;
+    font-weight: 500;
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  /* Form Labels & Inputs */
+  .modal-content form label {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--head-font);
+    text-align: left;
+    font-size: 14px;
+  }
+
+  .modal-content input[type="date"],
+  .modal-content input[type="time"],
+  .modal-content input[type="number"] {
+    width: 100%;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 10px;
+    background: var(--highlight);
+    font-size: 14px;
+    outline: none;
+    color: var(--head-font);
+    cursor: pointer;
+  }
+
+  html.dark .modal-content input[type="date"],
+  html.dark .modal-content input[type="time"],
+  html.dark .modal-content input[type="number"] {
+    background: var(--highlight);
+    color: var(--head-font);
+    border: 1px solid #555;
+  }
+  /* .comment-section {
+    
+  } */
 }

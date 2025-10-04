@@ -1,6 +1,6 @@
-// --------------------------------- Tag ที่เอาไปใช้จริง --------------------------------------------
+// --------------------------------- Tag หน้า Tags --------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  const SERVER_URL = "http://localhost:3000";
+  const SERVER_URL = "http://localhost:5122";
   let currentUserId = localStorage.getItem("userId") || "";
   let isLoggedIn = !!currentUserId;
 
@@ -18,17 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
   toggle.addEventListener("change", () => {
     const isDark = root.classList.toggle("dark");
     localStorage.setItem("theme", isDark ? "dark" : "light");
-    sunIcon.className = isDark ? "bx bx-sun" : "bxs-sun";
-    moonIcon.className = isDark ? "bx bx-moon" : "bxs-moon";
+    sunIcon.className = isDark ? "bx bx-sun" : "bx bxs-sun";
+    moonIcon.className = isDark ? "bx bx-moon" : "bx bxs-moon";
   });
 
   // ---------------- Sidebar & Hamburger ----------------
-  const menuItems = document.querySelectorAll(".menu h2");
-  menuItems.forEach(item => item.addEventListener("click", () => {
-    menuItems.forEach(el => el.classList.remove("active"));
-    item.classList.add("active");
-  }));
-
   const hamburgerBtn = document.getElementById("hamburgerBtn");
   const hamburgerMenu = document.getElementById("hamburgerMenu");
   const menuList = document.getElementById("menuList");
@@ -81,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ---------------- Tag List ----------------
   const tagList = document.querySelector('.tag-list');
   const tagSearchInput = document.getElementById('tagSearchInput');
-  const feedContainer = document.getElementById('tag-feed');
 
   async function loadTags(search=""){
     try{
@@ -94,14 +87,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderTags(tags, search=""){
     if(!tagList) return;
-    tagList.innerHTML="";
+    tagList.innerHTML = "";
     const searchLower = search.toLowerCase();
-    tags.forEach(tag=>{
+
+    tags.forEach(tag => {
       if(search && !tag.name.toLowerCase().includes(searchLower)) return;
+
       const card = document.createElement("div");
-      card.className="tag-card";
-      card.textContent = tag.name;
-      card.addEventListener("click", ()=>loadPostsByTag(tag.name));
+      card.className = "tag-card";
+      card.textContent = tag.name;  // ชื่อ tag จาก JSON
+      card.addEventListener("click", () => {
+        // ไปหน้า Home พร้อม filter tag
+        window.location.href = `/Home?tag=${encodeURIComponent(tag.name)}`;
+      });
+
       tagList.appendChild(card);
     });
   }
@@ -112,53 +111,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------------- Load posts by tag ----------------
-  async function loadPostsByTag(tagName){
-    if(!feedContainer) return;
-    feedContainer.innerHTML="กำลังโหลด...";
-    try{
-      const res = await fetch(`${SERVER_URL}/posts?tag=${encodeURIComponent(tagName)}`);
-      const posts = await res.json();
-      renderPosts(posts);
-    } catch(err){ feedContainer.innerHTML="ไม่สามารถโหลดโพสต์ได้"; console.error(err); }
-  }
-
-  function renderPosts(posts){
-    if(!feedContainer) return;
-    feedContainer.innerHTML="";
-    posts.forEach(post=>{
-      const card = document.createElement("div");
-      card.className="event-card";
-      card.innerHTML=`
-        <div class="event-header">
-          <span class="host">${post.host}</span>
-          <small>${post.startTime||""}</small>
-        </div>
-        <div class="event-body">
-          <h3>${post.name}</h3>
-          <p>${post.description}</p>
-        </div>
-      `;
-      if(isLoggedIn){
-        const joinBtn = document.createElement("button");
-        joinBtn.textContent = post.participants?.includes(currentUserId)?"UNJOIN":"JOIN";
-        joinBtn.addEventListener("click", async ()=>{
-          try{
-            const action = post.participants?.includes(currentUserId)?"unjoin":"join";
-            await fetch(`${SERVER_URL}/events/${post.id}/${action}`,{
-              method:"PUT",
-              headers:{"Content-Type":"application/json"},
-              body:JSON.stringify({userId:currentUserId})
-            });
-            loadPostsByTag(post.tag);
-          } catch(err){ alert("เกิดข้อผิดพลาด"); }
-        });
-        card.appendChild(joinBtn);
-      }
-      feedContainer.appendChild(card);
-    });
-  }
-
-  // ---------------- Initial Load ----------------
   loadTags();
 });

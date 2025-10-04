@@ -5,7 +5,6 @@
 
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +27,7 @@
     <!-- Header -->
     <header class="navbar">
         <div class="logo">
-            <a href=" @Url.Action("Home", "Home")">
+            <a href="@Url.Action("Home", "Home")">
                 <img src="/picture/logo.png" alt="Monkey Assemble Logo">
             </a>
         </div>
@@ -63,28 +62,56 @@
     </div>
 
     <div class="hamburger-menu" id="hamburgerMenu">
-        <ul id="menuList">
-        </ul>
+        <ul id="menuList"></ul>
     </div>
+
+    <!-- Alert Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
     <!-- Popup Create Event -->
     <div id="createEventModal" class="modal">
         <div class="modal-content">
             <i class="fa-solid fa-xmark close-btn"></i>
             <h2>Create Event</h2>
-            <form id="createEventForm">
-                <input type="text" name="eventName" placeholder="event name" required>
-                <input type="datetime-local" name="startTime" placeholder="เวลาเริ่มรับผู้เข้าร่วม" required>
-                <input type="datetime-local" name="endTime" placeholder="เวลาปิดรับผู้เข้าร่วม" required>
-                <input type="text" name="location" placeholder="location">
-                <input type="number" name="maxParticipants" placeholder="participants">
+            <form method="post" asp-controller="Post" asp-action="CreatePost">
+                @Html.AntiForgeryToken()
+                
+                <input type="text" name="postTitile" placeholder="event name" required>
+                
+                <label>วันที่เปิด:</label>
+                <input type="date" name="postDateOpen" required>
+                
+                <label>วันที่ปิด:</label>
+                <input type="date" name="postDateClose" required>
+                
+                <label>เวลาเปิด:</label>
+                <input type="time" name="postTimeOpen">
+                
+                <label>เวลาปิด:</label>
+                <input type="time" name="postTimeClose">
+                
+                <input type="text" name="postPlace" placeholder="location">
+                
+                <input type="number" name="postMaxPaticipants" placeholder="participants" min="1" required>
 
                 <div class="tag-container">
                     <input type="text" id="tagInput" placeholder="tag">
                     <div id="tagSuggestions" class="suggestions"></div>
                 </div>
 
-                <textarea name="description" placeholder="detail"></textarea>
+                <textarea name="postDescript" placeholder="detail"></textarea>
 
                 <p class="note">Check the details of your created event!</p>
                 <button type="submit" class="create-btn">Create</button>
@@ -93,38 +120,62 @@
     </div>
 
     <!-- FEEDS  -->
-    <section id="for-you" class="tab-content active">
-        
-    </section>
-
-    <section id="follow" class="tab-content">
-       
-    </section>
+    <section id="for-you" class="tab-content active"></section>
+    <section id="follow" class="tab-content"></section>
 
     <!-- Event Popup  -->
     <div id="event-popup" class="event-popup hidden">
         <div class="event-popup-content">
-            <button id="close-popup" class="popup-close-btn"><i class="fa-solid fa-arrow-left"></i></button>
+            <button id="close-popup" class="popup-close-btn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
             <h3 id="event-title">Event Name</h3>
-            <p>Host: <span id="event-host">HostName</span></p>
-            <p>สถานที่: <span id="event-place">ไม่ระบุ</span></p>
+            
+            <p><strong>Host:</strong> <span id="event-host">HostName</span></p>
+            <p><strong>สถานที่:</strong> <span id="event-place">ไม่ระบุ</span></p>
 
-            <h4>ผู้เข้าร่วม:</h4>
-            <ul id="participants-list"></ul>
+            <h4>ผู้เข้าร่วม</h4>
+            <ul id="participants-list">
+                <li>Loading...</li>
+            </ul>
 
             <button id="popup-join-btn" class="popup-join-btn">JOIN</button>
 
-            <h4>Comment:</h4>
+            <h4>Comments</h4>
             <div class="comment-section">
-                <input type="text" id="popup-comment-input" placeholder="เขียนความคิดเห็น...">
-                <button id="popup-comment-send"><i class="fa-solid fa-paper-plane"></i></button>
                 <div id="popup-comment-list"></div>
+                <div class="comment-input-wrapper">
+                    <input type="text" id="popup-comment-input" placeholder="เขียนความคิดเห็น...">
+                    <button id="popup-comment-send">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script src="/js/common.js"></script>
     <script src="/js/home.js"></script>
+    
+    <!-- ป้องกัน double form submission -->
+    <script>
+    (function() {
+        const form = document.querySelector('#createEventModal form');
+        if (form) {
+            let isSubmitting = false;
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                isSubmitting = true;
+                
+                // Reset after 3 seconds in case of error
+                setTimeout(() => { isSubmitting = false; }, 3000);
+            });
+        }
+    })();
+    </script>
 </body>
-
 </html>
