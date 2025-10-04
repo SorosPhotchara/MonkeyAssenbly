@@ -258,7 +258,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
     
-    // ✨ เพิ่มส่วนนี้: ทำให้ชื่อ host คลิกได้
     const hostElement = card.querySelector(".host");
     hostElement.addEventListener("click", e => {
       e.stopPropagation();
@@ -342,14 +341,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     document.getElementById("event-title").textContent = eventData.eventName;
     
-    // ✨ เพิ่มส่วนนี้: ทำให้ชื่อ host ใน popup คลิกได้พร้อม hover effect
     const hostElement = document.getElementById("event-host");
     hostElement.textContent = eventData.host;
     hostElement.style.cursor = "pointer";
     hostElement.style.color = "var(--head-font)";
     hostElement.style.transition = "color 0.2s ease";
     
-    // Click event สำหรับ host ใน popup
     hostElement.onclick = (e) => {
       e.stopPropagation();
       if (eventData.hostId) {
@@ -359,7 +356,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     };
     
-    // Hover effect
     hostElement.onmouseenter = () => {
       hostElement.style.color = "var(--border)";
       hostElement.style.textDecoration = "underline";
