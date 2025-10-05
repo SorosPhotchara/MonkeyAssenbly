@@ -667,9 +667,30 @@ namespace MonkeyAssenbly.Controllers
 
             return Ok(new { message = "เพิ่มความคิดเห็นสำเร็จ" });
         }
-        // ==================== COMMENT SYSTEM END ====================
 
-        // ==================== JOIN EVENT SYSTEM START ====================
+        [HttpPost("AddCommentFromHost")]
+        public IActionResult AddCommentFromHost([FromBody] CommentDto dto)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+
+            var sql = @"
+        INSERT INTO ""CommentTable"" (post_id, user_id, comment_text, created_at)
+        VALUES (@postId, @userId, @text, @createdAt)";
+
+            using var cmd = new NpgsqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("postId", dto.postId);
+            cmd.Parameters.AddWithValue("userId", dto.userId);
+            cmd.Parameters.AddWithValue("text", dto.text);
+            cmd.Parameters.AddWithValue("createdAt", DateTime.UtcNow.AddHours(7)); // เวลาไทย
+
+            int affected = cmd.ExecuteNonQuery();
+
+            return Ok(new { success = affected > 0 });
+        }
+
+
+
         [HttpPost("JoinEvent")]
         public IActionResult JoinEvent(int postId)
         {

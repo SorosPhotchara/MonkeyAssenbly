@@ -73,11 +73,10 @@ const showToast = new ToastNotification();
 // ==================== TOAST NOTIFICATION SYSTEM END ====================  
 
 // ---------------- Config ----------------
-const SERVER_URL = "http://localhost:7014";
+const SERVER_URL = "http://localhost:5122";
 const currentUserId = localStorage.getItem("userId");
 const urlParams = new URLSearchParams(window.location.search);
 const activityId = document.body.dataset.postId;
-console.log("Post ID ที่รับมา:", activityId);
 
 if (!activityId) showToast.error("ไม่พบ ID ของกิจกรรม");
 
@@ -241,18 +240,17 @@ async function loadActivity() {
 //}
 
 // ---------------- Load Comments ----------------
-async function loadComments() {
+async function loadComments(activityId) {
+    const commentList = document.getElementById("commentList");
+    commentList.innerHTML = "<p>กำลังโหลด...</p>";
     try {
         const response = await fetch(`/Post/GetComments?postId=${activityId}`);
         if (!response.ok) throw new Error("ไม่สามารถโหลด comments ได้");
-        const comments = await response.json();
-        console.log("Activity Id : ", activityId);
-        console.log("comments: ",comments);
 
-        const commentList = document.getElementById("commentList");
+        const comments = await response.json();
         commentList.innerHTML = "";
 
-        if(comments.length === 0) {
+        if (comments.length === 0) {
             commentList.innerHTML = "<p style='text-align:center; color:var(--sub-font); padding:20px;'>ยังไม่มีความคิดเห็น</p>";
         } else {
             comments.forEach(comment => {
@@ -268,67 +266,120 @@ async function loadComments() {
         }
 
         commentList.scrollTop = commentList.scrollHeight;
-    } catch (err) { alert(err.message); }
+
+    } catch (error) {
+        console.error("Error loading comments:", error);
+        commentList.innerHTML = "<p style='color:red;'>เกิดข้อผิดพลาดในการโหลด comments</p>";
+        showToast.error("ไม่สามารถโหลดความคิดเห็นได้");
+    }
 }
 
 // ---------------- Send Comment ----------------
 document.getElementById("sendComment").addEventListener("click", async () => {
     const input = document.getElementById("commentInput");
     const text = input.value.trim();
-    
+    //console.log("currentUserId : ", currentUserId);
+
+    const getSessionData = async () => {
+        try {
+            const res = await fetch("/Profile/GetSessionData", {
+                method: "GET",
+                credentials: "same-origin"
+            });
+
+            const data = await res.json();
+            if (data.isLoggedIn) {
+                console.log("Session:", data);
+                return data;  // ✅ ส่งข้อมูลออกไป
+            } else {
+                console.log("ยังไม่ได้ล็อกอิน");
+                return null;
+            }
+        } catch (err) {
+            console.error("Error fetching session:", err);
+            return null;
+        }
+    };
+    //const new_user_id = session?.userId;
+    //console.log("new_user_id", new_user_id);
+
+
     if (!text) {
         showToast.warning("กรุณากรอกความคิดเห็น");
         return;
     }
-
+    //const session = getSessionData();
+    const session = await getSessionData();
+    if (!session) return;
     try {
-        await fetch(`/Post/UpdatePost/${activityId}`, {
+        //console.log("Sending comment:", {
+        //    postId: activityId,
+        //    userId: session.userId,
+        //    text: text
+        //});
+        const act_id = parseInt(activityId)
+        const res = await fetch(`/Post/AddCommentFromHost`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ activityId, text })
+            body: JSON.stringify({
+                postId: act_id,
+                userId: session.userId,
+                text: text
+            })
         });
+
+        if (!res.ok) throw new Error("ส่งความคิดเห็นล้มเหลว");
+
         input.value = "";
         showToast.success("ส่งความคิดเห็นสำเร็จ");
-         loadComments();
+        loadComments(activityId); // ✅ โหลด comment ใหม่
     } catch (err) {
+        console.error(err);
         showToast.error("ไม่สามารถส่งความคิดเห็นได้");
     }
-    loadComments();
 });
+
 
 // ---------------- Action Buttons ----------------
 document.querySelector(".update").addEventListener("click", async () => {
-    const title = document.getElementById("activityTitle").value;
-    const description = document.getElementById("activityDetails").value;
-    const location = document.getElementById("activityPlace").value;
-    const date = document.getElementById("activityDeadline").value;
-    const tagSelect = document.getElementById("tagSelect");
-    const tagId = tagSelect.value;
-
+    const new_title = document.getElementById("activityTitle").value;
+    const new_description = document.getElementById("activityDetails").value;
+    const new_location = document.getElementById("activityPlace").value;
+    const new_enddate = document.getElementById("activityDeadline").value;
+    const new_tagSelect = document.getElementById("tagSelect");
+    const new_tagId = new_tagSelect.value;
+    let new_status = false;
     const old_res = await fetch(`/Post/GetPostById/${activityId}`);
     if (!old_res) { return false };
     
     const old_data = await old_res.json();
-    console.log(old_data);
+    console.log("old data : ",old_data);
 
 
-    if (!title || !description || !location || !date || !tagId) {
+    if (!new_title || !new_description || !new_location || !new_enddate || !new_tagId) {
+
         showToast.warning("กรุณากรอกข้อมูลให้ครบถ้วน");
         return;
     }
+    console.log("new_tagId:", new_tagId);
+    if (old_data.post.status === "open") {
+        new_status = true;
+    }
 
     const data = {
-        eventName: title,
-        description: description,
-        location: location,
-        dateOpen: old_data.post.dataOpen,
-        dateClose: date,
+        eventName: new_title,
+        description: new_description,
+        location: new_location,
+        dateOpen: old_data.post.dateOpen,
+        dateClose: new_enddate,
         startTime: old_data.post.startTime,
         endTime: old_data.post.endTime,
         maxParticipants: old_data.post.maxParticipants,
-        status: old_data.post.status,
-        tagId: tagId
+        status: new_status,
+        tagId: parseInt(new_tagId)
     };
+    console.log(data);
+
 
     try {
         const res = await fetch(`/Post/UpdatePost/${activityId}`, {
@@ -383,5 +434,5 @@ document.querySelector(".end").addEventListener("click", async () => {
 
 // ---------------- Initial Load ----------------
 loadActivity();
-loadComments();
+loadComments(activityId);
 //loadParticipants();
