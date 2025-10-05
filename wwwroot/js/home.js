@@ -386,6 +386,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ใช้ฟังก์ชันนี้แทนของเดิม
     function getTimeSinceCreated(createdAtStr) {
+      console.log("create",createdAtStr);
       if (!createdAtStr) return "-";
       const created = parseDateTimeWithTZ(createdAtStr, TIMEZONE);
       let now;
@@ -407,14 +408,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       return `${diffDay} วันที่แล้ว`;
     }
     const createdText = getTimeSinceCreated(eventData.createdAt);
-
+    console.log("c",createdText);
+    console.log("eventData", eventData);
     // ...existing code...
     card.innerHTML = `
       <div class="event-header">
         <div class="host-info">
           ${avatarHTML}
           <span class="host" data-host-id="${eventData.hostId || ''}" style="cursor: pointer;">${eventData.host}</span>
-          <small class="time">0 นาที</small>
+          <small class="time">${createdText}</small>
         </div>
         <span class="status ${status}">${status.toUpperCase()}</span>
       </div>
@@ -738,8 +740,8 @@ function loadTagsToSelect(selectElementId = "tagSelect") {
 
                     tags.forEach(tag => {
                         const option = document.createElement("option");
-                        option.value = tag.tag_id;     // หรือ tag.tag_name ตามต้องการ
-                        option.textContent = tag.tag_name;
+                        option.value = tag.id;     // หรือ tag.tag_name ตามต้องการ
+                        option.textContent = tag.name;
                         select.appendChild(option);
                     });
                 } catch (e) {

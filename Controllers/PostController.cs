@@ -28,12 +28,17 @@ namespace MonkeyAssenbly.Controllers
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
+                using (var tzCmd = new NpgsqlCommand("SET TIME ZONE 'Asia/Bangkok';", connection))
+                {
+                    tzCmd.ExecuteNonQuery();
+                }
 
           var sql = @"
           SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
               p.post_time_open, p.post_time_close, 
               p.post_date_open, p.post_date_close,
               p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+              p.created_at,
               u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
           FROM ""PostTable"" p
           JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
@@ -66,7 +71,8 @@ namespace MonkeyAssenbly.Controllers
                         maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
-                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("yyyy-MM-dd HH:mm:ss")
                     });
                 }
             }
@@ -74,6 +80,7 @@ namespace MonkeyAssenbly.Controllers
             var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
             return Ok(new { posts, serverNow });
         }
+
 
         [HttpGet("GetMyPost/{user_id}")]
         public IActionResult GetMyPost(int user_id)
@@ -601,6 +608,10 @@ namespace MonkeyAssenbly.Controllers
 
                 using var conn = new NpgsqlConnection(_connectionString);
                 conn.Open();
+                using (var tzCmd = new NpgsqlCommand("SET TIME ZONE 'Asia/Bangkok';", conn))
+                {
+                    tzCmd.ExecuteNonQuery();
+                }
                 using var tran = conn.BeginTransaction();
 
                 var insertPostSql = @"
