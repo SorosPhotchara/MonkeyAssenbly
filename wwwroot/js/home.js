@@ -757,6 +757,12 @@ function loadTagsToSelect(selectElementId = "tagSelect") {
 document.addEventListener("DOMContentLoaded", () => {
     loadTagsToSelect("tagSelect");
 });
+const openCreateBtn = document.querySelector('.add'); // ปุ่ม + หรือปุ่มเปิด modal
+
+openCreateBtn.addEventListener('click', () => {
+    createEventModal.style.display = 'block'; // เปิด modal
+    loadTagsToSelect(); // เติม tag ตอนเปิด modal
+});
 
 setInterval(checkNotification, 5000);
 checkNotification();

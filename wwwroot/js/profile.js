@@ -431,8 +431,9 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(`/Post/GetMyPost/${session.userId}`);
             if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
-            const response = await res.json();
-            const posts = response.posts;
+        
+            const result = await res.json();
+            const posts = result.posts;
             const container = document.getElementById("your-posts");
             
             if (posts.length === 0) {
