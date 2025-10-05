@@ -714,28 +714,48 @@ if (notifyLink) {
     } catch (e) {}
   });
 }
-async function loadAllTagsToSelect(selectElementId = "tagSelect") {
-  try {
-    const res = await fetch("/Post/GetAllTags");
-    if (!res.ok) throw new Error("โหลด tag ไม่สำเร็จ");
-    const tags = await res.json();
+
+
+function loadTagsToSelect(selectElementId = "tagSelect") {
     const select = document.getElementById(selectElementId);
     if (!select) return;
-    select.innerHTML = ""; // ล้าง option เดิม
-    tags.forEach(tag => {
-      const option = document.createElement("option");
-      option.value = tag.tag_id;
-      option.textContent = tag.tag_name;
-      select.appendChild(option);
-    });
-  } catch (e) {
-    showToast.error("ไม่สามารถโหลด tag ได้");
-  }
+
+    // ล้าง option เดิมฟฟฟ
+    select.innerHTML = "";
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "/Post/GetAllTags", true);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    const tags = JSON.parse(xhr.responseText);
+                    // เพิ่ม option เริ่มต้น
+                    const defaultOption = document.createElement("option");
+                    defaultOption.value = "";
+                    defaultOption.textContent = "เลือกแท็ก";
+                    select.appendChild(defaultOption);
+
+                    tags.forEach(tag => {
+                        const option = document.createElement("option");
+                        option.value = tag.tag_id;     // หรือ tag.tag_name ตามต้องการ
+                        option.textContent = tag.tag_name;
+                        select.appendChild(option);
+                    });
+                } catch (e) {
+                    console.error("Parse JSON error:", e);
+                }
+            } else {
+                console.error("โหลด tag ไม่สำเร็จ", xhr.status, xhr.statusText);
+            }
+        }
+    };
+    xhr.send();
 }
 
-// เรียกใช้เมื่อ DOM โหลดเสร็จ
+// เรียกใช้ตอน DOM โหลดเสร็จ
 document.addEventListener("DOMContentLoaded", () => {
-  loadAllTagsToSelect("tagSelect");
+    loadTagsToSelect("tagSelect");
 });
 
 setInterval(checkNotification, 5000);
