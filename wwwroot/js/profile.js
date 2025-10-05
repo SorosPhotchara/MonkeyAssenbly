@@ -624,11 +624,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {
                         method: "POST",
-                    const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {
-                        method: "POST",
                         credentials: "same-origin",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ userId: session.userId })
                         body: JSON.stringify({ userId: session.userId })
                     });
 

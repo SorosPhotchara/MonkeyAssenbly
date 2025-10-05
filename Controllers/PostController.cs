@@ -1237,27 +1237,27 @@ public async Task<IActionResult> FollowUser([FromBody] FollowUserRequest request
         return StatusCode(500, new { message = "เกิดข้อผิดพลาด" });
     }
 }
-[HttpGet("GetAllTags")]
-public IActionResult GetAllTags()
-{
-    var tags = new List<object>();
-    using (var connection = new NpgsqlConnection(_connectionString))
-    {
-        connection.Open();
-        var sql = @"SELECT tag_id, tag_name FROM ""TagTable"" ORDER BY tag_name ASC";
-        using var command = new NpgsqlCommand(sql, connection);
-        using var reader = command.ExecuteReader();
-        while (reader.Read())
-        {
-            tags.Add(new
-            {
-                tag_id = reader.GetInt32(0),
-                tag_name = reader.GetString(1)
-            });
-        }
-    }
-    return Ok(tags);
-}
+// [HttpGet("GetAllTags")]
+// public IActionResult GetAllTags()
+// {
+//     var tags = new List<object>();
+//     using (var connection = new NpgsqlConnection(_connectionString))
+//     {
+//         connection.Open();
+//         var sql = @"SELECT tag_id, tag_name FROM ""TagTable"" ORDER BY tag_name ASC";
+//         using var command = new NpgsqlCommand(sql, connection);
+//         using var reader = command.ExecuteReader();
+//         while (reader.Read())
+//         {
+//             tags.Add(new
+//             {
+//                 tag_id = reader.GetInt32(0),
+//                 tag_name = reader.GetString(1)
+//             });
+//         }
+//     }
+//     return Ok(tags);
+// }
 [HttpPost("UnfollowUser")]
 public async Task<IActionResult> UnfollowUser([FromBody] FollowUserRequest request)
 {

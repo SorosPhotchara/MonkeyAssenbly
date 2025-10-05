@@ -1547,7 +1547,6 @@ html.dark .toast-notification {
   html.dark .toggle .ball {
     transform: translateX(30px);
   }
-<<<<<<< HEAD
 
     .toast-container {
     right: 10px;
@@ -1575,7 +1574,6 @@ html.dark .toast-notification {
   .toast-message {
     font-size: 13px;
   }
-=======
 }
 
 .notify-link {
@@ -1597,5 +1595,4 @@ html.dark .toast-notification {
 @keyframes notify-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
->>>>>>> main
 }
