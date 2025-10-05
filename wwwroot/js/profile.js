@@ -430,7 +430,8 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch(`/Post/GetMyPost/${session.userId}`);
             if (!res.ok) throw new Error("ไม่สามารถโหลดโพสต์ได้");
-            const posts = await res.json();
+            const response = await res.json();
+            const posts = response.posts;
             const container = document.getElementById("your-posts");
             
             if (posts.length === 0) {
@@ -438,6 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
                 return;
             }
+            console.log("🔍 posts:", posts);
 
             container.innerHTML = "";
             posts.forEach(p => {
