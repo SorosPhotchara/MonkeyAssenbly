@@ -196,11 +196,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     moonIcon.className = isDark?"bx bx-moon":"bx bxs-moon";
   });
   function parseDateTimeWithTZ(dateStr, tz = "Asia/Bangkok") {
-  // dateStr: "2025-10-05 16:57:16.9928226"
     if (!dateStr) return new Date();
-    const [date, time] = dateStr.split(" ");
+    let [date, time] = dateStr.split(" ");
+    // ถ้าเป็นปี พ.ศ. (>=2400) ให้แปลงเป็น ค.ศ.
+    let [year, month, day] = date.split("-");
+    if (parseInt(year) > 2400) {
+      year = (parseInt(year) - 543).toString();
+      date = [year, month, day].join("-");
+    }
     if (!time) return new Date(date);
-    // +07:00 สำหรับเวลาไทย
     return new Date(`${date}T${time}+07:00`);
   }
   // ---------------- Sidebar Tabs ----------------
@@ -391,7 +395,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else {
         now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
       }
+      console.log('DEBUG: createdAtStr', createdAtStr, 'created', created, 'now', now);
       const diffMs = now - created;
+      console.log('DEBUG: Time diffMs', diffMs);
       if (diffMs < 60000) return "เมื่อกี้นี้";
       const diffMin = Math.floor(diffMs/60000);
       if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
