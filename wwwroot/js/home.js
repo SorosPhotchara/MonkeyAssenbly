@@ -1,4 +1,3 @@
-// หน้า home
 document.addEventListener("DOMContentLoaded", async () => {
   const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
