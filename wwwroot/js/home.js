@@ -195,7 +195,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     sunIcon.className = isDark?"bx bx-sun":"bx bxs-sun";
     moonIcon.className = isDark?"bx bx-moon":"bx bxs-moon";
   });
-
+  function parseDateTimeWithTZ(dateStr, tz = "Asia/Bangkok") {
+  // dateStr: "2025-10-05 16:57:16.9928226"
+    if (!dateStr) return new Date();
+    const [date, time] = dateStr.split(" ");
+    if (!time) return new Date(date);
+    // +07:00 สำหรับเวลาไทย
+    return new Date(`${date}T${time}+07:00`);
+  }
   // ---------------- Sidebar Tabs ----------------
   document.querySelectorAll(".menu h2").forEach(item => {
     item.addEventListener("click", async () => {
@@ -373,20 +380,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const avatarHTML = `<img src="${eventData.avatar}" alt="avatar" class="avatar">`;
     const isJoined = isUserJoined(eventData.participants);
 
-    // Show time since createdAt using serverNow
+    // ใช้ฟังก์ชันนี้แทนของเดิม
     function getTimeSinceCreated(createdAtStr) {
       if (!createdAtStr) return "-";
-      const created = new Date(createdAtStr.replace(/ /, 'T'));
+      const created = parseDateTimeWithTZ(createdAtStr, TIMEZONE);
       let now;
       if (serverNow && serverNowClientReceived) {
-        // Estimate serverNow at this moment
         const elapsed = new Date() - serverNowClientReceived;
         now = new Date(serverNow.getTime() + elapsed);
       } else {
         now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
       }
       const diffMs = now - created;
-      console.log('DEBUG time:', {created, now, diffMs, createdAtStr, serverNow, serverNowClientReceived});
       if (diffMs < 60000) return "เมื่อกี้นี้";
       const diffMin = Math.floor(diffMs/60000);
       if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
@@ -396,6 +401,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       return `${diffDay} วันที่แล้ว`;
     }
     const createdText = getTimeSinceCreated(eventData.createdAt);
+
+    // ...existing code...
     card.innerHTML = `
       <div class="event-header">
         <div class="host-info">
