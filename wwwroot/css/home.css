@@ -323,6 +323,7 @@ html.dark .sidebar a.add:hover i {
   justify-content: center;
   align-items: center;
   z-index: 3000;
+  overflow-y: auto;
 }
 
 .modal-content {
@@ -330,9 +331,11 @@ html.dark .sidebar a.add:hover i {
   padding: 30px 40px;
   border-radius: 30px;
   width: 400px;
+  max-width: 90%;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   position: relative;
+  margin: auto;
 }
 
 .modal-content h2 {
