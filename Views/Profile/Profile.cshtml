@@ -58,10 +58,16 @@
             <a href="@Url.Action("Home", "Home")"><i class="fa-solid fa-home"></i></a>
             <a href="@Url.Action("Tags", "Tags")"><i class="fa-solid fa-tag"></i></a>
             <a href="#" class="add"><i class="fa-solid fa-plus"></i></a>
-            <a href="@Url.Action("Notify", "Notify")"><i class="fa-solid fa-bell"></i></a>
+          <a href="@Url.Action("Notify", "Notify")" class="notify-link">
+                <i class="fa-solid fa-bell"></i>
+                <span class="notify-dot" style="display:none"></span>
+            </a>
             <a href="@Url.Action("Profile", "Profile")" class="active"><i class="fa-solid fa-user"></i></a>
         </div>
     </nav>
+
+    <!-- ตัวอย่างใน sidebar -->
+   
 
     <!-- Profile Card -->
     <main class="profile-container">
