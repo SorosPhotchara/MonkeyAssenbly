@@ -260,6 +260,7 @@ namespace MonkeyAssenbly.Controllers
                 p.post_time_open, p.post_time_close, 
                 p.post_date_open, p.post_date_close,
                 p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                p.created_at,  -- ✅ เพิ่มบรรทัดนี้ (อยู่หลัง p.post_status)
                 u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
             FROM ""PostTable"" p
             JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
