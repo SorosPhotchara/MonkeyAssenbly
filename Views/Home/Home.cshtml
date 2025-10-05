@@ -88,41 +88,34 @@
             <h2>Create Event</h2>
             <form method="post" asp-controller="Post" asp-action="CreatePost">
                 @Html.AntiForgeryToken()
-                
                 <input type="text" name="postTitile" placeholder="event name" required>
 
                 <div class="tag-container">
-                    <input type="text" id="tagInput" placeholder="tag">
+                    <input type="text" id="tagInput" name="tagName" placeholder="tag">
                     <div id="tagSuggestions" class="suggestions"></div>
                 </div>
 
-                
                 <div class="form-group-inline">
                     <div class="form-group-pair">
-                        <label for="start-date">วันที่เปิด:</label>
-                        <input type="date" id="start-date" name="start-date">
+                        <label for="postDateOpen">วันที่เปิด:</label>
+                        <input type="date" id="postDateOpen" name="postDateOpen" required>
                     </div>
-                    
                     <div class="form-group-pair">
-                        <label for="end-date">วันที่ปิด:</label>
-                        <input type="date" id="end-date" name="end-date">
+                        <label for="postDateClose">วันที่ปิด:</label>
+                        <input type="date" id="postDateClose" name="postDateClose" required>
                     </div>
-                    
                     <div class="form-group-pair">
-                        <label for="start-time">เวลาเปิด:</label>
-                        <input type="time" id="start-time" name="start-time">
+                        <label for="postTimeOpen">เวลาเปิด:</label>
+                        <input type="time" id="postTimeOpen" name="postTimeOpen">
                     </div>
-                    
                     <div class="form-group-pair">
-                        <label for="end-time">เวลาปิด:</label>
-                        <input type="time" id="end-time" name="end-time">
+                        <label for="postTimeClose">เวลาปิด:</label>
+                        <input type="time" id="postTimeClose" name="postTimeClose">
                     </div>
                 </div>
-                
-                <input type="text" name="postPlace" placeholder="location">
-                
-                <input type="number" name="postMaxPaticipants" placeholder="participants" min="1" required>
 
+                <input type="text" name="postPlace" placeholder="location">
+                <input type="number" name="postMaxPaticipants" placeholder="participants" min="1" required>
                 <textarea name="postDescript" placeholder="detail"></textarea>
 
                 <p class="note">Check the details of your created event!</p>

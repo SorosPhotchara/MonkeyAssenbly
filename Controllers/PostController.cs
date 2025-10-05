@@ -6,7 +6,7 @@ using MonkeyAssenbly.Models;
 
 namespace MonkeyAssenbly.Controllers
 {
-    [ApiController]
+    // [ApiController]  // Remove this attribute for classic MVC form POST binding
     [Route("[controller]")]
     public class PostController : Controller
     {
@@ -383,28 +383,21 @@ namespace MonkeyAssenbly.Controllers
         }
 
         // ============ CREATE POST ============
-        [HttpPost("CreatePost")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult CreatePost(
-            string? postTitile,
-            string? postDescript,
-            string? postPlace,
-            string? postDateOpen,
-            string? postDateClose,
-            string? postTimeOpen,
-            string? postTimeClose,
-            int? postMaxPaticipants)
+            PostCreateModel model)
         {
             try
             {
-                Console.WriteLine($"[DEBUG] postTitile: {postTitile}");
-                Console.WriteLine($"[DEBUG] postDescript: {postDescript}");
-                Console.WriteLine($"[DEBUG] postPlace: {postPlace}");
-                Console.WriteLine($"[DEBUG] postDateOpen: {postDateOpen}");
-                Console.WriteLine($"[DEBUG] postDateClose: {postDateClose}");
-                Console.WriteLine($"[DEBUG] postTimeOpen: {postTimeOpen}");
-                Console.WriteLine($"[DEBUG] postTimeClose: {postTimeClose}");
-                Console.WriteLine($"[DEBUG] postMaxPaticipants: {postMaxPaticipants}");
+                Console.WriteLine($"[DEBUG] postTitile: {model.postTitile}");
+                Console.WriteLine($"[DEBUG] postDescript: {model.postDescript}");
+                Console.WriteLine($"[DEBUG] postPlace: {model.postPlace}");
+                Console.WriteLine($"[DEBUG] postDateOpen: {model.postDateOpen}");
+                Console.WriteLine($"[DEBUG] postDateClose: {model.postDateClose}");
+                Console.WriteLine($"[DEBUG] postTimeOpen: {model.postTimeOpen}");
+                Console.WriteLine($"[DEBUG] postTimeClose: {model.postTimeClose}");
+                Console.WriteLine($"[DEBUG] postMaxPaticipants: {model.postMaxPaticipants}");
 
                 var cultureInfo = new CultureInfo("en-US");
                 cultureInfo.DateTimeFormat.Calendar = new GregorianCalendar();
@@ -418,31 +411,31 @@ namespace MonkeyAssenbly.Controllers
                     return RedirectToAction("Login", "Login");
                 }
 
-                if (string.IsNullOrEmpty(postTitile) ||
-                    string.IsNullOrEmpty(postDateOpen) || string.IsNullOrEmpty(postDateClose))
+                if (string.IsNullOrEmpty(model.postTitile) ||
+                    string.IsNullOrEmpty(model.postDateOpen) || string.IsNullOrEmpty(model.postDateClose))
                 {
                     TempData["ErrorMessage"] = "กรุณากรอกข้อมูลให้ครบถ้วน (title, dates)";
                     return RedirectToAction("Home", "Home");
                 }
 
-                if (string.IsNullOrEmpty(postDescript))
+                if (string.IsNullOrEmpty(model.postDescript))
                 {
-                    postDescript = "ไม่มีรายละเอียด";
+                    model.postDescript = "ไม่มีรายละเอียด";
                 }
 
-                if (!postMaxPaticipants.HasValue || postMaxPaticipants.Value <= 0)
+                if (!model.postMaxPaticipants.HasValue || model.postMaxPaticipants.Value <= 0)
                 {
                     TempData["ErrorMessage"] = "จำนวนผู้เข้าร่วมต้องมากกว่า 0";
                     return RedirectToAction("Home", "Home");
                 }
 
-                if (!DateTime.TryParseExact(postDateOpen, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateOpen))
+                if (!DateTime.TryParseExact(model.postDateOpen, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateOpen))
                 {
                     TempData["ErrorMessage"] = "รูปแบบวันที่เปิดไม่ถูกต้อง";
                     return RedirectToAction("Home", "Home");
                 }
 
-                if (!DateTime.TryParseExact(postDateClose, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateClose))
+                if (!DateTime.TryParseExact(model.postDateClose, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDateClose))
                 {
                     TempData["ErrorMessage"] = "รูปแบบวันที่ปิดไม่ถูกต้อง";
                     return RedirectToAction("Home", "Home");
@@ -451,18 +444,18 @@ namespace MonkeyAssenbly.Controllers
                 TimeSpan parsedTimeOpen = TimeSpan.Zero;
                 TimeSpan parsedTimeClose = TimeSpan.Zero;
 
-                if (!string.IsNullOrEmpty(postTimeOpen))
+                if (!string.IsNullOrEmpty(model.postTimeOpen))
                 {
-                    if (!TimeSpan.TryParse(postTimeOpen, out parsedTimeOpen))
+                    if (!TimeSpan.TryParse(model.postTimeOpen, out parsedTimeOpen))
                     {
                         TempData["ErrorMessage"] = "รูปแบบเวลาเปิดไม่ถูกต้อง";
                         return RedirectToAction("Home", "Home");
                     }
                 }
 
-                if (!string.IsNullOrEmpty(postTimeClose))
+                if (!string.IsNullOrEmpty(model.postTimeClose))
                 {
-                    if (!TimeSpan.TryParse(postTimeClose, out parsedTimeClose))
+                    if (!TimeSpan.TryParse(model.postTimeClose, out parsedTimeClose))
                     {
                         TempData["ErrorMessage"] = "รูปแบบเวลาปิดไม่ถูกต้อง";
                         return RedirectToAction("Home", "Home");
@@ -490,19 +483,50 @@ namespace MonkeyAssenbly.Controllers
                     RETURNING post_id;";
 
                 using var postCmd = new NpgsqlCommand(insertPostSql, conn, tran);
-                postCmd.Parameters.AddWithValue("title", postTitile);
-                postCmd.Parameters.AddWithValue("description", postDescript);
-                postCmd.Parameters.AddWithValue("place", string.IsNullOrEmpty(postPlace) ? "ไม่ระบุสถานที่" : postPlace);
+                postCmd.Parameters.AddWithValue("title", model.postTitile);
+                postCmd.Parameters.AddWithValue("description", model.postDescript);
+                postCmd.Parameters.AddWithValue("place", string.IsNullOrEmpty(model.postPlace) ? "ไม่ระบุสถานที่" : model.postPlace);
                 postCmd.Parameters.AddWithValue("timeOpen", parsedTimeOpen);
                 postCmd.Parameters.AddWithValue("timeClose", parsedTimeClose);
                 postCmd.Parameters.AddWithValue("dateOpen", NpgsqlTypes.NpgsqlDbType.Date, parsedDateOpen);
                 postCmd.Parameters.AddWithValue("dateClose", NpgsqlTypes.NpgsqlDbType.Date, parsedDateClose);
-                postCmd.Parameters.AddWithValue("maxParticipants", postMaxPaticipants.Value);
+                postCmd.Parameters.AddWithValue("maxParticipants", model.postMaxPaticipants.Value);
                 postCmd.Parameters.AddWithValue("currentParticipants", new int[0]);
                 postCmd.Parameters.AddWithValue("status", true);
                 postCmd.Parameters.AddWithValue("ownerId", userId.Value);
 
                 var postId = postCmd.ExecuteScalar();
+
+                // ===== Insert Tag and PostTagTable =====
+                if (!string.IsNullOrWhiteSpace(model.tagName) && postId != null)
+                {
+                    int tagId = -1;
+                    // 1. Insert tag ถ้ายังไม่มี
+                    using (var tagCmd = new NpgsqlCommand("INSERT INTO \"TagTable\" (tag_name) VALUES (@tagName) ON CONFLICT (tag_name) DO NOTHING RETURNING tag_id;", conn, tran))
+                    {
+                        tagCmd.Parameters.AddWithValue("tagName", model.tagName.Trim());
+                        var result = tagCmd.ExecuteScalar();
+                        if (result != null)
+                            tagId = Convert.ToInt32(result);
+                    }
+                    if (tagId == -1)
+                    {
+                        // ถ้า tag มีอยู่แล้ว ให้ select id
+                        using (var selectTagCmd = new NpgsqlCommand("SELECT tag_id FROM \"TagTable\" WHERE tag_name = @tagName;", conn, tran))
+                        {
+                            selectTagCmd.Parameters.AddWithValue("tagName", model.tagName.Trim());
+                            tagId = Convert.ToInt32(selectTagCmd.ExecuteScalar());
+                        }
+                    }
+                    // 2. Insert post_id, tag_id ลง PostTagTable
+                    using (var ptCmd = new NpgsqlCommand("INSERT INTO \"PostTagTable\" (post_id, tag_id) VALUES (@postId, @tagId) ON CONFLICT DO NOTHING;", conn, tran))
+                    {
+                        ptCmd.Parameters.AddWithValue("postId", Convert.ToInt32(postId));
+                        ptCmd.Parameters.AddWithValue("tagId", tagId);
+                        ptCmd.ExecuteNonQuery();
+                    }
+                }
+
                 tran.Commit();
 
                 Console.WriteLine($"[SUCCESS] Post created with ID: {postId}");

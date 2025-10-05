@@ -226,7 +226,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---------------- Create Event Modal ----------------
   addBtn.addEventListener("click", (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
+    if (!isLoggedIn) {
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนสร้างกิจกรรม");
+      return;
+    }
     createEventModal.style.display = "flex";
   });
 
