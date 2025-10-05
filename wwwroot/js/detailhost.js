@@ -164,7 +164,7 @@ async function loadActivity() {
 
         if (!res.ok) throw new Error("ไม่พบกิจกรรม");
         const data = await res.json();
-
+        console.log(data.post.participants);
         if (!tags.ok) throw new Error("ไม่พบ tags");
         const tags_data = await tags.json();
 
@@ -188,6 +188,21 @@ async function loadActivity() {
         document.getElementById("activityPlace").value = data.post.location;
         document.getElementById("activityDetails").value = data.post.description;
 
+
+        // Render participants (approved)
+        const approvedBox = document.getElementById("approvedBox");
+        approvedBox.querySelectorAll(".participant-row").forEach(e => e.remove());
+        let approvedCount = 0;
+        if (Array.isArray(data.post.participants)) {
+            data.post.participants.forEach(p => {
+                const row = document.createElement("div");
+                row.className = "participant-row";
+                row.innerHTML = `<img src="${p.avatar}" alt="avatar" class="participant-avatar" style="width:32px;height:32px;border-radius:50%;margin-right:8px;object-fit:cover;"> <span>${p.name}</span>`;
+                approvedBox.appendChild(row);
+                approvedCount++;
+            });
+        }
+        document.getElementById("approvedCount").textContent = approvedCount;
     } catch (err) {
         showToast.error(err.message);
         console.error("❌ ERROR:", err);
@@ -196,7 +211,13 @@ async function loadActivity() {
 
 
 // ---------------- Load Participants ----------------
-//async function loadParticipants() {
+async function loadParticipants() {
+    // ไม่ต้องโหลด participants แยกแล้ว เพราะใช้จาก data.post.participants ใน loadActivity()
+    return;
+}
+
+// ---------------- Load Comments ----------------
+//async function loadComments() {
 //    try {
 //        const res = await fetch(`${SERVER_URL}/api/activity/${activityId}/participants`);
 //        if (!res.ok) throw new Error("โหลดผู้เข้าร่วมไม่สำเร็จ");
