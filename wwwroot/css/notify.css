@@ -362,12 +362,34 @@ html.dark .notify-list {
 .notify-item {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   background: var(--white);
   border: 1.5px solid var(--border);
   border-bottom: none;
   border-radius: 0;
   padding: 24px 28px;
   transition: background 0.2s;
+  gap: 20px
+}
+
+.notify-icon {
+  font-size: 1.5rem;
+  margin-right: 12px;   
+  flex-shrink: 0;
+}
+
+.notify-msg {
+  font-size: 1rem;
+  color: #4a2e2e;
+  flex: 1; 
+}
+
+.notify-time {
+  font-size: 0.9rem;
+  color: var(--sub-font);
+  white-space: nowrap;
+  margin-left: 20px;
+  flex-shrink: 0;
 }
 
 .notify-item:last-child {
