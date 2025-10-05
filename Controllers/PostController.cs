@@ -26,15 +26,15 @@ namespace MonkeyAssenbly.Controllers
             {
                 connection.Open();
 
-                var sql = @"
-                SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
-                       p.post_time_open, p.post_time_close, 
-                       p.post_date_open, p.post_date_close,
-                       p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                       u.user_firstname, u.user_lastname, u.user_avatar
-                FROM ""PostTable"" p
-                JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
-                ORDER BY p.post_date_open DESC";
+          var sql = @"
+          SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+              p.post_time_open, p.post_time_close, 
+              p.post_date_open, p.post_date_close,
+              p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+              u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
+          FROM ""PostTable"" p
+          JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+          ORDER BY p.post_date_open DESC";
 
                 using var command = new NpgsqlCommand(sql, connection);
                 using var reader = command.ExecuteReader();
@@ -52,6 +52,7 @@ namespace MonkeyAssenbly.Controllers
                         description = reader.GetString(reader.GetOrdinal("post_descript")),
                         location = reader.GetString(reader.GetOrdinal("post_place")),
                         host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                        hostId = reader.GetInt32(reader.GetOrdinal("user_id")),
                         avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
                                 ? "/uploads/default-avatar.png"
                                 : reader.GetString(reader.GetOrdinal("user_avatar")),
@@ -84,7 +85,7 @@ namespace MonkeyAssenbly.Controllers
                     p.post_time_open, p.post_time_close, 
                     p.post_date_open, p.post_date_close,
                     p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                    u.user_firstname, u.user_lastname, u.user_avatar
+                    u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
                 FROM ""PostTable"" p
                 JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
                 WHERE p.post_owner_id = @user_id
@@ -139,7 +140,7 @@ namespace MonkeyAssenbly.Controllers
                     p.post_time_open, p.post_time_close, 
                     p.post_date_open, p.post_date_close,
                     p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                    u.user_firstname, u.user_lastname, u.user_avatar,
+                    u.user_firstname, u.user_lastname, u.user_avatar, u.user_id,
                     t.tag_name
                 FROM ""PostTable"" p
                 JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
@@ -176,7 +177,8 @@ namespace MonkeyAssenbly.Controllers
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
                         status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
-                        tag = reader.GetString(reader.GetOrdinal("tag_name"))
+                        tag = reader.GetString(reader.GetOrdinal("tag_name")),
+                        hostId = reader.GetInt32(reader.GetOrdinal("user_id"))
                     });
                 }
             }
@@ -193,15 +195,15 @@ namespace MonkeyAssenbly.Controllers
             {
                 connection.Open();
 
-                var sql = @"
-                SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
-                       p.post_time_open, p.post_time_close, 
-                       p.post_date_open, p.post_date_close,
-                       p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                       u.user_firstname, u.user_lastname, u.user_avatar
-                FROM ""PostTable"" p
-                JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
-                ORDER BY p.post_date_open DESC";
+          var sql = @"
+          SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+              p.post_time_open, p.post_time_close, 
+              p.post_date_open, p.post_date_close,
+              p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+              u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
+          FROM ""PostTable"" p
+          JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+          ORDER BY p.post_date_open DESC";
 
                 using var command = new NpgsqlCommand(sql, connection);
                 using var reader = command.ExecuteReader();
@@ -221,6 +223,7 @@ namespace MonkeyAssenbly.Controllers
                         description = reader.GetString(reader.GetOrdinal("post_descript")),
                         location = reader.GetString(reader.GetOrdinal("post_place")),
                         host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                        hostId = reader.GetInt32(reader.GetOrdinal("user_id")),
                         avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
                                 ? "/uploads/default-avatar.png"
                                 : reader.GetString(reader.GetOrdinal("user_avatar")),
@@ -245,15 +248,15 @@ namespace MonkeyAssenbly.Controllers
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
 
-            var postSql = @"
-            SELECT p.post_id, p.post_titile, p.post_descript, p.post_place,
-                   p.post_time_open, p.post_time_close, 
-                   p.post_date_open, p.post_date_close,
-                   p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                   u.user_firstname, u.user_lastname, u.user_avatar
-            FROM ""PostTable"" p
-            JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
-            WHERE p.post_id = @id";
+         var postSql = @"
+         SELECT p.post_id, p.post_titile, p.post_descript, p.post_place,
+             p.post_time_open, p.post_time_close, 
+             p.post_date_open, p.post_date_close,
+             p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+             u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
+         FROM ""PostTable"" p
+         JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+         WHERE p.post_id = @id";
 
             using var postCmd = new NpgsqlCommand(postSql, connection);
             postCmd.Parameters.AddWithValue("id", id);
@@ -261,17 +264,20 @@ namespace MonkeyAssenbly.Controllers
             using var reader = postCmd.ExecuteReader();
             if (!reader.Read()) return NotFound(new { success = false, message = "Post not found" });
 
+
+
             int[] participantsArray = reader.IsDBNull(reader.GetOrdinal("post_current_paticipants"))
                 ? new int[0]
                 : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
 
-            var postData = new
-            {
+            // เก็บข้อมูล post หลักไว้ก่อน
+            var postDataTemp = new {
                 id = reader.GetInt32(reader.GetOrdinal("post_id")),
                 eventName = reader.GetString(reader.GetOrdinal("post_titile")),
                 description = reader.GetString(reader.GetOrdinal("post_descript")),
                 location = reader.GetString(reader.GetOrdinal("post_place")),
                 host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                hostId = reader.GetInt32(reader.GetOrdinal("user_id")),
                 avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
                             ? "/uploads/default-avatar.png"
                             : reader.GetString(reader.GetOrdinal("user_avatar")),
@@ -281,10 +287,54 @@ namespace MonkeyAssenbly.Controllers
                 dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
                 maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                 currentParticipants = participantsArray.Length,
-                participants = participantsArray.Select(p => p.ToString()).ToList(),
                 status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
             };
             reader.Close();
+
+            // ดึงข้อมูลผู้เข้าร่วมทั้งหมด
+            var participants = new List<object>();
+            if (participantsArray.Length > 0)
+            {
+                var userIds = participantsArray;
+                var paramNames = userIds.Select((id, idx) => $"@uid{idx}").ToArray();
+                var participantsSql = $"SELECT user_id, user_firstname, user_lastname, user_avatar FROM \"UserDetailTable\" WHERE user_id IN ({string.Join(",", paramNames)})";
+                using (var participantsCmd = new NpgsqlCommand(participantsSql, connection))
+                {
+                    for (int i = 0; i < userIds.Length; i++)
+                        participantsCmd.Parameters.AddWithValue(paramNames[i], userIds[i]);
+                    using (var participantsReader = participantsCmd.ExecuteReader())
+                    {
+                        while (participantsReader.Read())
+                        {
+                            participants.Add(new
+                            {
+                                userId = participantsReader.GetInt32(0),
+                                name = participantsReader.GetString(1) + " " + participantsReader.GetString(2),
+                                avatar = participantsReader.IsDBNull(3) ? "/uploads/default-avatar.png" : participantsReader.GetString(3)
+                            });
+                        }
+                    }
+                }
+            }
+
+            var postData = new
+            {
+                id = postDataTemp.id,
+                eventName = postDataTemp.eventName,
+                description = postDataTemp.description,
+                location = postDataTemp.location,
+                host = postDataTemp.host,
+                hostId = postDataTemp.hostId,
+                avatar = postDataTemp.avatar,
+                startTime = postDataTemp.startTime,
+                endTime = postDataTemp.endTime,
+                dateOpen = postDataTemp.dateOpen,
+                dateClose = postDataTemp.dateClose,
+                maxParticipants = postDataTemp.maxParticipants,
+                currentParticipants = postDataTemp.currentParticipants,
+                participants = participants,
+                status = postDataTemp.status
+            };
 
             var tagSql = @"
             SELECT t.tag_name
@@ -708,6 +758,56 @@ namespace MonkeyAssenbly.Controllers
                     return StatusCode(500, new { message = "เกิดข้อผิดพลาด" });
                 }
             }
+        }
+        [HttpGet("GetFollowedPosts/{user_id}")]
+        public IActionResult GetFollowedPosts(int user_id)
+        {
+            var posts = new List<object>();
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                connection.Open();
+             var sql = @"
+              SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+                  p.post_time_open, p.post_time_close, 
+                  p.post_date_open, p.post_date_close,
+                  p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                  u.user_firstname, u.user_lastname, u.user_avatar, u.user_id AS hostId
+              FROM ""PostTable"" p
+              JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+              JOIN ""FollowTable"" f ON f.following_id = p.post_owner_id
+              WHERE f.follower_id = @user_id
+              ORDER BY p.post_date_open DESC";
+                using var command = new NpgsqlCommand(sql, connection);
+                command.Parameters.AddWithValue("user_id", user_id);
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    int[] currentParticipantsArray = reader.IsDBNull(reader.GetOrdinal("post_current_paticipants"))
+                        ? new int[0]
+                        : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
+                    posts.Add(new
+                    {
+                        id = reader.GetInt32(reader.GetOrdinal("post_id")),
+                        eventName = reader.GetString(reader.GetOrdinal("post_titile")),
+                        description = reader.GetString(reader.GetOrdinal("post_descript")),
+                        location = reader.GetString(reader.GetOrdinal("post_place")),
+                        host = reader.GetString(reader.GetOrdinal("user_firstname")) + " " + reader.GetString(reader.GetOrdinal("user_lastname")),
+                        avatar = reader.IsDBNull(reader.GetOrdinal("user_avatar"))
+                                ? "/uploads/default-avatar.png"
+                                : reader.GetString(reader.GetOrdinal("user_avatar")),
+                        startTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_open")).ToString(@"hh\:mm"),
+                        endTime = reader.GetTimeSpan(reader.GetOrdinal("post_time_close")).ToString(@"hh\:mm"),
+                        dateOpen = reader.GetDateTime(reader.GetOrdinal("post_date_open")).ToString("yyyy-MM-dd"),
+                        dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
+                        maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
+                        currentParticipants = currentParticipantsArray.Length,
+                        participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        hostId = reader.GetInt32(reader.GetOrdinal("hostId"))
+                    });
+                }
+            }
+            return Ok(posts);
         }
         // ==================== JOIN EVENT SYSTEM END ====================
     }
