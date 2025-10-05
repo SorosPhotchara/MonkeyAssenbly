@@ -4,41 +4,69 @@ function showProfilePopup(userId) {
   const avatar = document.getElementById("profile-popup-avatar");
   const fullname = document.getElementById("profile-popup-fullname");
   const username = document.getElementById("profile-popup-username");
-  const followBtn = document.getElementById("profile-popup-follow-btn");
-  overlay.style.display = "flex";
-  avatar.src = "/uploads/default-avatar.png";
-  fullname.textContent = "Loading...";
-  username.textContent = "";
-  followBtn.style.display = "none";
-  followBtn.disabled = true;
+const followBtn = document.getElementById("profile-popup-follow-btn");
+overlay.style.display = "flex";
+avatar.src = "/uploads/default-avatar.png";
+fullname.textContent = "Loading...";
+username.textContent = "";
+followBtn.style.display = "none";
+followBtn.disabled = true;
 
-  fetch(`/Profile/GetUserProfile?userId=${userId}`)
-    .then(res => res.json())
-    .then(data => {
-      avatar.src = data.avatar || "/uploads/default-avatar.png";
-      fullname.textContent = `${data.firstName} ${data.lastName}`;
-      username.textContent = data.username ? `@${data.username}` : "";
-      followBtn.style.display = (data.isSelf ? "none" : "inline-block");
-      followBtn.disabled = false;
-      followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
-      followBtn.classList.toggle("unfollow", !!data.isFollowing);
-      followBtn.onclick = async () => {
-        followBtn.disabled = true;
-        const action = data.isFollowing ? "Unfollow" : "Follow";
-        const res = await fetch(`/Profile/${action}?userId=${userId}`, { method: "POST" });
+fetch(`/Profile/GetUserProfile?userId=${userId}`)
+  .then(res => res.json())
+  .then(data => {
+    avatar.src = data.avatar || "/uploads/default-avatar.png";
+    fullname.textContent = `${data.firstName} ${data.lastName}`;
+    username.textContent = data.username ? `@${data.username}` : "";
+    followBtn.style.display = (data.isSelf ? "none" : "inline-block");
+    followBtn.disabled = false;
+    followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+    followBtn.classList.toggle("unfollow", !!data.isFollowing);
+    
+    followBtn.onclick = async () => {
+      followBtn.disabled = true;
+      
+      try {
+        let res;
+        if (data.isFollowing) {
+          // Unfollow
+          res = await fetch(`/Post/UnfollowUser`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followingId: userId })
+          });
+        } else {
+          // Follow
+          res = await fetch(`/Post/FollowUser`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followingId: userId })
+          });
+        }
+        
+        const result = await res.json();
+        
         if (res.ok) {
           data.isFollowing = !data.isFollowing;
           followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
           followBtn.classList.toggle("unfollow", !!data.isFollowing);
+          showToast.success(result.message || (data.isFollowing ? 'ติดตามสำเร็จ' : 'เลิกติดตามสำเร็จ'));
+        } else {
+          showToast.error(result.message || 'เกิดข้อผิดพลาด');
         }
-        followBtn.disabled = false;
-      };
-    })
-    .catch(() => {
-      fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
-      username.textContent = "";
-      followBtn.style.display = "none";
-    });
+      } catch (error) {
+        console.error('Error:', error);
+        showToast.error('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      }
+      
+      followBtn.disabled = false;
+    };
+  })
+  .catch(() => {
+    fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
+    username.textContent = "";
+    followBtn.style.display = "none";
+  });
 }
 document.getElementById("close-profile-popup").onclick = () => {
   document.getElementById("profile-popup-overlay").style.display = "none";
@@ -46,7 +74,7 @@ document.getElementById("close-profile-popup").onclick = () => {
 document.getElementById("profile-popup-overlay").addEventListener("click", e => {
   if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
 });
-// ==================== PROFILE POPUP SYSTEM END ====================
+
 // ==================== TOAST NOTIFICATION SYSTEM START ====================
 class ToastNotification {
   constructor() {
@@ -119,8 +147,8 @@ class ToastNotification {
 }
 
 const showToast = new ToastNotification();
-// ==================== TOAST NOTIFICATION SYSTEM END ====================
 
+// ==================== MAIN APPLICATION LOGIC START ====================
 document.addEventListener("DOMContentLoaded", async () => {
   const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
@@ -582,7 +610,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("popup-comment-input").value = "";
   });
 
-  // ==================== POPUP & COMMENT SYSTEM END ====================
+// ====== Notification Dot ======
+const notifyDot = document.querySelector('.notify-dot');
+const notifyLink = document.querySelector('.notify-link');
+
+async function checkNotification() {
+  if (!notifyDot || !isLoggedIn) return;
+  try {
+    const res = await fetch("/Notify/Latest");
+    const notifications = await res.json();
+    if (notifications.length === 0) {
+      notifyDot.style.display = "none";
+      return;
+    }
+    // notification ใหม่สุดอยู่ index 0
+    const latestId = notifications[0].notification_id;
+    const lastReadId = Number(sessionStorage.getItem("lastReadNotificationId") || 0);
+
+    if (latestId > lastReadId) {
+      notifyDot.style.display = "block";
+    } else {
+      notifyDot.style.display = "none";
+    }
+  } catch (e) {
+    notifyDot.style.display = "none";
+  }
+}
+
+if (notifyLink) {
+  notifyLink.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/Notify/Latest");
+      const notifications = await res.json();
+      if (notifications.length > 0) {
+        sessionStorage.setItem("lastReadNotificationId", notifications[0].notification_id);
+      }
+      notifyDot.style.display = "none";
+    } catch (e) {}
+  });
+}
+
+setInterval(checkNotification, 5000);
+checkNotification();
 
   // ---------------- Initial Load ----------------
   loadEventsByTag(tagQuery);
