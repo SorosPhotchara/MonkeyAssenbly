@@ -95,9 +95,28 @@
                 <input type="text" name="postTitile" placeholder="event name" required>
 
                 <div class="tag-container">
-                    <input type="text" id="tagInput" name="tagName" placeholder="tag">
-                    <div id="tagSuggestions" class="suggestions"></div>
+                    <select id="tagSelect" name="tagName" style="margin-bottom: 10px;">
+                        <option value="">เลือกแท็ก</option>
+                    </select>
                 </div>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // โหลดแท็กจาก DB
+                    fetch('/Post/GetAllTags')
+                        .then(res => res.json())
+                        .then(tags => {
+                            const tagSelect = document.getElementById('tagSelect');
+                            tags.forEach(tag => {
+                                const option = document.createElement('option');
+                                option.value = tag.tag_name; // 👈 ส่งชื่อแท็กไปตาม model.tagName
+                                option.textContent = tag.tag_name;
+                                tagSelect.appendChild(option);
+                            });
+                        })
+                        .catch(err => console.error('โหลดแท็กล้มเหลว:', err));
+                });
+                </script>
 
                 <div class="form-group-inline">
                     <div class="form-group-pair">
