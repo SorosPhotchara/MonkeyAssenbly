@@ -1,52 +1,3 @@
-// ==================== PROFILE POPUP SYSTEM START ====================
-function showProfilePopup(userId) {
-  const overlay = document.getElementById("profile-popup-overlay");
-  const avatar = document.getElementById("profile-popup-avatar");
-  const fullname = document.getElementById("profile-popup-fullname");
-  const username = document.getElementById("profile-popup-username");
-  const followBtn = document.getElementById("profile-popup-follow-btn");
-  overlay.style.display = "flex";
-  avatar.src = "/uploads/default-avatar.png";
-  fullname.textContent = "Loading...";
-  username.textContent = "";
-  followBtn.style.display = "none";
-  followBtn.disabled = true;
-
-  fetch(`/Profile/GetUserProfile?userId=${userId}`)
-    .then(res => res.json())
-    .then(data => {
-      avatar.src = data.avatar || "/uploads/default-avatar.png";
-      fullname.textContent = `${data.firstName} ${data.lastName}`;
-      username.textContent = data.username ? `@${data.username}` : "";
-      followBtn.style.display = (data.isSelf ? "none" : "inline-block");
-      followBtn.disabled = false;
-      followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
-      followBtn.classList.toggle("unfollow", !!data.isFollowing);
-      followBtn.onclick = async () => {
-        followBtn.disabled = true;
-        const action = data.isFollowing ? "Unfollow" : "Follow";
-        const res = await fetch(`/Profile/${action}?userId=${userId}`, { method: "POST" });
-        if (res.ok) {
-          data.isFollowing = !data.isFollowing;
-          followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
-          followBtn.classList.toggle("unfollow", !!data.isFollowing);
-        }
-        followBtn.disabled = false;
-      };
-    })
-    .catch(() => {
-      fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
-      username.textContent = "";
-      followBtn.style.display = "none";
-    });
-}
-document.getElementById("close-profile-popup").onclick = () => {
-  document.getElementById("profile-popup-overlay").style.display = "none";
-};
-document.getElementById("profile-popup-overlay").addEventListener("click", e => {
-  if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
-});
-// ==================== PROFILE POPUP SYSTEM END ====================
 // ==================== TOAST NOTIFICATION SYSTEM START ====================
 class ToastNotification {
   constructor() {
@@ -154,30 +105,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---------------- Sidebar Tabs ----------------
   document.querySelectorAll(".menu h2").forEach(item => {
-    item.addEventListener("click", async () => {
+    item.addEventListener("click", () => {
       document.querySelectorAll(".menu h2").forEach(el=>el.classList.remove("active"));
       item.classList.add("active");
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
       document.getElementById(item.dataset.tab).classList.add("active");
-      if(item.dataset.tab === "follow") {
-        if (!isLoggedIn) {
-          showToast.warning("กรุณาเข้าสู่ระบบเพื่อดูโพสที่คุณติดตาม");
-          followFeed.innerHTML = "<p style='padding:2rem;'>กรุณาเข้าสู่ระบบ</p>";
-          cachedEvents = [];
-          return;
-        }
-        try {
-          const res = await fetch(`/Post/GetFollowedPosts/${currentUserId}`);
-          if (!res.ok) throw new Error("โหลดโพสไม่สำเร็จ");
-          cachedEvents = await res.json();
-          renderEventsCache();
-        } catch (e) {
-          followFeed.innerHTML = "<p style='padding:2rem;color:red;'>เกิดข้อผิดพลาด</p>";
-          cachedEvents = [];
-        }
-      } else {
-        await loadEventsByTag(tagQuery);
-      }
+      renderEventsCache();
     });
   });
 
@@ -226,11 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---------------- Create Event Modal ----------------
   addBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (!isLoggedIn) {
-      showToast.warning("กรุณาเข้าสู่ระบบก่อนสร้างกิจกรรม");
-      return;
-    }
+    e.preventDefault(); 
     createEventModal.style.display = "flex";
   });
 
@@ -277,20 +206,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function renderEventsCache(){
-    forYouFeed.innerHTML = "";
-    followFeed.innerHTML = "";
-    const activeTab = document.querySelector('.menu h2.active').dataset.tab;
-    if (activeTab === "follow") {
-      cachedEvents.forEach(event => {
-        const card = createEventCard(event);
-        followFeed.appendChild(card);
-      });
-    } else {
-      cachedEvents.forEach(event => {
-        const card = createEventCard(event);
-        forYouFeed.appendChild(card);
-      });
-    }
+     forYouFeed.innerHTML=""; 
+     followFeed.innerHTML="";
+    cachedEvents.forEach(event => {
+      const cardForYou = createEventCard(event);
+      forYouFeed.appendChild(cardForYou);
+      if (isLoggedIn && event.hostsFollowing && event.hostsFollowing.includes(currentUserId)) {
+        const cardFollow = createEventCard(event, true);
+        followFeed.appendChild(cardFollow);
+      }
+    });
   }
 
   function createEventCard(eventData) {
@@ -337,7 +262,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     hostElement.addEventListener("click", e => {
       e.stopPropagation();
       if (eventData.hostId) {
-        showProfilePopup(eventData.hostId);
+        window.location.href = `${window.DetailHostUrl}?userId=${eventData.hostId}`;
       } else {
         showToast.warning("ไม่พบข้อมูลผู้สร้างโพสต์");
       }
@@ -408,58 +333,59 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function openPopup(eventData) {
     currentPostId = eventData.id;
-    // ดึงข้อมูลโพสต์แบบละเอียดเพื่อให้ได้ participants ที่เป็น object
-    fetch(`/Post/GetPostById/${eventData.id}`)
-      .then(res => res.json())
-      .then(data => {
-        const detail = data.post;
-        document.getElementById("event-title").textContent = detail.eventName;
-        const hostElement = document.getElementById("event-host");
-        hostElement.textContent = detail.host;
-        hostElement.style.cursor = "pointer";
-        hostElement.style.color = "var(--head-font)";
-        hostElement.style.transition = "color 0.2s ease";
-        hostElement.onclick = (e) => {
-          e.stopPropagation();
-          if (detail.hostId) {
-            showProfilePopup(detail.hostId);
-          } else {
-            showToast.warning("ไม่พบข้อมูลผู้สร้างโพสต์");
-          }
-        };
-        hostElement.onmouseenter = () => {
-          hostElement.style.color = "var(--border)";
-          hostElement.style.textDecoration = "underline";
-        };
-        hostElement.onmouseleave = () => {
-          hostElement.style.color = "var(--head-font)";
-          hostElement.style.textDecoration = "none";
-        };
-        document.getElementById("event-place").textContent = detail.location || "ไม่ระบุ";
-        const participantsList = document.getElementById("participants-list");
-        participantsList.innerHTML = "";
-        if(detail.participants && detail.participants.length > 0) {
-          detail.participants.forEach(p => {
-            const li = document.createElement("li");
-            li.innerHTML = `<img src="${p.avatar}" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:6px;"> ${p.name}`;
-            participantsList.appendChild(li);
-          });
-        } else {
-          participantsList.innerHTML = "<li>ยังไม่มีผู้เข้าร่วม</li>";
-        }
-        const isJoined = isUserJoined(detail.participants.map(x=>x.userId));
-        const joinBtn = document.getElementById("popup-join-btn");
-        const now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
-        const isFull = (detail.maxParticipants>0 && detail.currentParticipants>=detail.maxParticipants);
-        const isExpired = detail.dateClose && new Date(detail.dateClose)<now;
-        const isClosedByHost = detail.status==="closed";
-        const isClosed = (isFull || isExpired || isClosedByHost);
-        joinBtn.textContent = isClosed ? "CLOSED" : (isJoined ? "UNJOIN" : "JOIN");
-        joinBtn.style.backgroundColor = isJoined ? "#6c757d" : "";
-        joinBtn.disabled = isClosed;
-        loadComments(currentPostId);
-        popup.classList.remove("hidden");
+    
+    console.log("=== POPUP DEBUG ===");
+    console.log("Event ID:", eventData.id);
+    console.log("Current User ID:", currentUserId, "Type:", typeof currentUserId);
+    console.log("Participants:", eventData.participants);
+    
+    document.getElementById("event-title").textContent = eventData.eventName;
+    
+    const hostElement = document.getElementById("event-host");
+    hostElement.textContent = eventData.host;
+    hostElement.style.cursor = "pointer";
+    hostElement.style.color = "var(--head-font)";
+    hostElement.style.transition = "color 0.2s ease";
+    
+    hostElement.onclick = (e) => {
+      e.stopPropagation();
+      if (eventData.hostId) {
+        window.location.href = `${window.DetailHostUrl}?userId=${eventData.hostId}`;
+      } else {
+        showToast.warning("ไม่พบข้อมูลผู้สร้างโพสต์");
+      }
+    };
+    
+    hostElement.onmouseenter = () => {
+      hostElement.style.color = "var(--border)";
+      hostElement.style.textDecoration = "underline";
+    };
+    hostElement.onmouseleave = () => {
+      hostElement.style.color = "var(--head-font)";
+      hostElement.style.textDecoration = "none";
+    };
+    
+    document.getElementById("event-place").textContent = eventData.location || "ไม่ระบุ";
+    
+    const participantsList = document.getElementById("participants-list");
+    participantsList.innerHTML = "";
+    if(eventData.participants && eventData.participants.length > 0) {
+      eventData.participants.forEach(p => {
+        const li = document.createElement("li");
+        li.textContent = `User ${p}`;
+        participantsList.appendChild(li);
       });
+    } else {
+      participantsList.innerHTML = "<li>ยังไม่มีผู้เข้าร่วม</li>";
+    }
+    
+    const isJoined = isUserJoined(eventData.participants);
+    const joinBtn = document.getElementById("popup-join-btn");
+    joinBtn.textContent = isJoined ? "UNJOIN" : "JOIN";
+    joinBtn.style.backgroundColor = isJoined ? "#6c757d" : "";
+    
+    loadComments(currentPostId);
+    popup.classList.remove("hidden");
   }
 
   async function loadComments(postId) {
