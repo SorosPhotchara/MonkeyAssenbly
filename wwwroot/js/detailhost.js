@@ -243,27 +243,30 @@ async function loadActivity() {
 // ---------------- Load Comments ----------------
 async function loadComments() {
     try {
-        const res = await fetch(`/Post/GetCommentByPostId/${activityId}`);
-        if (!res.ok) throw new Error("โหลดคอมเมนต์ไม่สำเร็จ");
-        const comments = await res.json();
+        const response = await fetch(`/Post/GetComments?postId=${activityId}`);
+        if (!response.ok) throw new Error("ไม่สามารถโหลด comments ได้");
+        const comments = await response.json();
+        console.log("Activity Id : ", activityId);
         console.log("comments: ",comments);
 
         const commentList = document.getElementById("commentList");
         commentList.innerHTML = "";
-        comments.forEach(c => {
-            const div = document.createElement("div");
-            div.className = c.userId === currentUserId ? "comment participant" : "comment host";
-            div.innerHTML = `
-                <div class="avatar ${div.className.includes("host") ? "host" : "participant"}">${c.user[0]}</div>
-                <div class="bubble">
-                    <div class="meta">
-                        <span class="name">${c.user}</span>
-                        <span class="time">${c.time}</span>
-                    </div>
-                    <div class="text">${c.text}</div>
-                </div>`;
-            commentList.appendChild(div);
-        });
+
+        if(comments.length === 0) {
+            commentList.innerHTML = "<p style='text-align:center; color:var(--sub-font); padding:20px;'>ยังไม่มีความคิดเห็น</p>";
+        } else {
+            comments.forEach(comment => {
+                const commentDiv = document.createElement("div");
+                commentDiv.className = "comment-item";
+                commentDiv.innerHTML = `
+            <div class="comment-user">${comment.userName}</div>
+            <div class="comment-text">${comment.text}</div>
+            <div class="comment-time">${comment.createdAt}</div>
+          `;
+                commentList.appendChild(commentDiv);
+            });
+        }
+
         commentList.scrollTop = commentList.scrollHeight;
     } catch (err) { alert(err.message); }
 }
@@ -290,6 +293,7 @@ document.getElementById("sendComment").addEventListener("click", async () => {
     } catch (err) {
         showToast.error("ไม่สามารถส่งความคิดเห็นได้");
     }
+    loadComments();
 });
 
 // ---------------- Action Buttons ----------------
@@ -301,6 +305,13 @@ document.querySelector(".update").addEventListener("click", async () => {
     const tagSelect = document.getElementById("tagSelect");
     const tagId = tagSelect.value;
 
+    const old_res = await fetch(`/Post/GetPostById/${activityId}`);
+    if (!old_res) { return false };
+    
+    const old_data = await old_res.json();
+    console.log(old_data);
+
+
     if (!title || !description || !location || !date || !tagId) {
         showToast.warning("กรุณากรอกข้อมูลให้ครบถ้วน");
         return;
@@ -310,12 +321,12 @@ document.querySelector(".update").addEventListener("click", async () => {
         eventName: title,
         description: description,
         location: location,
-        dateOpen: date,
+        dateOpen: old_data.post.dataOpen,
         dateClose: date,
-        startTime: "00:00",
-        endTime: "23:59",
-        maxParticipants: 10,
-        status: true,
+        startTime: old_data.post.startTime,
+        endTime: old_data.post.endTime,
+        maxParticipants: old_data.post.maxParticipants,
+        status: old_data.post.status,
         tagId: tagId
     };
 
@@ -372,5 +383,5 @@ document.querySelector(".end").addEventListener("click", async () => {
 
 // ---------------- Initial Load ----------------
 loadActivity();
-loadParticipants();
 loadComments();
+//loadParticipants();

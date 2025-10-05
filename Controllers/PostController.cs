@@ -395,40 +395,40 @@ namespace MonkeyAssenbly.Controllers
         return Ok(new { success = affected > 0 });
     }
 
-        [HttpGet("GetCommentByPostId/{post_id}")]
-        public IActionResult GetCommentByPostId(int post_id)
-        {
-            var comments = new List<object>();
+    //    [HttpGet("GetCommentByPostId/{post_id}")]
+    //    public IActionResult GetCommentByPostId(int post_id)
+    //    {
+    //        var comments = new List<object>();
 
-            using var connection = new NpgsqlConnection(_connectionString);
-            connection.Open();
+    //        using var connection = new NpgsqlConnection(_connectionString);
+    //        connection.Open();
 
-            var sql = @"
-        SELECT c.comment_id, c.user_id, c.comment_text, c.created_at, u.user_firstname
-        FROM ""CommentTable"" c
-        JOIN ""UserDetailTable"" u ON c.user_id = u.user_id
-        WHERE c.post_id = @post_id
-        ORDER BY c.created_at ASC
-    ";
+    //        var sql = @"
+    //    SELECT c.comment_id, c.user_id, c.comment_text, c.created_at, u.user_firstname
+    //    FROM ""CommentTable"" c
+    //    JOIN ""UserDetailTable"" u ON c.user_id = u.user_id
+    //    WHERE c.post_id = @post_id
+    //    ORDER BY c.created_at ASC
+    //";
 
-            using var cmd = new NpgsqlCommand(sql, connection);
-            cmd.Parameters.AddWithValue("post_id", post_id);
+    //        using var cmd = new NpgsqlCommand(sql, connection);
+    //        cmd.Parameters.AddWithValue("post_id", post_id);
 
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                comments.Add(new
-                {
-                    id = reader.GetInt32(reader.GetOrdinal("comment_id")),
-                    userId = reader.GetInt32(reader.GetOrdinal("user_id")),
-                    user = reader.GetString(reader.GetOrdinal("user_firstname")),
-                    text = reader.GetString(reader.GetOrdinal("comment_text")),
-                    time = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("HH:mm")
-                });
-            }
+    //        using var reader = cmd.ExecuteReader();
+    //        while (reader.Read())
+    //        {
+    //            comments.Add(new
+    //            {
+    //                id = reader.GetInt32(reader.GetOrdinal("comment_id")),
+    //                userId = reader.GetInt32(reader.GetOrdinal("user_id")),
+    //                user = reader.GetString(reader.GetOrdinal("user_firstname")),
+    //                text = reader.GetString(reader.GetOrdinal("comment_text")),
+    //                time = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("HH:mm")
+    //            });
+    //        }
 
-            return Ok(comments);
-        }
+    //        return Ok(comments);
+    //    }
 
 
 
