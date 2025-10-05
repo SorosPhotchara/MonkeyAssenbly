@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿        
+        
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using MonkeyAssenbly.Models;
@@ -6,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace MonkeyAssenbly.Controllers
 {
-    // ✅ แก้ไขตรงนี้ - inherit BaseController แทน Controller
+    [Route("[controller]/[action]")]
     public class ProfileController : BaseController
     {
         private readonly string _connectionString;
@@ -21,7 +23,9 @@ namespace MonkeyAssenbly.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return RedirectToAction("Login", "Login");
 
-            UserDetail user;
+                UserDetail user;
+                int followers = 0;
+                int following = 0;
             using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
@@ -42,10 +46,19 @@ namespace MonkeyAssenbly.Controllers
                     UserEmail = reader.GetString(2),
                     Bio = reader.IsDBNull(3) ? "" : reader.GetString(3),
                     UserAvatar = reader.IsDBNull(4) ? "/uploads/default-avatar.png" : reader.GetString(4),
-                    Followers = 0,
-                    Following = 0,
-                    IsFollowing = false
+                        // Followers and Following will be set later
                 };
+                    reader.Close();
+
+                    // Get followers count
+                    var followersCmd = new NpgsqlCommand(@"SELECT COUNT(*) FROM ""FollowTable"" WHERE following_id = @id", conn);
+                    followersCmd.Parameters.AddWithValue("id", userId.Value);
+                    followers = Convert.ToInt32(followersCmd.ExecuteScalar());
+
+                    // Get following count
+                    var followingCmd = new NpgsqlCommand(@"SELECT COUNT(*) FROM ""FollowTable"" WHERE follower_id = @id", conn);
+                    followingCmd.Parameters.AddWithValue("id", userId.Value);
+                    following = Convert.ToInt32(followingCmd.ExecuteScalar());
             }
 
             var model = new ProfileModel
@@ -56,9 +69,9 @@ namespace MonkeyAssenbly.Controllers
                 Email = user.UserEmail,
                 Bio = user.Bio,
                 AvatarUrl = user.UserAvatar,
-                Followers = user.Followers,
-                Following = user.Following,
-                IsFollowing = user.IsFollowing
+                Followers = followers,
+                Following = following,
+                IsFollowing = false // ไม่ต้องใช้ในหน้าโปรไฟล์ตัวเอง
             };
 
             return View(model);
@@ -89,35 +102,45 @@ namespace MonkeyAssenbly.Controllers
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null) return Unauthorized();
 
-            UserDetail user;
-            using (var conn = new NpgsqlConnection(_connectionString))
-            {
-                conn.Open();
-                var cmd = new NpgsqlCommand(
-                    @"SELECT user_firstname, user_lastname, user_email, user_gender, user_birthdate, account_id, bio, user_avatar
-                      FROM ""UserDetailTable"" 
-                      WHERE user_id = @id", conn);
-                cmd.Parameters.AddWithValue("id", userId.Value);
-
-                using var reader = cmd.ExecuteReader();
-                if (!reader.Read()) return NotFound();
-
-                user = new UserDetail
+                UserDetail user;
+                int followers = 0;
+                int following = 0;
+                using (var conn = new NpgsqlConnection(_connectionString))
                 {
-                    UserId = userId.Value,
-                    UserFirstname = reader.GetString(0),
-                    UserLastname = reader.GetString(1),
-                    UserEmail = reader.GetString(2),
-                    UserGender = reader.GetString(3),
-                    UserBirthdate = reader.GetDateTime(4),
-                    AccountId = reader.GetInt32(5),
-                    Bio = reader.IsDBNull(6) ? "" : reader.GetString(6),
-                    UserAvatar = reader.IsDBNull(7) ? "/uploads/default-avatar.png" : reader.GetString(7),
-                    Followers = 0,
-                    Following = 0,
-                    IsFollowing = false
-                };
-            }
+                    conn.Open();
+                    var cmd = new NpgsqlCommand(
+                        @"SELECT user_firstname, user_lastname, user_email, user_gender, user_birthdate, account_id, bio, user_avatar
+                          FROM ""UserDetailTable"" 
+                          WHERE user_id = @id", conn);
+                    cmd.Parameters.AddWithValue("id", userId.Value);
+
+                    using var reader = cmd.ExecuteReader();
+                    if (!reader.Read()) return NotFound();
+
+                    user = new UserDetail
+                    {
+                        UserId = userId.Value,
+                        UserFirstname = reader.GetString(0),
+                        UserLastname = reader.GetString(1),
+                        UserEmail = reader.GetString(2),
+                        UserGender = reader.GetString(3),
+                        UserBirthdate = reader.GetDateTime(4),
+                        AccountId = reader.GetInt32(5),
+                        Bio = reader.IsDBNull(6) ? "" : reader.GetString(6),
+                        UserAvatar = reader.IsDBNull(7) ? "/uploads/default-avatar.png" : reader.GetString(7)
+                    };
+                    reader.Close();
+
+                    // Get followers count
+                    var followersCmd = new NpgsqlCommand(@"SELECT COUNT(*) FROM ""FollowTable"" WHERE following_id = @id", conn);
+                    followersCmd.Parameters.AddWithValue("id", userId.Value);
+                    followers = Convert.ToInt32(followersCmd.ExecuteScalar());
+
+                    // Get following count
+                    var followingCmd = new NpgsqlCommand(@"SELECT COUNT(*) FROM ""FollowTable"" WHERE follower_id = @id", conn);
+                    followingCmd.Parameters.AddWithValue("id", userId.Value);
+                    following = Convert.ToInt32(followingCmd.ExecuteScalar());
+                }
 
             return Json(new
             {
@@ -126,9 +149,9 @@ namespace MonkeyAssenbly.Controllers
                 email = user.UserEmail,
                 bio = user.Bio,
                 avatar = user.UserAvatar,
-                followers = user.Followers,
-                following = user.Following,
-                isFollowing = user.IsFollowing
+                followers = followers,
+                following = following,
+                isFollowing = false // ไม่ต้องใช้ในหน้าโปรไฟล์ตัวเอง
             });
         }
 
@@ -188,7 +211,88 @@ namespace MonkeyAssenbly.Controllers
                 email = email
             });
         }
+    [HttpGet]
+    public IActionResult GetUserProfile(int userId)
+        {
+            var sessionUserId = HttpContext.Session.GetInt32("UserId");
+            using var conn = new NpgsqlConnection(_connectionString);
+            conn.Open();
+            var cmd = new NpgsqlCommand(@"
+                SELECT user_id, user_firstname, user_lastname, user_avatar, user_email
+                FROM ""UserDetailTable""
+                WHERE user_id = @id", conn);
+            cmd.Parameters.AddWithValue("id", userId);
+            using var reader = cmd.ExecuteReader();
+            if (!reader.Read()) return NotFound();
+            var id = reader.GetInt32(0);
+            var firstName = reader.GetString(1);
+            var lastName = reader.GetString(2);
+            var avatar = reader.IsDBNull(3) ? "/uploads/default-avatar.png" : reader.GetString(3);
+            var email = reader.GetString(4);
+            reader.Close();
 
+            // Username: use email before @ if you want
+            var username = email.Contains("@") ? email.Split('@')[0] : email;
+
+            // Check follow status
+            bool isFollowing = false;
+            if (sessionUserId != null && sessionUserId != userId)
+            {
+                var followCmd = new NpgsqlCommand(@"SELECT 1 FROM ""FollowTable"" WHERE follower_id=@follower AND following_id=@following", conn);
+                followCmd.Parameters.AddWithValue("follower", sessionUserId.Value);
+                followCmd.Parameters.AddWithValue("following", userId);
+                using var followReader = followCmd.ExecuteReader();
+                isFollowing = followReader.Read();
+            }
+
+            return Json(new {
+                userId = id,
+                firstName,
+                lastName,
+                avatar,
+                username,
+                isFollowing,
+                isSelf = (sessionUserId == userId)
+            });
+        }
+        [HttpPost]
+        public IActionResult Follow(int userId)
+        {
+            var sessionUserId = HttpContext.Session.GetInt32("UserId");
+            if (sessionUserId == null || sessionUserId == userId)
+                return BadRequest(new { success = false, message = "Invalid user." });
+            using var conn = new NpgsqlConnection(_connectionString);
+            conn.Open();
+            // Check if already following
+            var checkCmd = new NpgsqlCommand(@"SELECT 1 FROM ""FollowTable"" WHERE follower_id=@follower AND following_id=@following", conn);
+            checkCmd.Parameters.AddWithValue("follower", sessionUserId.Value);
+            checkCmd.Parameters.AddWithValue("following", userId);
+            using (var reader = checkCmd.ExecuteReader())
+            {
+                if (reader.Read())
+                    return Ok(new { success = true, message = "Already following." });
+            }
+            var cmd = new NpgsqlCommand(@"INSERT INTO ""FollowTable"" (follower_id, following_id) VALUES (@follower, @following)", conn);
+            cmd.Parameters.AddWithValue("follower", sessionUserId.Value);
+            cmd.Parameters.AddWithValue("following", userId);
+            cmd.ExecuteNonQuery();
+            return Ok(new { success = true, message = "Followed successfully." });
+        }
+
+        [HttpPost]
+        public IActionResult Unfollow(int userId)
+        {
+            var sessionUserId = HttpContext.Session.GetInt32("UserId");
+            if (sessionUserId == null || sessionUserId == userId)
+                return BadRequest(new { success = false, message = "Invalid user." });
+            using var conn = new NpgsqlConnection(_connectionString);
+            conn.Open();
+            var cmd = new NpgsqlCommand(@"DELETE FROM ""FollowTable"" WHERE follower_id=@follower AND following_id=@following", conn);
+            cmd.Parameters.AddWithValue("follower", sessionUserId.Value);
+            cmd.Parameters.AddWithValue("following", userId);
+            cmd.ExecuteNonQuery();
+            return Ok(new { success = true, message = "Unfollowed successfully." });
+        }
         public class UpdateProfileRequest
         {
             public string FirstName { get; set; }

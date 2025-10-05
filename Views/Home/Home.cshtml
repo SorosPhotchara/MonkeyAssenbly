@@ -11,6 +11,7 @@
     <title>@ViewData["Title"]</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/166/166749.png">
     <link rel="stylesheet" href="~/css/home.css">
+    <link rel="stylesheet" href="~/css/profile-popup.css">
     <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -87,41 +88,34 @@
             <h2>Create Event</h2>
             <form method="post" asp-controller="Post" asp-action="CreatePost">
                 @Html.AntiForgeryToken()
-                
                 <input type="text" name="postTitile" placeholder="event name" required>
 
                 <div class="tag-container">
-                    <input type="text" id="tagInput" placeholder="tag">
+                    <input type="text" id="tagInput" name="tagName" placeholder="tag">
                     <div id="tagSuggestions" class="suggestions"></div>
                 </div>
 
-                
                 <div class="form-group-inline">
                     <div class="form-group-pair">
-                        <label for="start-date">วันที่เปิด:</label>
-                        <input type="date" id="start-date" name="start-date">
+                        <label for="postDateOpen">วันที่เปิด:</label>
+                        <input type="date" id="postDateOpen" name="postDateOpen" required>
                     </div>
-                    
                     <div class="form-group-pair">
-                        <label for="end-date">วันที่ปิด:</label>
-                        <input type="date" id="end-date" name="end-date">
+                        <label for="postDateClose">วันที่ปิด:</label>
+                        <input type="date" id="postDateClose" name="postDateClose" required>
                     </div>
-                    
                     <div class="form-group-pair">
-                        <label for="start-time">เวลาเปิด:</label>
-                        <input type="time" id="start-time" name="start-time">
+                        <label for="postTimeOpen">เวลาเปิด:</label>
+                        <input type="time" id="postTimeOpen" name="postTimeOpen">
                     </div>
-                    
                     <div class="form-group-pair">
-                        <label for="end-time">เวลาปิด:</label>
-                        <input type="time" id="end-time" name="end-time">
+                        <label for="postTimeClose">เวลาปิด:</label>
+                        <input type="time" id="postTimeClose" name="postTimeClose">
                     </div>
                 </div>
-                
-                <input type="text" name="postPlace" placeholder="location">
-                
-                <input type="number" name="postMaxPaticipants" placeholder="participants" min="1" required>
 
+                <input type="text" name="postPlace" placeholder="location">
+                <input type="number" name="postMaxPaticipants" placeholder="participants" min="1" required>
                 <textarea name="postDescript" placeholder="detail"></textarea>
 
                 <p class="note">Check the details of your created event!</p>
@@ -166,8 +160,19 @@
         </div>
     </div>
 
-    <script src="/js/common.js"></script>
-    <script src="/js/home.js"></script>
+        <!-- Profile Popup -->
+        <div id="profile-popup-overlay" class="profile-popup-overlay" style="display:none;">
+            <div class="profile-popup">
+                <button class="close-btn" id="close-profile-popup" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+                <img src="/uploads/default-avatar.png" alt="avatar" class="avatar" id="profile-popup-avatar">
+                <div class="fullname" id="profile-popup-fullname">Full Name</div>
+                <div class="username" id="profile-popup-username">&#64;username</div>
+                <button class="follow-btn" id="profile-popup-follow-btn">Follow</button>
+            </div>
+        </div>
+
+        <script src="/js/common.js"></script>
+        <script src="/js/home.js"></script>
     
     <!-- ป้องกัน double form submission -->
     <script>

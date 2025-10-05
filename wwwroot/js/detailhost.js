@@ -88,13 +88,28 @@ async function loadActivity() {
         const res = await fetch(`/Post/GetPostById/${activityId}`);
         if (!res.ok) throw new Error("ไม่พบกิจกรรม");
         const data = await res.json();
-
+        console.log(data.post.participants);
         document.getElementById("activityTitle").textContent = data.post.eventName;
         document.getElementById("activityTag").innerHTML = `<strong>Tag :</strong> ${data.tags}`;
         document.getElementById("activityDeadline").innerHTML = `${data.post.dateClose}`;
         document.getElementById("activityHost").textContent = data.post.host;
         document.getElementById("activityPlace").textContent = data.post.location;
         document.getElementById("activityDetails").textContent = data.post.description;
+
+        // Render participants (approved)
+        const approvedBox = document.getElementById("approvedBox");
+        approvedBox.querySelectorAll(".participant-row").forEach(e => e.remove());
+        let approvedCount = 0;
+        if (Array.isArray(data.post.participants)) {
+            data.post.participants.forEach(p => {
+                const row = document.createElement("div");
+                row.className = "participant-row";
+                row.innerHTML = `<img src="${p.avatar}" alt="avatar" class="participant-avatar" style="width:32px;height:32px;border-radius:50%;margin-right:8px;object-fit:cover;"> <span>${p.name}</span>`;
+                approvedBox.appendChild(row);
+                approvedCount++;
+            });
+        }
+        document.getElementById("approvedCount").textContent = approvedCount;
     } catch (err) {
         alert(err.message);
     }
@@ -102,46 +117,8 @@ async function loadActivity() {
 
 // ---------------- Load Participants ----------------
 async function loadParticipants() {
-    try {
-        const res = await fetch(`${SERVER_URL}/api/activity/${activityId}/participants`);
-        if (!res.ok) throw new Error("โหลดผู้เข้าร่วมไม่สำเร็จ");
-        const participants = await res.json();
-
-        const approvedBox = document.getElementById("approvedBox");
-        const pendingBox = document.getElementById("pendingBox");
-        approvedBox.querySelectorAll(".participant-row").forEach(e => e.remove());
-        pendingBox.querySelectorAll(".participant-row").forEach(e => e.remove());
-
-        let approvedCount = 0;
-        participants.forEach(p => {
-            const row = document.createElement("div");
-            row.className = "participant-row";
-            row.innerHTML = `<span>${p.name}</span>`;
-            if (p.status === "approved") {
-                approvedBox.appendChild(row);
-                approvedCount++;
-            } else if (p.status === "pending") {
-                row.classList.add("pending");
-                row.innerHTML += `
-                    <div class="participant-actions">
-                        <button class="accept">✔</button>
-                        <button class="reject">✖</button>
-                    </div>`;
-                pendingBox.appendChild(row);
-
-                const userId = p.id;
-                row.querySelector(".accept").addEventListener("click", async () => {
-                    await fetch(`${SERVER_URL}/api/participants/${userId}/accept`, { method: "POST" });
-                    loadParticipants();
-                });
-                row.querySelector(".reject").addEventListener("click", async () => {
-                    await fetch(`${SERVER_URL}/api/participants/${userId}/reject`, { method: "POST" });
-                    loadParticipants();
-                });
-            }
-        });
-        document.getElementById("approvedCount").textContent = approvedCount;
-    } catch (err) { alert(err.message); }
+    // ไม่ต้องโหลด participants แยกแล้ว เพราะใช้จาก data.post.participants ใน loadActivity()
+    return;
 }
 
 // ---------------- Load Comments ----------------
