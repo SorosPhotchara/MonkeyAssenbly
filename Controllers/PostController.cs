@@ -528,28 +528,12 @@ namespace MonkeyAssenbly.Controllers
                 var postId = postCmd.ExecuteScalar();
 
                 // ===== Insert Tag and PostTagTable =====
-                if (!string.IsNullOrWhiteSpace(model.tagName) && postId != null)
+                if (model.tagId.HasValue && postId != null)
                 {
-                    int tagId = -1;
-                    // 1. Insert tag ถ้ายังไม่มี
-                    using (var tagCmd = new NpgsqlCommand("INSERT INTO \"TagTable\" (tag_name) VALUES (@tagName) ON CONFLICT (tag_name) DO NOTHING RETURNING tag_id;", conn, tran))
-                    {
-                        tagCmd.Parameters.AddWithValue("tagName", model.tagName.Trim());
-                        var result = tagCmd.ExecuteScalar();
-                        if (result != null)
-                            tagId = Convert.ToInt32(result);
-                    }
-                    if (tagId == -1)
-                    {
-                        // ถ้า tag มีอยู่แล้ว ให้ select id
-                        using (var selectTagCmd = new NpgsqlCommand("SELECT tag_id FROM \"TagTable\" WHERE tag_name = @tagName;", conn, tran))
-                        {
-                            selectTagCmd.Parameters.AddWithValue("tagName", model.tagName.Trim());
-                            tagId = Convert.ToInt32(selectTagCmd.ExecuteScalar());
-                        }
-                    }
-                    // 2. Insert post_id, tag_id ลง PostTagTable
-                    using (var ptCmd = new NpgsqlCommand("INSERT INTO \"PostTagTable\" (post_id, tag_id) VALUES (@postId, @tagId) ON CONFLICT DO NOTHING;", conn, tran))
+                    int tagId = model.tagId.Value;
+
+                    using (var ptCmd = new NpgsqlCommand(
+                        "INSERT INTO \"PostTagTable\" (post_id, tag_id) VALUES (@postId, @tagId) ON CONFLICT DO NOTHING;", conn, tran))
                     {
                         ptCmd.Parameters.AddWithValue("postId", Convert.ToInt32(postId));
                         ptCmd.Parameters.AddWithValue("tagId", tagId);

@@ -11,5 +11,6 @@ namespace MonkeyAssenbly.Models
         public string? postTimeClose { get; set; }
         public int? postMaxPaticipants { get; set; }
         public string? tagName { get; set; }
+        public int? tagId { get; set; }
     }
 }

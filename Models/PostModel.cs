@@ -16,6 +16,7 @@
             public DateTime PostDateClose { get; set; }
             public int PostMaxPaticipants { get; set; }
             public int PostCurrentPaticipants { get; set; }
+            public int? tagId { get; set; }
         }
 
     }
