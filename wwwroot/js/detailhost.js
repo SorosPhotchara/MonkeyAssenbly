@@ -443,10 +443,11 @@ document.querySelector(".end").addEventListener("click", async () => {
     if (!confirm("คุณต้องการปิดรับสมัครกิจกรรมนี้หรือไม่?")) return;
     
     try {
-        await fetch(`${SERVER_URL}/api/activity/${activityId}/end`, { method: "POST" });
+        await fetch(`/Post/EndPost/${activityId}`, { method: "PATCH" });
         showToast.success("ปิดรับสมัครเรียบร้อย");
         setTimeout(() => {
             location.reload();
+        window.location.href = window.ProfileUrl;
         }, 1000);
     } catch (err) {
         showToast.error("ไม่สามารถปิดรับสมัครได้");

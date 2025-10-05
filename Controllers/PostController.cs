@@ -930,6 +930,23 @@ namespace MonkeyAssenbly.Controllers
             }
         }
 
+        [HttpPatch("EndPost/{post_id}")]
+        public IActionResult EndPost(int post_id)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+
+            var sql = @"UPDATE ""PostTable"" SET post_status = FALSE WHERE post_id = @postId";
+
+            using var cmd = new NpgsqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("postId", post_id);
+
+            int affected = cmd.ExecuteNonQuery();
+
+            return Ok(new { success = affected > 0 });
+        }
+
+
         [HttpPost("UnjoinEvent")]
         public async Task<IActionResult> UnjoinEvent(int postId)
         {
