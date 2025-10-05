@@ -50,6 +50,9 @@ body {
   font-family: 'Nunito', 'Prompt', sans-serif;
   background: var(--bg);
   color: var(--head-font);
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
   min-height: 100vh;
   transition: 0.3s;
   padding-top: 80px;
@@ -226,6 +229,7 @@ input#toggle {
   opacity: 1;
 }
 
+/* Sidebar Add Button */
 .sidebar a.add {
   width: 60px;
   height: 60px;
@@ -419,78 +423,6 @@ html.dark .tag-search-bar i.fa-search {
 /* =======================
    Responsive Sidebar for Tags Page
 ======================= */
-@media (max-width: 1024px) and (min-width: 769px) {
-  body {
-    padding-top: 75px;
-  }
-
-  .navbar {
-    height: 65px;
-    padding: 0 30px;
-  }
-
-  .logo img {
-    height: 90px;
-  }
-
-  .menu {
-    gap: 35px;
-  }
-
-  .menu h2 {
-    font-size: 15px;
-  }
-
-  .toggle {
-    width: 85px;
-    height: 42px;
-  }
-
-  .toggle i {
-    line-height: 42px;
-    font-size: 19px;
-  }
-
-  .toggle .ball {
-    width: 28px;
-    height: 28px;
-    margin: 7px;
-  }
-
-  html.dark .toggle .ball {
-    transform: translateX(43px);
-  }
-
-  .tag-title {
-    font-size: 1.9rem;
-  }
-
-  .tag-search-bar {
-    width: 85%;
-    max-width: 750px;
-    margin: 28px auto;
-  }
-
-  .tag-search-bar input {
-    padding: 13px 42px 13px 17px;
-    font-size: 1.05rem;
-  }
-
-  .tag-list {
-    width: 85%;
-    max-width: 750px;
-    margin-top: 0;
-    margin-bottom: 40px;
-    gap: 20px;
-  }
-
-  .tag-card {
-    min-width: 160px;
-    padding: 24px 32px;
-    font-size: 1.1rem;
-  }
-}
-
 @media (max-width: 768px) {
   .hamburger,
   .hamburger-menu {
@@ -507,7 +439,7 @@ html.dark .tag-search-bar i.fa-search {
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+    padding: 10px 0;
     border-radius: 20px 20px 0 0;
     border: 1px solid var(--highlight);
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
@@ -527,23 +459,14 @@ html.dark .tag-search-bar i.fa-search {
     margin-top: -25px;
     border-radius: 50%;
     background: var(--highlight);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  }
-
-  body {
-    padding-top: 60px;
-  }
-
-  .navbar {
-    height: 55px;
-    padding: 0 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
 
   .logo {
     font-size: 20px;
     align-items: center;
     justify-content: flex-start;
-    padding-left: 0;
+    padding-left: 15px;
     margin: 0;
   }
 
@@ -552,18 +475,8 @@ html.dark .tag-search-bar i.fa-search {
     height: auto;
   }
 
-  .menu {
-    gap: 25px;
-  }
-
-  .menu h2 {
-    font-size: 14px;
-  }
-
   .toggle {
-    margin-top: 0;
-    top: 12px;
-    right: 12px;
+    margin-top: 10px;
     width: 60px;
     height: 30px;
   }
@@ -583,264 +496,25 @@ html.dark .tag-search-bar i.fa-search {
     transform: translateX(30px);
   }
 
-  .tag-title {
-    font-size: 1.75rem;
-    top: 48%;
-  }
-
   .tag-search-bar {
-    width: 92%;
-    margin: 22px auto 24px auto;
-  }
-
-  .tag-search-bar input {
-    padding: 12px 40px 12px 16px;
-    font-size: 1rem;
-    border-radius: 11px;
-  }
-
-  .tag-search-bar i.fa-search {
-    right: 14px;
-    font-size: 1.05rem;
+    width: 95vw;
+    margin: 20px auto 20px auto;
   }
 
   .tag-list {
-    width: 92%;
-    margin: 0 auto 85px auto;
-    gap: 13px;
+    width: 95vw;
+    margin: 0 auto 80px auto;
+    gap: 12px;
     justify-content: center;
   }
 
   .tag-card {
-    min-width: 130px;
-    min-height: 68px;
-    padding: 19px 20px;
-    font-size: 1rem;
-    border-radius: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    padding-top: 55px;
-  }
-
-  .navbar {
-    height: 50px;
-    padding: 0 12px;
-  }
-
-  .logo img {
-    width: 65px;
-  }
-
-  .menu {
-    gap: 16px;
-  }
-
-  .menu h2 {
-    font-size: 13px;
-    padding: 4px 0;
-  }
-
-  .toggle {
-    width: 55px;
-    height: 28px;
-    top: 11px;
-    right: 11px;
-    margin-top: 0;
-  }
-
-  .toggle i {
-    font-size: 15px;
-    line-height: 28px;
-  }
-
-  .toggle .ball {
-    width: 18px;
-    height: 18px;
-    margin: 5px;
-  }
-
-  html.dark .toggle .ball {
-    transform: translateX(27px);
-  }
-
-  .sidebar {
-    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-  }
-
-  .sidebar a {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-  }
-
-  .sidebar a.add {
-    width: 56px;
-    height: 56px;
-    margin-top: -22px;
-  }
-
-  .tag-title {
-    font-size: 1.45rem;
-    letter-spacing: 0.5px;
-    top: 46%;
-  }
-
-  .tag-search-bar {
-    width: 94%;
-    margin: 18px auto 20px auto;
-  }
-
-  .tag-search-bar input {
-    padding: 10px 36px 10px 14px;
-    font-size: 0.95rem;
-    border-radius: 10px;
-  }
-
-  .tag-search-bar i.fa-search {
-    right: 12px;
+    min-width: 120px;
+    padding: 18px 16px;
     font-size: 1rem;
   }
 
-  .tag-list {
-    width: 94%;
-    margin: 0 auto 78px auto;
-    gap: 10px;
-  }
-
-  .tag-card {
-    min-width: 108px;
-    min-height: 62px;
-    padding: 17px 16px;
-    font-size: 0.9rem;
-    border-radius: 12px;
-  }
-}
-
-@media (max-width: 360px) {
-  .menu {
-    gap: 14px;
-  }
-
-  .menu h2 {
-    font-size: 12px;
-  }
-
   .tag-title {
-    font-size: 1.3rem;
-  }
-
-  .tag-search-bar {
-    width: 95%;
-    margin: 16px auto 18px auto;
-  }
-
-  .tag-search-bar input {
-    padding: 9px 34px 9px 12px;
-    font-size: 0.9rem;
-  }
-
-  .tag-list {
-    width: 95%;
-    gap: 9px;
-    margin-bottom: 75px;
-  }
-
-  .tag-card {
-    min-width: 100px;
-    min-height: 58px;
-    padding: 15px 14px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-height: 500px) and (orientation: landscape) {
-  body {
-    padding-top: 48px;
-  }
-
-  .navbar {
-    height: 45px;
-  }
-
-  .logo img {
-    width: 58px;
-  }
-
-  .menu {
-    gap: 20px;
-  }
-
-  .menu h2 {
-    font-size: 13px;
-  }
-
-  .toggle {
-    top: 8px;
-    right: 8px;
-    margin-top: 0;
-  }
-
-  .sidebar {
-    padding: 6px 0;
-  }
-
-  .sidebar a.add {
-    margin-top: -20px;
-  }
-
-  .tag-title {
-    font-size: 1.35rem;
-    top: 45%;
-  }
-
-  .tag-search-bar {
-    margin: 14px auto 16px auto;
-  }
-
-  .tag-search-bar input {
-    padding: 8px 36px 8px 12px;
-    font-size: 0.9rem;
-  }
-
-  .tag-list {
-    margin-bottom: 68px;
-    gap: 10px;
-  }
-
-  .tag-card {
-    min-height: 52px;
-    padding: 13px 16px;
-    font-size: 0.9rem;
-  }
-}
-
-@supports (padding: max(0px)) {
-  @media (max-width: 768px) {
-    .sidebar {
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
-    }
-
-    .tag-list {
-      margin-bottom: max(85px, calc(85px + env(safe-area-inset-bottom)));
-    }
-  }
-
-  @media (max-width: 480px) {
-    .sidebar {
-      padding-bottom: max(8px, env(safe-area-inset-bottom));
-    }
-
-    .tag-list {
-      margin-bottom: max(78px, calc(78px + env(safe-area-inset-bottom)));
-    }
-  }
-
-  @media (max-width: 360px) {
-    .tag-list {
-      margin-bottom: max(75px, calc(75px + env(safe-area-inset-bottom)));
-    }
+    font-size: 1.8rem;
   }
 }

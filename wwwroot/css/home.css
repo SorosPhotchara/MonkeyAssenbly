@@ -76,7 +76,7 @@ body {
 }
 
 .logo img {
-  height: 90px;
+  height: 100px;
 }
 
 .menu {
@@ -558,8 +558,6 @@ html.dark .create-btn:hover {
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: 0.2s;
-  position: relative;
-  z-index: 1
 }
 
 .event-card:hover {
@@ -581,7 +579,7 @@ html.dark .create-btn:hover {
 }
 
 .avatar {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
@@ -591,13 +589,9 @@ html.dark .create-btn:hover {
   font-weight: bold;
   font-size: 14px;
   overflow: hidden;
-  min-width: 32px;
-  min-height: 32px;
-  flex-shrink: 0;
 }
 
 .avatar img {
-  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -714,17 +708,10 @@ html.dark .join-btn:hover {
 .avatars {
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-width: 28px;
-  min-height: 28px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 4px;     
 }
 
 .avatar {
-  display: block;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -850,6 +837,7 @@ html.dark .join-btn:hover {
     font-weight: 600;
   }
 
+  /* Participants List */
   #participants-list {
     list-style: none;
     padding: 0;
@@ -890,6 +878,7 @@ html.dark .join-btn:hover {
     border-radius: 3px;
   }
 
+  /* Join Button */
   .popup-join-btn {
     background: var(--border);
     color: var(--white);
@@ -922,6 +911,7 @@ html.dark .join-btn:hover {
     opacity: 0.5;
   }
 
+  /* Comment Section */
   .comment-section {
     background: var(--highlight);
     border-radius: 12px;
@@ -988,6 +978,7 @@ html.dark .join-btn:hover {
     opacity: 0.7;
   }
 
+  /* Comment Input */
   .comment-input-wrapper {
     display: flex;
     gap: 8px;
@@ -1043,6 +1034,7 @@ html.dark .join-btn:hover {
     font-size: 18px;
   }
 
+  /* Dark Mode Adjustments */
   html.dark .event-popup {
     background: rgba(0, 0, 0, 0.8);
   }
@@ -1108,6 +1100,28 @@ html.dark .join-btn:hover {
   html.dark #popup-comment-send:hover {
     background: var(--border);
     color: var(--highlight);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .event-popup-content {
+      width: 95%;
+      max-width: none;
+      padding: 24px 20px;
+      max-height: 90vh;
+    }
+    
+    .event-popup-content h3 {
+      font-size: 20px;
+    }
+    
+    #participants-list {
+      max-height: 120px;
+    }
+    
+    #popup-comment-list {
+      max-height: 150px;
+    }
   }
 
   /* =======================
@@ -1273,142 +1287,11 @@ html.dark .toast-notification.info .toast-icon {
 /* =======================
    Responsive Sidebar  for Home Page
    ======================= */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .sidebar {
-    left: 15px;
-    padding: 18px 12px;
-    gap: 18px;
-  }
-
-  .sidebar a {
-    width: 55px;
-    height: 55px;
-  }
-
-  .sidebar a i {
-    font-size: 23px;
-  }
-
-  .sidebar a.add {
-    width: 58px;
-    height: 58px;
-  }
-
-  .menu {
-    gap: 35px;
-  }
-
-  .event-card {
-    max-width: 450px;
-  }
-
-  .tab-content {
-    max-width: 700px;
-  }
-
-  .toast-container {
-    right: 15px;
-    max-width: 380px;
-  }
-}
-
 @media (max-width: 768px) {
-  .navbar {
-    height: 55px;
-    padding: 0.3rem 0.8rem;
-  }
 
-  .logo img {
-    height: 75px;
-  }
-
-  .menu {
-    gap: 25px;
-  }
-
-  .menu h2 {
-    font-size: 14px;
-  }
-
-  .toggle {
-    width: 75px;
-    height: 38px;
-    top: 8px;
-    right: 8px;
-  }
-
-  .toggle i {
-    line-height: 38px;
-    font-size: 18px;
-  }
-
-  .toggle .ball {
-    width: 26px;
-    height: 26px;
-    margin: 6px;
-  }
-
-  html.dark .toggle .ball {
-    transform: translateX(37px);
-  }
-
-  #event-feed {
-    padding-top: calc(55px + 15px);
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-bottom: 85px;
-  }
-
-  .tab-content {
-    padding: calc(55px + 15px) 0.75rem 85px 0.75rem;
-    gap: 14px;
-  }
-
-  .event-card {
-    padding: 16px;
-    border-radius: 16px;
-    max-width: 100%;
-  }
-
-  .avatar {
-    width: 28px;
-    height: 28px;
-  }
-
-  .host {
-    font-size: 14px;
-  }
-
-  .time {
-    font-size: 11px;
-  }
-
-  .status {
-    font-size: 11px;
-    padding: 3px 8px;
-  }
-
-  .event-body h3 {
-    font-size: 16px;
-    margin-bottom: 6px;
-  }
-
-  .event-body p {
-    font-size: 13px;
-    margin-bottom: 6px;
-  }
-
-  .event-body small {
-    font-size: 12px;
-  }
-
-  .join-btn {
-    padding: 7px 14px;
-    font-size: 13px;
-  }
-
-  .friends-joined {
-    font-size: 12px;
+  .hamburger,
+  .hamburger-menu {
+    display: none !important;
   }
 
   .sidebar {
@@ -1420,514 +1303,145 @@ html.dark .toast-notification.info .toast-icon {
     transform: none;
     flex-direction: row;
     justify-content: space-around;
-    padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+    align-items: center;
+    padding: 10px 0;
     border-radius: 20px 20px 0 0;
-    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--highlight);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--bg);
     z-index: 1000;
   }
 
   .sidebar a {
-    width: 44px;
-    height: 44px;
-    border-radius: 16px;
-  }
-
-  .sidebar a i {
-    font-size: 22px;
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
   }
 
   .sidebar a.add {
-    width: 58px;
-    height: 58px;
-    margin-top: -24px;
+    width: 60px;
+    height: 60px;
+    margin-top: -25px;
     border-radius: 50%;
+    background: var(--highlight);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .logo {
+    font-size: 20px;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 15px;
+    margin: 0;
+  }
+
+  .logo img {
+    width: 75px;
+    height: auto;
+  }
+
+  .toggle {
+    margin-top: 10px;
+    width: 60px;
+    height: 30px;
+  }
+
+  .toggle i {
+    font-size: 16px;
+    line-height: 30px;
+  }
+
+  .toggle .ball {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(30px);
+  }
+  /* =======================
+   Alert Messages & Animation
+  ======================= */
+  .alert {
+    animation: slideIn 0.3s ease-out;
+    padding: 15px;
+    margin: 10px auto;
+    border-radius: 10px;
+    max-width: 400px;
+    text-align: center;
+    font-weight: 500;
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
-  .event-popup-content {
-    max-height: 85vh;
-    width: 92%;
-    max-width: 500px;
-    padding: 24px 20px;
-    border-radius: 18px;
+  .alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
   }
 
-  .event-popup-content h3 {
-    font-size: 19px;
-    margin-bottom: 14px;
-    padding-right: 35px;
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
   }
 
-  .event-popup-content > p {
-    font-size: 14px;
-    margin: 6px 0;
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 
-  .event-popup-content h4 {
-    font-size: 15px;
-    margin: 18px 0 10px 0;
-  }
-
-  #participants-list {
-    max-height: 120px;
-    padding: 10px;
-  }
-
-  #participants-list li {
-    padding: 7px 10px;
-    font-size: 13px;
-  }
-
-  .popup-join-btn {
-    padding: 12px;
-    font-size: 15px;
-    margin: 16px 0;
-  }
-
-  .comment-section {
-    padding: 14px;
+  /* Form Labels & Inputs */
+  .modal-content form label {
+    display: block;
     margin-top: 10px;
-  }
-
-  #popup-comment-list {
-    max-height: 150px;
-  }
-
-  .comment-item {
-    padding: 10px;
-    margin-bottom: 6px;
-  }
-
-  .comment-item .comment-user {
-    font-size: 13px;
-  }
-
-  .comment-item .comment-text {
-    font-size: 13px;
-  }
-
-  .comment-item .comment-time {
-    font-size: 11px;
-  }
-
-  #popup-comment-input {
-    padding: 10px 14px;
-    font-size: 13px;
-  }
-
-  #popup-comment-send {
-    width: 42px;
-    height: 42px;
-  }
-
-  .popup-close-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 18px;
-  }
-
-  .modal-content {
-    width: 92%;
-    max-width: 500px;
-    padding: 24px 28px;
-    max-height: 85vh;
-    overflow-y: auto;
-    border-radius: 24px;
-  }
-
-  .modal-content h2 {
-    margin-bottom: 16px;
-    font-size: 19px;
-  }
-
-  .modal-content input,
-  .modal-content textarea {
-    padding: 10px 12px;
-    font-size: 13px;
-  }
-
-  .modal-content textarea {
-    height: 70px;
-  }
-
-  .form-group-pair {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-
-  .form-group-pair label {
-    font-size: 13px;
-    min-width: auto;
-  }
-
-  .form-group-pair input {
-    width: 100%;
-    padding: 10px 12px;
-  }
-
-  .create-btn {
-    padding: 10px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--head-font);
+    text-align: left;
     font-size: 14px;
   }
 
+  .modal-content input[type="date"],
+  .modal-content input[type="time"],
+  .modal-content input[type="number"] {
+    width: 100%;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 10px;
+    background: var(--highlight);
+    font-size: 14px;
+    outline: none;
+    color: var(--head-font);
+    cursor: pointer;
+  }
+
+  html.dark .modal-content input[type="date"],
+  html.dark .modal-content input[type="time"],
+  html.dark .modal-content input[type="number"] {
+    background: var(--highlight);
+    color: var(--head-font);
+    border: 1px solid #555;
+  }
   .toast-container {
-    top: 65px;
     right: 10px;
     left: 10px;
     max-width: none;
   }
-
   .toast-notification {
-    padding: 14px 16px;
     min-width: auto;
-    gap: 10px;
-  }
-
-  .toast-icon {
-    font-size: 20px;
-    width: 28px;
-    height: 28px;
-  }
-
-  .toast-title {
-    font-size: 14px;
-  }
-
-  .toast-message {
-    font-size: 13px;
-  }
-
-  .hamburger,
-  .hamburger-menu {
-    display: none !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    height: 50px;
-    padding: 0.3rem 0.6rem;
-  }
-
-  .logo img {
-    height: 65px;
-  }
-
-  .menu {
-    gap: 18px;
-  }
-
-  .menu h2 {
-    font-size: 13px;
-  }
-
-  .toggle {
-    width: 70px;
-    height: 35px;
-    top: 7px;
-    right: 7px;
-  }
-
-  .toggle i {
-    line-height: 35px;
-    font-size: 16px;
-  }
-
-  .toggle .ball {
-    width: 24px;
-    height: 24px;
-    margin: 5.5px;
-  }
-
-  html.dark .toggle .ball {
-    transform: translateX(35px);
-  }
-
-  #event-feed {
-    padding-top: calc(50px + 12px);
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    padding-bottom: 80px;
-  }
-
-  .tab-content {
-    padding: calc(50px + 12px) 0.5rem 80px 0.5rem;
-    gap: 12px;
-  }
-
-  .event-card {
-    padding: 14px;
-    border-radius: 14px;
-  }
-
-  .event-header {
-    margin-bottom: 12px;
-  }
-
-  .host-info {
-    gap: 8px;
-  }
-
-  .avatar {
-    min-width: 28px; 
-    min-height: 28px;
-    flex-shrink: 0;
-    width: 26px;
-    height: 26px;
-    font-size: 12px;
-  }
-
-  .host {
-    font-size: 13px;
-  }
-
-  .time {
-    font-size: 10px;
-  }
-
-  .status {
-    font-size: 10px;
-    padding: 3px 7px;
-  }
-
-  .event-body h3 {
-    font-size: 15px;
-    margin-bottom: 5px;
-  }
-
-  .event-body p {
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
-
-  .event-body small {
-    font-size: 11px;
-  }
-
-  .event-footer {
-    margin-top: 12px;
-    gap: 8px;
-  }
-
-  .join-btn {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .friends-joined {
-    font-size: 11px;
-    gap: 6px;
-  }
-
-  .friends-joined .avatar {
-    width: 24px;
-    height: 24px;
-  }
-
-
-  .sidebar {
-    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-    border-radius: 18px 18px 0 0;
-    z-index: 1000;
-  }
-
-  .sidebar a {
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
-  }
-
-  .sidebar a i {
-    font-size: 20px;
-  }
-
-  .sidebar a.add {
-    width: 54px;
-    height: 54px;
-    margin-top: -22px;
-    font-size: 26px;
-  }
-
-  .event-popup-content {
-    width: 95%;
-    max-width: 380px;
-    padding: 20px 16px;
-    max-height: 90vh;
-    border-radius: 16px;
-  }
-
-  .event-popup-content h3 {
-    font-size: 17px;
-    margin-bottom: 12px;
-  }
-
-  .event-popup-content > p {
-    font-size: 13px;
-    margin: 5px 0;
-  }
-
-  .event-popup-content h4 {
-    font-size: 14px;
-    margin: 16px 0 8px 0;
-  }
-
-  #participants-list {
-    max-height: 100px;
-    padding: 8px;
-  }
-
-  #participants-list li {
-    padding: 6px 8px;
-    font-size: 12px;
-  }
-
-  .popup-join-btn {
-    padding: 10px;
-    font-size: 14px;
-    margin: 12px 0;
-  }
-
-  .comment-section {
-    padding: 12px;
-  }
-
-  #popup-comment-list {
-    max-height: 130px;
-  }
-
-  .comment-item {
-    padding: 8px;
-  }
-
-  .comment-item .comment-user {
-    font-size: 12px;
-  }
-
-  .comment-item .comment-text {
-    font-size: 12px;
-  }
-
-  #popup-comment-input {
-    padding: 9px 12px;
-    font-size: 13px;
-  }
-
-  #popup-comment-send {
-    width: 38px;
-    height: 38px;
-  }
-
-  #popup-comment-send i {
-    font-size: 16px;
-  }
-
-  .popup-close-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 16px;
-    top: 12px;
-    right: 12px;
-  }
-
-  .modal-content {
-    width: 95%;
-    max-width: 380px;
-    padding: 20px 22px;
-    border-radius: 20px;
-  }
-
-  .modal-content h2 {
-    font-size: 17px;
-    margin-bottom: 14px;
-  }
-
-  .modal-content input,
-  .modal-content textarea {
-    padding: 9px 11px;
-    font-size: 13px;
-  }
-
-  .modal-content textarea {
-    height: 65px;
-  }
-
-  .form-group-pair label {
-    font-size: 12px;
-  }
-
-  .create-btn {
-    padding: 9px;
-    font-size: 13px;
-  }
-
-  .close-btn {
-    font-size: 20px;
-    top: 12px;
-    left: 12px;
-  }
-
-  .toast-notification {
-    padding: 12px 14px;
-    border-radius: 10px;
-  }
-
-  .toast-icon {
-    font-size: 18px;
-    width: 26px;
-    height: 26px;
-  }
-
-  .toast-title {
-    font-size: 13px;
-  }
-
-  .toast-message {
-    font-size: 12px;
-  }
-
-  .toast-close {
-    width: 22px;
-    height: 22px;
-    font-size: 18px;
-  }
-}
-
-@media (max-height: 500px) and (orientation: landscape) {
-  .event-popup-content,
-  .modal-content {
-    max-height: 95vh;
-    padding: 16px;
-  }
-
-  .sidebar {
-    padding: 6px 0;
-    z-index: 1000;
-  }
-
-  .sidebar a.add {
-    margin-top: -18px;
-  }
-
-  #popup-comment-list {
-    max-height: 100px;
-  }
-
-  #participants-list {
-    max-height: 90px;
-  }
-}
-
-@supports (padding: max(0px)) {
-  .sidebar {
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-  }
-
-  .tab-content {
-    padding-bottom: max(85px, calc(85px + env(safe-area-inset-bottom)));
-  }
-
-  #event-feed {
-    padding-bottom: max(85px, calc(85px + env(safe-area-inset-bottom)));
+    width: 100%;
   }
 }

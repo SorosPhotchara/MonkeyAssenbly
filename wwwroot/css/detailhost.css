@@ -884,6 +884,105 @@ html.dark .toast-notification.info .toast-icon {
   color: #60a5fa;
 }
 
+/* =======================
+   Responsive Sidebar  for Detail Host Page
+   ======================= */
+@media (max-width: 768px) {
+
+  .hamburger,
+  .hamburger-menu {
+    display: none !important;
+  }
+
+  .sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    transform: none;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--highlight);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--bg);
+    z-index: 1000;
+  }
+
+  .sidebar a {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+  }
+
+  .sidebar a.add {
+    width: 60px;
+    height: 60px;
+    margin-top: -25px;
+    border-radius: 50%;
+    background: var(--highlight);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .logo img {
+    width: 75px;
+    height: auto;
+  }
+  
+  .toggle {
+    margin-top: 10px;
+    width: 60px;
+    height: 30px;
+  }
+
+  .toggle i {
+    font-size: 16px;
+    line-height: 30px;
+  }
+
+  .toggle .ball {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(30px);
+  }
+
+    .toast-container {
+    right: 10px;
+    left: 10px;
+    top: 80px;
+    max-width: none;
+  }
+  
+  .toast-notification {
+    min-width: auto;
+    width: 100%;
+    padding: 16px 18px;
+  }
+  
+  .toast-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  
+  .toast-title {
+    font-size: 14px;
+  }
+  
+  .toast-message {
+    font-size: 13px;
+  }
+}
 
 .toast-notification:nth-child(1) {
   z-index: 9999;
@@ -903,418 +1002,4 @@ html.dark .toast-notification.info .toast-icon {
   opacity: 0;
   transform: scale(0.9);
   pointer-events: none;
-}
-
-
-/* =======================
-   Responsive Sidebar  for Detail Host Page
-   ======================= */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .sidebar {
-    left: 15px;
-    padding: 18px 12px;
-    gap: 18px;
-  }
-
-  .sidebar a {
-    width: 55px;
-    height: 55px;
-  }
-
-  .sidebar a i {
-    font-size: 23px;
-  }
-
-  .sidebar a.add {
-    width: 58px;
-    height: 58px;
-  }
-
-  .detail-card {
-    max-width: 550px;
-    padding: 28px;
-  }
-
-  .toast-container {
-    right: 15px;
-    max-width: 380px;
-  }
-}
-
-@media (max-width: 768px) {
-  .navbar {
-    height: 55px;
-    padding: 0.3rem 0.8rem;
-  }
-
-  .logo img {
-    height: 75px;
-  }
-
-  .toggle {
-    width: 75px;
-    height: 38px;
-    top: 8px;
-    right: 8px;
-  }
-
-  .toggle i {
-    line-height: 38px;
-    font-size: 18px;
-  }
-
-  .toggle .ball {
-    width: 26px;
-    height: 26px;
-    margin: 6px;
-  }
-
-  html.dark .toggle .ball {
-    transform: translateX(37px);
-  }
-
-  .hamburger,
-  .hamburger-menu {
-    display: none !important;
-  }
-
-  .container {
-    padding: 65px 0.75rem 85px 0.75rem;
-  }
-
-  .detail-card {
-    padding: 20px;
-    border-radius: 16px;
-    gap: 16px;
-  }
-
-  .activity-title {
-    font-size: 20px;
-  }
-
-  .tag {
-    font-size: 13px;
-    padding: 5px 10px;
-  }
-
-  .meta-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .details,
-  .participants-box {
-    padding: 12px;
-  }
-
-  .avatar {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    font-size: 13px;
-  }
-
-  .comment-box {
-    padding: 14px;
-  }
-
-  .comment-box h3 {
-    font-size: 15px;
-  }
-
-  .comment-list {
-    max-height: 180px;
-  }
-
-  .bubble {
-    padding: 9px 11px;
-    max-width: 100%;
-  }
-
-  .meta .name {
-    font-size: 12px;
-  }
-
-  .meta .time {
-    font-size: 10px;
-  }
-
-  .text {
-    font-size: 13px;
-  }
-
-  .comment-input input {
-    padding: 9px 11px;
-    font-size: 13px;
-  }
-
-  .comment-input button {
-    width: 42px;
-    height: 42px;
-  }
-
-  .actions button {
-    padding: 11px 0;
-    font-size: 13px;
-  }
-
-  .sidebar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: auto;
-    transform: none;
-    flex-direction: row;
-    justify-content: space-around;
-    padding: 10px 0 max(10px, env(safe-area-inset-bottom));
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-  }
-
-  .sidebar a {
-    width: 44px;
-    height: 44px;
-    border-radius: 16px;
-  }
-
-  .sidebar a i {
-    font-size: 22px;
-  }
-
-  .sidebar a.add {
-    width: 58px;
-    height: 58px;
-    margin-top: -24px;
-    border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .toast-container {
-    top: 65px;
-    right: 10px;
-    left: 10px;
-    max-width: none;
-  }
-
-  .toast-notification {
-    padding: 14px 16px;
-    min-width: auto;
-    gap: 10px;
-  }
-
-  .toast-icon {
-    font-size: 20px;
-    width: 28px;
-    height: 28px;
-  }
-
-  .toast-title {
-    font-size: 14px;
-  }
-
-  .toast-message {
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    height: 50px;
-    padding: 0.3rem 0.6rem;
-  }
-
-  .logo img {
-    height: 65px;
-  }
-
-  .toggle {
-    width: 70px;
-    height: 35px;
-    top: 7px;
-    right: 7px;
-  }
-
-  .toggle i {
-    line-height: 35px;
-    font-size: 16px;
-  }
-
-  .toggle .ball {
-    width: 24px;
-    height: 24px;
-    margin: 5.5px;
-  }
-
-  html.dark .toggle .ball {
-    transform: translateX(35px);
-  }
-
-  .container {
-    padding: 60px 0.5rem 80px 0.5rem;
-  }
-
-  .detail-card {
-    padding: 16px;
-    border-radius: 14px;
-    gap: 14px;
-  }
-
-  .activity-title {
-    font-size: 18px;
-  }
-
-  .tag {
-    font-size: 12px;
-    padding: 4px 9px;
-  }
-
-  .meta-grid {
-    gap: 10px;
-  }
-
-  .details,
-  .participants-box {
-    padding: 10px;
-  }
-
-  .participants-label {
-    font-size: 13px;
-  }
-
-  .participant-row {
-    padding: 8px 10px;
-  }
-
-  .participant-actions button {
-    width: 28px;
-    height: 28px;
-  }
-
-  .avatar {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    font-size: 12px;
-  }
-
-  .comment-box {
-    padding: 12px;
-  }
-
-  .comment-box h3 {
-    font-size: 14px;
-  }
-
-  .comment-list {
-    max-height: 160px;
-  }
-
-  .bubble {
-    padding: 8px 10px;
-  }
-
-  .meta .name {
-    font-size: 11px;
-  }
-
-  .text {
-    font-size: 12px;
-  }
-
-  .comment-input input {
-    padding: 8px 10px;
-    font-size: 12px;
-  }
-
-  .comment-input button {
-    width: 38px;
-    height: 38px;
-  }
-
-  .actions {
-    gap: 10px;
-  }
-
-  .actions button {
-    padding: 10px 0;
-    font-size: 12px;
-  }
-
-  .sidebar {
-    padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-    border-radius: 18px 18px 0 0;
-  }
-
-  .sidebar a {
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
-  }
-
-  .sidebar a i {
-    font-size: 20px;
-  }
-
-  .sidebar a.add {
-    width: 54px;
-    height: 54px;
-    margin-top: -22px;
-    font-size: 26px;
-  }
-
-  .toast-notification {
-    padding: 12px 14px;
-    border-radius: 10px;
-  }
-
-  .toast-icon {
-    font-size: 18px;
-    width: 26px;
-    height: 26px;
-  }
-
-  .toast-title {
-    font-size: 13px;
-  }
-
-  .toast-message {
-    font-size: 12px;
-  }
-
-  .toast-close {
-    width: 22px;
-    height: 22px;
-    font-size: 18px;
-  }
-}
-
-@media (max-height: 500px) and (orientation: landscape) {
-  .detail-card {
-    max-height: 95vh;
-    overflow-y: auto;
-  }
-
-  .sidebar {
-    padding: 6px 0;
-  }
-
-  .sidebar a.add {
-    margin-top: -18px;
-  }
-
-  .comment-list {
-    max-height: 120px;
-  }
-}
-
-@supports (padding: max(0px)) {
-  .sidebar {
-    padding-bottom: max(10px, env(safe-area-inset-bottom));
-  }
-
-  .container {
-    padding-bottom: max(85px, calc(85px + env(safe-area-inset-bottom)));
-  }
 }
