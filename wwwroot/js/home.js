@@ -1,3 +1,5 @@
+const TIMEZONE = "Asia/Bangkok";
+
 // ==================== PROFILE POPUP SYSTEM START ====================
 function showProfilePopup(userId) {
   const overlay = document.getElementById("profile-popup-overlay");
@@ -150,7 +152,6 @@ const showToast = new ToastNotification();
 
 // ==================== MAIN APPLICATION LOGIC START ====================
 document.addEventListener("DOMContentLoaded", async () => {
-  const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
   const createEventModal = document.getElementById("createEventModal");
   const closeModalBtn = document.querySelector(".close-btn");
