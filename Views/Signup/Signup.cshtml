@@ -12,6 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <link rel="stylesheet" href="~/css/signup.css" />
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/166/166749.png">
     <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
@@ -27,36 +28,54 @@
         <form asp-action="SignupSubmit" method="post">
             @Html.AntiForgeryToken()
 
-            <label asp-for="Username"></label>
-            <input asp-for="Username" required />
+            <div class="input-group">
+                <input asp-for="Username" placeholder=" " required />
+                <label asp-for="Username"></label>
+            </div>
             
-            <label asp-for="Password"></label>
-            <input asp-for="Password" type="password" required />
+            <div class="input-group">
+                <input asp-for="Password" type="password" placeholder=" " required />
+                <label asp-for="Password"></label>
+            </div>
             
-            <label asp-for="FirstName"></label>
-            <input asp-for="FirstName" required />
+            <div class="input-group">
+                <input asp-for="FirstName" placeholder=" " required />
+                <label asp-for="FirstName"></label>
+            </div>
             
-            <label asp-for="LastName"></label>
-            <input asp-for="LastName" required />
+            <div class="input-group">
+                <input asp-for="LastName" placeholder=" " required />
+                <label asp-for="LastName"></label>
+            </div>
             
-            <label asp-for="Gender"></label>
-            <select asp-for="Gender" required>
-                <option value="">-- Select Gender --</option>
-                <option>Male</option>
-                <option>Female</option>
-            </select>
+            <div class="input-group">
+                <select asp-for="Gender" required>
+                    <option value="">-- Select Gender --</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                </select>
+                <label asp-for="Gender"></label>
+            </div>
             
-            <label asp-for="Birthdate"></label>
-            <input asp-for="Birthdate" type="date" required />
+            <div class="input-group">
+                <input asp-for="Birthdate" type="date" required />
+                <label asp-for="Birthdate"></label>
+            </div>
             
-            <label asp-for="Email"></label>
-            <input asp-for="Email" type="email" required />
+            <div class="input-group">
+                <input asp-for="Email" type="email" placeholder=" " required />
+                <label asp-for="Email"></label>
+            </div>
             
-            <label asp-for="AvatarUrl"></label>
-            <input asp-for="AvatarUrl" value="https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2558760599.jpg" />
+            <div class="input-group">
+                <input asp-for="AvatarUrl" placeholder=" " value="https://www.shutterstock.com/image-vector/user-profile-icon-vector-avatar-600nw-2558760599.jpg" />
+                <label asp-for="AvatarUrl"></label>
+            </div>
             
-            <label asp-for="Bio"></label>
-            <textarea asp-for="Bio" rows="3"></textarea>
+            <div class="input-group">
+                <textarea asp-for="Bio" rows="3" placeholder=" "></textarea>
+                <label asp-for="Bio"></label>
+            </div>
 
             <button type="submit" class="btn-submit">Sign Up</button>
         </form>
@@ -65,5 +84,8 @@
             Already have an account? <a href="/Login/Login">Login here</a>
         </p>
     </div>
+
+    <script src="/js/common.js"></script>
+    <script src="/js/signup.js"></script>
 </body>
 </html>

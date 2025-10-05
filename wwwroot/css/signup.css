@@ -182,7 +182,6 @@ input#toggle {
   align-items: center;
 }
 
-
 .signup-container form {
   width: 100%;
   display: flex;
@@ -193,34 +192,82 @@ input#toggle {
 .signup-title {
   text-align: center;
   font-size: 28px;
-  font-weight: bold;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--head-font);
   margin-bottom: 20px;
-  color: #333;
 }
 
-.signup-container label {
-  font-size: 14px;
-  color: var(--sub-font);
-  margin-bottom: -10px;
+.input-group {
+  position: relative;
+  width: 100%;
+  background: var(--highlight);
 }
 
-.signup-container input,
-.signup-container select,
-.signup-container textarea {
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 12px 0;
   border: none;
   border-bottom: 2px solid var(--sub-font);
   background: transparent;
-  padding: 8px 4px;
   font-size: 16px;
   color: var(--head-font);
   outline: none;
-  transition: border-color 0.3s;
+  transition: 0.3s;
 }
 
-.signup-container input:focus,
-.signup-container select:focus,
-.signup-container textarea:focus {
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
   border-bottom-color: var(--border);
+}
+
+.input-group label {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  color: var(--head-font);
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.3s ease;
+}
+
+@keyframes floatLabel {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.input-group input:focus ~ label,
+.input-group input:not(:placeholder-shown) ~ label,
+.input-group textarea:focus ~ label,
+.input-group textarea:not(:placeholder-shown) ~ label {
+  top: -8px;
+  left: 0;
+  font-size: 13px;
+  color: var(--border);
+  background: var(--highlight);
+  padding: 0 4px;
+  border-radius: 4px;
+  animation: floatLabel 2s ease-in-out infinite;
+}
+
+.input-group select ~ label,
+.input-group input[type="date"] ~ label,
+.input-group input[value]:not([value=""]) ~ label {
+  top: -8px;
+  left: 0;
+  font-size: 13px;
+  color: var(--border);
+  background: var(--highlight);
+  padding: 0 4px;
+  border-radius: 4px;
+  animation: floatLabel 2s ease-in-out infinite;
 }
 
 .btn-submit {
@@ -232,6 +279,7 @@ input#toggle {
   border: 2px solid var(--border);
   border-radius: 30px;
   padding: 14px;
+  margin-top: 6px;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -241,117 +289,202 @@ input#toggle {
   background: var(--border);
 }
 
-.signup-container p {
-  text-align: center;
-  font-size: 14px;
-  color: var(--sub-font);
-  margin-top: 10px;
+html.dark .btn-submit:hover {
+  color: var(--highlight);
+  background: var(--border);
 }
 
-.signup-container p a {
-  color: var(--border);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.signup-container p a:hover {
-  text-decoration: underline;
-}
-
-/* หัวข้อ Sign Up แยกออกมา */
-.signup-title {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--head-font);
-  margin-bottom: 20px;
-}
-
-/* ลิงก์ Sign in */
 .signin-text {
   text-align: center;
-  font-size: 14px;
-  margin-top: 15px;
+  font-size: 16px;
+  font-style: italic;
   color: var(--sub-font);
+  margin-top: 15px;
 }
 
 .signin-text a {
+  font-size: 17px;
+  font-weight: 700;
   color: var(--border);
-  font-weight: 600;
   text-decoration: none;
+  transition: 0.2s;
+  cursor: pointer;
 }
 
 .signin-text a:hover {
   text-decoration: underline;
 }
 
-
 /* =======================
    Responsive Sign Up Card
 ======================= */
-@media (max-width: 768px) {
-  body {
-    padding: 20px;
-    justify-content: flex-start;
-  }
-
-  .signup-card {
-    width: 100%;
-    max-width: 100%;
-    padding: 30px 20px;
-    border-radius: 12px;
-    box-shadow: none;
-    margin-top: 80px;
-  }
-
-  .signup-card h2 {
-    font-size: 28px;
-  }
-
-  .input-group input,
-  .input-group select {
-    font-size: 15px;
-    padding: 10px 0;
-  }
-
-  .input-group label {
-    font-size: 13px;
-  }
-
-  .input-group i {
-    font-size: 18px;
-    right: 8px;
-  }
-
-  .terms {
-    font-size: 13px;
-  }
-
-  .btn-signup {
-    font-size: 15px;
-    padding: 12px;
-  }
-
-  .signup-card p {
-    font-size: 14px;
-    margin-top: 15px;
-  }
-
-  .signup-card p a {
-    font-size: 15px;
-  }
-
+@media (max-width: 1024px) and (min-width: 769px) {
   .navbar {
-    padding: 0 20px;
+    height: 65px;
+    padding: 0 30px;
   }
 
   .logo img {
-    height: 70px;
+    height: 90px;
+  }
+
+  .menu {
+    gap: 35px;
+  }
+
+  .menu h2 {
+    font-size: 15px;
+  }
+
+  .toggle {
+    width: 85px;
+    height: 42px;
+  }
+
+  .toggle i {
+    line-height: 42px;
+    font-size: 19px;
+  }
+
+  .toggle .ball {
+    width: 28px;
+    height: 28px;
+    margin: 7px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(43px);
+  }
+
+  .signup-container {
+    max-width: 400px;
+    padding: 36px 32px;
+  }
+
+  .signup-title {
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+
+  .signup-container form {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 80px 20px 40px 20px;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .navbar {
+    height: 55px;
+    padding: 0 15px;
+  }
+
+  .logo img {
+    height: 75px;
+  }
+
+  .menu {
+    gap: 25px;
+  }
+
+  .menu h2 {
+    font-size: 14px;
+  }
+
+  .toggle {
+    width: 75px;
+    height: 38px;
+    top: 8px;
+    right: 8px;
+  }
+
+  .toggle i {
+    font-size: 18px;
+    line-height: 38px;
+  }
+
+  .toggle .ball {
+    width: 26px;
+    height: 26px;
+    margin: 6px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(37px);
+  }
+
+  .signup-container {
+    max-width: 100%;
+    width: 100%;
+    padding: 32px 28px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .signup-title {
+    font-size: 24px;
+    margin-bottom: 18px;
+  }
+
+  .signup-container form {
+    gap: 16px;
+  }
+
+  .signup-container label {
+    font-size: 13px;
+    margin-bottom: -8px;
+  }
+
+  .signup-container input,
+  .signup-container select,
+  .signup-container textarea {
+    padding: 8px 4px;
+    font-size: 15px;
+  }
+
+  .btn-submit {
+    padding: 13px;
+    font-size: 15px;
+  }
+
+  .signup-container p,
+  .signin-text {
+    font-size: 13px;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 70px 16px 30px 16px;
+  }
+
+  .navbar {
+    height: 50px;
+    padding: 0 12px;
+  }
+
+  .logo img {
+    height: 65px;
+  }
+
+  .menu {
+    gap: 18px;
+  }
+
+  .menu h2 {
+    font-size: 13px;
   }
 
   .toggle {
     width: 70px;
     height: 35px;
+    top: 7px;
+    right: 7px;
   }
 
   .toggle i {
@@ -360,12 +493,220 @@ input#toggle {
   }
 
   .toggle .ball {
-    width: 20px;
-    height: 20px;
-    margin: 7.5px 0 0 5px;
+    width: 24px;
+    height: 24px;
+    margin: 5.5px;
   }
 
   html.dark .toggle .ball {
-    transform: translateX(30px);
+    transform: translateX(35px);
+  }
+
+  .signup-container {
+    padding: 28px 24px;
+    border-radius: 14px;
+    border-width: 1.5px;
+  }
+
+  .signup-title {
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .signup-container form {
+    gap: 14px;
+  }
+
+  .signup-container label {
+    font-size: 12px;
+    margin-bottom: -8px;
+  }
+
+  .signup-container input,
+  .signup-container select,
+  .signup-container textarea {
+    padding: 7px 3px;
+    font-size: 14px;
+    border-bottom-width: 1.5px;
+  }
+
+  .btn-submit {
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 25px;
+  }
+
+  .signup-container p,
+  .signin-text {
+    font-size: 12px;
+    margin-top: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  body {
+    padding: 65px 12px 25px 12px;
+  }
+
+  .navbar {
+    height: 48px;
+  }
+
+  .logo img {
+    height: 60px;
+  }
+
+  .menu {
+    gap: 14px;
+  }
+
+  .menu h2 {
+    font-size: 12px;
+  }
+
+  .toggle {
+    width: 65px;
+    height: 32px;
+    top: 8px;
+    right: 8px;
+  }
+
+  .toggle i {
+    font-size: 15px;
+    line-height: 32px;
+  }
+
+  .toggle .ball {
+    width: 22px;
+    height: 22px;
+    margin: 5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(33px);
+  }
+
+  .signup-container {
+    padding: 24px 20px;
+    border-radius: 12px;
+  }
+
+  .signup-title {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .signup-container form {
+    gap: 12px;
+  }
+
+  .signup-container label {
+    font-size: 11px;
+  }
+
+  .signup-container input,
+  .signup-container select,
+  .signup-container textarea {
+    padding: 6px 3px;
+    font-size: 13px;
+  }
+
+  .btn-submit {
+    padding: 11px;
+    font-size: 13px;
+  }
+
+  .signup-container p,
+  .signin-text {
+    font-size: 11px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    padding: 60px 20px 20px 20px;
+  }
+
+  .navbar {
+    height: 45px;
+  }
+
+  .logo img {
+    height: 58px;
+  }
+
+  .menu {
+    gap: 20px;
+  }
+
+  .menu h2 {
+    font-size: 13px;
+  }
+
+  .toggle {
+    top: 5px;
+    right: 5px;
+  }
+
+  .signup-container {
+    max-width: 450px;
+    padding: 24px 28px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .signup-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .signup-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .signup-container::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .signup-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .signup-container form {
+    gap: 12px;
+  }
+
+  .signup-container label {
+    font-size: 12px;
+    margin-bottom: -6px;
+  }
+
+  .signup-container input,
+  .signup-container select,
+  .signup-container textarea {
+    padding: 6px 3px;
+    font-size: 13px;
+  }
+
+  .btn-submit {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .signup-container p,
+  .signin-text {
+    font-size: 11px;
+    margin-top: 8px;
+  }
+}
+
+html.dark .signup-container {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  html.dark .signup-container {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   }
 }
