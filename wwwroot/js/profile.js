@@ -1,3 +1,77 @@
+// ==================== TOAST NOTIFICATION SYSTEM ====================
+class ToastNotification {
+  constructor() {
+    this.container = null;
+    this.init();
+  }
+
+  init() {
+    if (!document.querySelector('.toast-container')) {
+      this.container = document.createElement('div');
+      this.container.className = 'toast-container';
+      document.body.appendChild(this.container);
+    } else {
+      this.container = document.querySelector('.toast-container');
+    }
+  }
+
+  show(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+
+    const icons = {
+      success: '<i class="fa-solid fa-circle-check"></i>',
+      error: '<i class="fa-solid fa-circle-xmark"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
+      info: '<i class="fa-solid fa-circle-info"></i>'
+    };
+
+    const titles = {
+      success: 'สำเร็จ',
+      error: 'ข้อผิดพลาด',
+      warning: 'คำเตือน',
+      info: 'แจ้งเตือน'
+    };
+
+    toast.innerHTML = `
+      <div class="toast-icon">${icons[type]}</div>
+      <div class="toast-content">
+        <div class="toast-title">${titles[type]}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    `;
+
+    this.container.appendChild(toast);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => this.remove(toast));
+
+    if (duration > 0) {
+      setTimeout(() => this.remove(toast), duration);
+    }
+
+    return toast;
+  }
+
+  remove(toast) {
+    toast.classList.add('removing');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }
+
+  success(message, duration) { return this.show(message, 'success', duration); }
+  error(message, duration) { return this.show(message, 'error', duration); }
+  warning(message, duration) { return this.show(message, 'warning', duration); }
+  info(message, duration) { return this.show(message, 'info', duration); }
+}
+
+const showToast = new ToastNotification();
+
+// ==================== PROFILE PAGE SCRIPT ====================
 document.addEventListener("DOMContentLoaded", async () => {
     const SERVER_URL = "http://localhost:3000";
     const TIMEZONE = "Asia/Bangkok";
@@ -194,7 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             followingCount.textContent = data.following;
         } catch (err) {
             console.error(err);
-            alert("เกิดข้อผิดพลาดในการโหลดโปรไฟล์");
+            showToast.error("เกิดข้อผิดพลาดในการโหลดโปรไฟล์");
         }
     };
 
@@ -208,18 +282,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         usernameInput.value = profileUsername.textContent;
         bioInput.value = profileBio.textContent;
     });
-
-    function showToast(message, duration = 3000) {
-        const toast = document.getElementById("toast");
-        toast.textContent = message;
-        toast.classList.add("show");
-        toast.classList.remove("hidden");
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-            toast.classList.add("hidden");
-        }, duration);
-    }
     
     cancelBtn?.addEventListener("click", (e) => { e.preventDefault(); editModal.classList.remove("show"); });
     editModal?.addEventListener("click", e => { if(e.target===editModal) editModal.classList.remove("show"); });
@@ -233,7 +295,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const lastName = document.getElementById("last-name").value.trim();
 
         if (!firstName || !lastName) {
-            alert("กรุณากรอกชื่อและนามสกุล");
+            showToast.warning("กรุณากรอกชื่อและนามสกุล");
             return;
         }
 
@@ -255,11 +317,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             profileUsername.textContent = data.username;
             profileBio.textContent = data.bio;
             profilePic.src = data.avatar;
-            showToast("บันทึกข้อมูลเรียบร้อยแล้ว");
+            showToast.success("บันทึกข้อมูลเรียบร้อยแล้ว");
             editModal.classList.remove("show"); 
         } catch (err) {
             console.error(err);
-            alert("เกิดข้อผิดพลาด: " + err.message);
+            showToast.error("เกิดข้อผิดพลาด: " + err.message);
         }
     });
 
@@ -276,9 +338,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             followBtn.textContent = data.isFollowing?"Unfollow":"Follow";
             followBtn.classList.toggle("following", data.isFollowing);
             followersCount.textContent = data.followers;
+            showToast.success(data.isFollowing ? "ติดตามสำเร็จ" : "เลิกติดตามสำเร็จ");
         } catch(err){
             console.error(err);
-            alert("เกิดข้อผิดพลาด: "+err.message);
+            showToast.error("เกิดข้อผิดพลาด: "+err.message); 
         }
     });
 
@@ -414,11 +477,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     if (!res.ok) throw new Error("ไม่สามารถลบโพสต์ได้");
 
-                    showToast("ลบโพสต์เรียบร้อยแล้ว");
+                    showToast.success("ลบโพสต์เรียบร้อยแล้ว"); 
                     loadYourPosts();
                 } catch (err) {
                     console.error(err);
-                    alert("เกิดข้อผิดพลาด: " + err.message);
+                    showToast.error("เกิดข้อผิดพลาด: " + err.message);
                 }
             });
 
@@ -510,30 +573,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 if (!confirmed) return;
 
-                try {
-                    const session = await getSessionData();  // ตรวจสอบข้อมูล session ของผู้ใช้
+                 try {
+                    const session = await getSessionData();
                     if (!session) {
-                        alert("กรุณาเข้าสู่ระบบ");
+                        showToast.info("กรุณาเข้าสู่ระบบ"); // ✅ แก้ไข
                         return;
                     }
 
-                    // เรียกใช้งาน action Unjoin จาก controller
-                    const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {  // แก้ไข URL ให้ถูกต้องตาม controller action
-                        method: "POST",  // ใช้ POST ตามที่คุณกำหนดใน controller
+                    const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {
+                        method: "POST",
                         credentials: "same-origin",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ userId: session.userId })  // ส่งข้อมูล userId ไปใน body
+                        body: JSON.stringify({ userId: session.userId })
                     });
 
                     if (!res.ok) throw new Error("ไม่สามารถออกจากกิจกรรมได้");
 
-                    showToast("ออกจากกิจกรรมเรียบร้อยแล้ว");
-
-                    loadHistory();  // รีเฟรชประวัติการเข้าร่วม
+                    showToast.success("ออกจากกิจกรรมเรียบร้อยแล้ว");
+                    loadHistory();
 
                 } catch (err) {
                     console.error(err);
-                    alert("เกิดข้อผิดพลาด: " + err.message);
+                    showToast.error("เกิดข้อผิดพลาด: " + err.message);
                 }
             });
         });
