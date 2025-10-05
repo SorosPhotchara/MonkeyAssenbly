@@ -1,44 +1,74 @@
+const TIMEZONE = "Asia/Bangkok";
+
 // ==================== PROFILE POPUP SYSTEM START ====================
 function showProfilePopup(userId) {
   const overlay = document.getElementById("profile-popup-overlay");
   const avatar = document.getElementById("profile-popup-avatar");
   const fullname = document.getElementById("profile-popup-fullname");
   const username = document.getElementById("profile-popup-username");
-  const followBtn = document.getElementById("profile-popup-follow-btn");
-  overlay.style.display = "flex";
-  avatar.src = "/uploads/default-avatar.png";
-  fullname.textContent = "Loading...";
-  username.textContent = "";
-  followBtn.style.display = "none";
-  followBtn.disabled = true;
+const followBtn = document.getElementById("profile-popup-follow-btn");
+overlay.style.display = "flex";
+avatar.src = "/uploads/default-avatar.png";
+fullname.textContent = "Loading...";
+username.textContent = "";
+followBtn.style.display = "none";
+followBtn.disabled = true;
 
-  fetch(`/Profile/GetUserProfile?userId=${userId}`)
-    .then(res => res.json())
-    .then(data => {
-      avatar.src = data.avatar || "/uploads/default-avatar.png";
-      fullname.textContent = `${data.firstName} ${data.lastName}`;
-      username.textContent = data.username ? `@${data.username}` : "";
-      followBtn.style.display = (data.isSelf ? "none" : "inline-block");
-      followBtn.disabled = false;
-      followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
-      followBtn.classList.toggle("unfollow", !!data.isFollowing);
-      followBtn.onclick = async () => {
-        followBtn.disabled = true;
-        const action = data.isFollowing ? "Unfollow" : "Follow";
-        const res = await fetch(`/Profile/${action}?userId=${userId}`, { method: "POST" });
+fetch(`/Profile/GetUserProfile?userId=${userId}`)
+  .then(res => res.json())
+  .then(data => {
+    avatar.src = data.avatar || "/uploads/default-avatar.png";
+    fullname.textContent = `${data.firstName} ${data.lastName}`;
+    username.textContent = data.username ? `@${data.username}` : "";
+    followBtn.style.display = (data.isSelf ? "none" : "inline-block");
+    followBtn.disabled = false;
+    followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+    followBtn.classList.toggle("unfollow", !!data.isFollowing);
+    
+    followBtn.onclick = async () => {
+      followBtn.disabled = true;
+      
+      try {
+        let res;
+        if (data.isFollowing) {
+          // Unfollow
+          res = await fetch(`/Post/UnfollowUser`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followingId: userId })
+          });
+        } else {
+          // Follow
+          res = await fetch(`/Post/FollowUser`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followingId: userId })
+          });
+        }
+        
+        const result = await res.json();
+        
         if (res.ok) {
           data.isFollowing = !data.isFollowing;
           followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
           followBtn.classList.toggle("unfollow", !!data.isFollowing);
+          showToast.success(result.message || (data.isFollowing ? 'ติดตามสำเร็จ' : 'เลิกติดตามสำเร็จ'));
+        } else {
+          showToast.error(result.message || 'เกิดข้อผิดพลาด');
         }
-        followBtn.disabled = false;
-      };
-    })
-    .catch(() => {
-      fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
-      username.textContent = "";
-      followBtn.style.display = "none";
-    });
+      } catch (error) {
+        console.error('Error:', error);
+        showToast.error('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      }
+      
+      followBtn.disabled = false;
+    };
+  })
+  .catch(() => {
+    fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
+    username.textContent = "";
+    followBtn.style.display = "none";
+  });
 }
 document.getElementById("close-profile-popup").onclick = () => {
   document.getElementById("profile-popup-overlay").style.display = "none";
@@ -46,7 +76,7 @@ document.getElementById("close-profile-popup").onclick = () => {
 document.getElementById("profile-popup-overlay").addEventListener("click", e => {
   if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
 });
-// ==================== PROFILE POPUP SYSTEM END ====================
+
 // ==================== TOAST NOTIFICATION SYSTEM START ====================
 class ToastNotification {
   constructor() {
@@ -119,10 +149,9 @@ class ToastNotification {
 }
 
 const showToast = new ToastNotification();
-// ==================== TOAST NOTIFICATION SYSTEM END ====================
 
+// ==================== MAIN APPLICATION LOGIC START ====================
 document.addEventListener("DOMContentLoaded", async () => {
-  const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
   const createEventModal = document.getElementById("createEventModal");
   const closeModalBtn = document.querySelector(".close-btn");
@@ -134,7 +163,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentUserId = data.userId || null;
   let isLoggedIn = data.isLoggedIn || false;
   let currentUserName = data.isLoggedIn ? `${data.firstName} ${data.lastName}` : "";
-  
+
+  // Global serverNow for time calculations
+  let serverNow = null;
+  let serverNowClientReceived = null;
+
+  // Helper to sync serverNow with client time
+  function setServerNowFromEvents(events) {
+    if (Array.isArray(events) && events.length > 0 && events[0].serverNow) {
+      serverNow = new Date(events[0].serverNow.replace(/ /, 'T'));
+      serverNowClientReceived = new Date();
+    } else {
+      serverNow = null;
+      serverNowClientReceived = null;
+    }
+  }
+
   console.log("Login Status:", isLoggedIn ? "Logged in" : "Not logged in");
   console.log("User ID:", currentUserId, "Name:", currentUserName);
   // ==================== เช็ค LOGIN จาก SESSION END ====================
@@ -151,7 +195,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     sunIcon.className = isDark?"bx bx-sun":"bx bxs-sun";
     moonIcon.className = isDark?"bx bx-moon":"bx bxs-moon";
   });
-
+  function parseDateTimeWithTZ(dateStr, tz = "Asia/Bangkok") {
+  // dateStr: "2025-10-05 16:57:16.9928226"
+    if (!dateStr) return new Date();
+    const [date, time] = dateStr.split(" ");
+    if (!time) return new Date(date);
+    // +07:00 สำหรับเวลาไทย
+    return new Date(`${date}T${time}+07:00`);
+  }
   // ---------------- Sidebar Tabs ----------------
   document.querySelectorAll(".menu h2").forEach(item => {
     item.addEventListener("click", async () => {
@@ -169,7 +220,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
           const res = await fetch(`/Post/GetFollowedPosts/${currentUserId}`);
           if (!res.ok) throw new Error("โหลดโพสไม่สำเร็จ");
-          cachedEvents = await res.json();
+          let data = await res.json();
+          // Support both array and { posts: [...], serverNow: ... }
+          if (Array.isArray(data)) {
+            cachedEvents = data;
+          } else if (data && Array.isArray(data.posts)) {
+            cachedEvents = data.posts;
+            // Attach serverNow to each post for time calculation
+            if (data.serverNow) {
+              cachedEvents.forEach(post => post.serverNow = data.serverNow);
+            }
+          } else {
+            cachedEvents = [];
+          }
+          console.log('DEBUG: cachedEvents', cachedEvents);
+          setServerNowFromEvents(cachedEvents);
           renderEventsCache();
         } catch (e) {
           followFeed.innerHTML = "<p style='padding:2rem;color:red;'>เกิดข้อผิดพลาด</p>";
@@ -261,7 +326,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         res = await fetch(`/Post/GetAllPost`);
       }
       if (!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
-      cachedEvents = await res.json();
+      let data = await res.json();
+      // Support both array and { posts: [...], serverNow: ... }
+      if (Array.isArray(data)) {
+        cachedEvents = data;
+      } else if (data && Array.isArray(data.posts)) {
+        cachedEvents = data.posts;
+        // Attach serverNow to each post for time calculation
+        if (data.serverNow) {
+          cachedEvents.forEach(post => post.serverNow = data.serverNow);
+        }
+      } else {
+        cachedEvents = [];
+      }
+      console.log('DEBUG: cachedEvents', cachedEvents);
+      setServerNowFromEvents(cachedEvents);
       renderEventsCache();
     } catch(err){
       console.error("Error fetching events:", err);
@@ -348,6 +427,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     const avatarHTML = `<img src="${eventData.avatar}" alt="avatar" class="avatar">`;
     const isJoined = isUserJoined(eventData.participants);
 
+    // ใช้ฟังก์ชันนี้แทนของเดิม
+    function getTimeSinceCreated(createdAtStr) {
+      if (!createdAtStr) return "-";
+      const created = parseDateTimeWithTZ(createdAtStr, TIMEZONE);
+      let now;
+      if (serverNow && serverNowClientReceived) {
+        const elapsed = new Date() - serverNowClientReceived;
+        now = new Date(serverNow.getTime() + elapsed);
+      } else {
+        now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
+      }
+      const diffMs = now - created;
+      if (diffMs < 60000) return "เมื่อกี้นี้";
+      const diffMin = Math.floor(diffMs/60000);
+      if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
+      const diffHr = Math.floor(diffMin/60);
+      if (diffHr < 24) return `${diffHr} ชั่วโมงที่แล้ว`;
+      const diffDay = Math.floor(diffHr/24);
+      return `${diffDay} วันที่แล้ว`;
+    }
+    const createdText = getTimeSinceCreated(eventData.createdAt);
+
+    // ...existing code...
     card.innerHTML = `
       <div class="event-header">
         <div class="host-info">
@@ -614,7 +716,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("popup-comment-input").value = "";
   });
 
-  // ==================== POPUP & COMMENT SYSTEM END ====================
+// ====== Notification Dot ======
+const notifyDot = document.querySelector('.notify-dot');
+const notifyLink = document.querySelector('.notify-link');
+
+async function checkNotification() {
+  if (!notifyDot || !isLoggedIn) return;
+  try {
+    const res = await fetch("/Notify/Latest");
+    const notifications = await res.json();
+    if (notifications.length === 0) {
+      notifyDot.style.display = "none";
+      return;
+    }
+    // notification ใหม่สุดอยู่ index 0
+    const latestId = notifications[0].notification_id;
+    const lastReadId = Number(sessionStorage.getItem("lastReadNotificationId") || 0);
+
+    if (latestId > lastReadId) {
+      notifyDot.style.display = "block";
+    } else {
+      notifyDot.style.display = "none";
+    }
+  } catch (e) {
+    notifyDot.style.display = "none";
+  }
+}
+
+if (notifyLink) {
+  notifyLink.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/Notify/Latest");
+      const notifications = await res.json();
+      if (notifications.length > 0) {
+        sessionStorage.setItem("lastReadNotificationId", notifications[0].notification_id);
+      }
+      notifyDot.style.display = "none";
+    } catch (e) {}
+  });
+}
+
+setInterval(checkNotification, 5000);
+checkNotification();
 
   // ---------------- Initial Load ----------------
   loadEventsByTag(tagQuery);
