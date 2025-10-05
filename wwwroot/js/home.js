@@ -46,7 +46,7 @@ document.getElementById("close-profile-popup").onclick = () => {
 document.getElementById("profile-popup-overlay").addEventListener("click", e => {
   if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
 });
-// ==================== PROFILE POPUP SYSTEM END ====================
+
 // ==================== TOAST NOTIFICATION SYSTEM START ====================
 class ToastNotification {
   constructor() {
@@ -119,8 +119,8 @@ class ToastNotification {
 }
 
 const showToast = new ToastNotification();
-// ==================== TOAST NOTIFICATION SYSTEM END ====================
 
+// ==================== MAIN APPLICATION LOGIC START ====================
 document.addEventListener("DOMContentLoaded", async () => {
   const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
