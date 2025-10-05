@@ -50,14 +50,13 @@ fetch(`/Profile/GetUserProfile?userId=${userId}`)
           data.isFollowing = !data.isFollowing;
           followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
           followBtn.classList.toggle("unfollow", !!data.isFollowing);
-          // แสดงข้อความสำเร็จ (optional)
-          console.log(result.message);
+          showToast.success(result.message || (data.isFollowing ? 'ติดตามสำเร็จ' : 'เลิกติดตามสำเร็จ'));
         } else {
-          alert(result.message || 'เกิดข้อผิดพลาด');
+          showToast.error(result.message || 'เกิดข้อผิดพลาด');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+        showToast.error('เกิดข้อผิดพลาดในการเชื่อมต่อ');
       }
       
       followBtn.disabled = false;
