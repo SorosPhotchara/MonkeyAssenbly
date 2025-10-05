@@ -182,7 +182,6 @@ input#toggle {
   align-items: center;
 }
 
-
 .signup-container form {
   width: 100%;
   display: flex;
@@ -193,34 +192,85 @@ input#toggle {
 .signup-title {
   text-align: center;
   font-size: 28px;
-  font-weight: bold;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--head-font);
   margin-bottom: 20px;
-  color: #333;
 }
 
-.signup-container label {
-  font-size: 14px;
-  color: var(--sub-font);
-  margin-bottom: -10px;
+/* Input Group - Same structure as Login */
+.input-group {
+  position: relative;
+  width: 100%;
+  background: var(--highlight);
 }
 
-.signup-container input,
-.signup-container select,
-.signup-container textarea {
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 12px 0;
   border: none;
   border-bottom: 2px solid var(--sub-font);
   background: transparent;
-  padding: 8px 4px;
   font-size: 16px;
   color: var(--head-font);
   outline: none;
-  transition: border-color 0.3s;
+  transition: 0.3s;
 }
 
-.signup-container input:focus,
-.signup-container select:focus,
-.signup-container textarea:focus {
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
   border-bottom-color: var(--border);
+}
+
+.input-group label {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  color: var(--head-font);
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.3s ease;
+}
+
+/* Keyframe Animation - Same as Login */
+@keyframes floatLabel {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.input-group input:focus ~ label,
+.input-group input:not(:placeholder-shown) ~ label,
+.input-group textarea:focus ~ label,
+.input-group textarea:not(:placeholder-shown) ~ label {
+  top: -8px;
+  left: 0;
+  font-size: 13px;
+  color: var(--border);
+  background: var(--highlight);
+  padding: 0 4px;
+  border-radius: 4px;
+  animation: floatLabel 2s ease-in-out infinite;
+}
+
+/* Special handling for select, date, and inputs with default values */
+.input-group select ~ label,
+.input-group input[type="date"] ~ label,
+.input-group input[value]:not([value=""]) ~ label {
+  top: -8px;
+  left: 0;
+  font-size: 13px;
+  color: var(--border);
+  background: var(--highlight);
+  padding: 0 4px;
+  border-radius: 4px;
+  animation: floatLabel 2s ease-in-out infinite;
 }
 
 .btn-submit {
@@ -232,6 +282,7 @@ input#toggle {
   border: 2px solid var(--border);
   border-radius: 30px;
   padding: 14px;
+  margin-top: 6px;
   cursor: pointer;
   transition: 0.3s;
 }
@@ -241,44 +292,27 @@ input#toggle {
   background: var(--border);
 }
 
-.signup-container p {
-  text-align: center;
-  font-size: 14px;
-  color: var(--sub-font);
-  margin-top: 10px;
-}
-
-.signup-container p a {
-  color: var(--border);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.signup-container p a:hover {
-  text-decoration: underline;
-}
-
-/* หัวข้อ Sign Up แยกออกมา */
-.signup-title {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--head-font);
-  margin-bottom: 20px;
+html.dark .btn-submit:hover {
+  color: var(--highlight);
+  background: var(--border);
 }
 
 /* ลิงก์ Sign in */
 .signin-text {
   text-align: center;
-  font-size: 14px;
-  margin-top: 15px;
+  font-size: 16px;
+  font-style: italic;
   color: var(--sub-font);
+  margin-top: 15px;
 }
 
 .signin-text a {
+  font-size: 17px;
+  font-weight: 700;
   color: var(--border);
-  font-weight: 600;
   text-decoration: none;
+  transition: 0.2s;
+  cursor: pointer;
 }
 
 .signin-text a:hover {
@@ -289,83 +323,482 @@ input#toggle {
 /* =======================
    Responsive Sign Up Card
 ======================= */
-@media (max-width: 768px) {
-  body {
-    padding: 20px;
-    justify-content: flex-start;
+@media (max-width: 1024px) and (min-width: 769px) {
+  .navbar {
+    height: 65px;
+    padding: 0 30px;
   }
 
-  .signup-card {
-    width: 100%;
-    max-width: 100%;
-    padding: 30px 20px;
-    border-radius: 12px;
-    box-shadow: none;
-    margin-top: 80px;
+  .logo img {
+    height: 90px;
   }
 
-  .signup-card h2 {
-    font-size: 28px;
+  .menu {
+    gap: 35px;
+  }
+
+  .menu h2 {
+    font-size: 15px;
+  }
+
+  .toggle {
+    width: 85px;
+    height: 42px;
+  }
+
+  .toggle i {
+    line-height: 42px;
+    font-size: 19px;
+  }
+
+  .toggle .ball {
+    width: 28px;
+    height: 28px;
+    margin: 7px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(43px);
+  }
+
+  .signup-container {
+    max-width: 400px;
+    padding: 36px 28px;
+  }
+
+  .signup-title {
+    font-size: 32px;
+    margin-bottom: 26px;
+  }
+
+  .input-group {
+    margin-bottom: 14px;
   }
 
   .input-group input,
-  .input-group select {
+  .input-group select,
+  .input-group textarea {
+    font-size: 15px;
+    padding: 11px 0;
+  }
+
+  .input-group label {
+    font-size: 13px;
+    top: 13px;
+  }
+
+  .btn-submit {
+    font-size: 15px;
+    padding: 13px;
+  }
+
+  .signin-text {
+    font-size: 15px;
+    margin-top: 18px;
+  }
+
+  .signin-text a {
+    font-size: 16px;
+  }
+}
+
+/* =======================
+   Responsive Mobile (481px - 768px)
+======================= */
+@media (max-width: 768px) {
+  body {
+    padding: 80px 20px 40px 20px;
+    justify-content: flex-start;
+  }
+
+  .navbar {
+    height: 60px;
+    padding: 0 20px;
+  }
+
+  .logo img {
+    height: 80px;
+  }
+
+  .menu {
+    gap: 30px;
+  }
+
+  .menu h2 {
+    font-size: 14px;
+  }
+
+  .toggle {
+    width: 75px;
+    height: 38px;
+    top: 11px;
+    right: 11px;
+  }
+
+  .toggle i {
+    line-height: 38px;
+    font-size: 18px;
+  }
+
+  .toggle .ball {
+    width: 25px;
+    height: 25px;
+    margin: 6.5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(37px);
+  }
+
+  .signup-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 32px 24px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .signup-title {
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+
+  .input-group {
+    margin-bottom: 14px;
+  }
+
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
     font-size: 15px;
     padding: 10px 0;
   }
 
   .input-group label {
     font-size: 13px;
+    top: 12px;
   }
 
-  .input-group i {
-    font-size: 18px;
-    right: 8px;
-  }
-
-  .terms {
-    font-size: 13px;
-  }
-
-  .btn-signup {
+  .btn-submit {
     font-size: 15px;
-    padding: 12px;
+    padding: 13px;
+    margin-top: 8px;
   }
 
-  .signup-card p {
+  .signin-text {
     font-size: 14px;
-    margin-top: 15px;
+    margin-top: 16px;
   }
 
-  .signup-card p a {
+  .signin-text a {
     font-size: 15px;
+  }
+
+  html.dark .signup-container {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* =======================
+   Responsive Mobile Small (≤480px)
+======================= */
+@media (max-width: 480px) {
+  body {
+    padding: 70px 16px 30px 16px;
   }
 
   .navbar {
-    padding: 0 20px;
+    height: 55px;
+    padding: 0 15px;
   }
 
   .logo img {
     height: 70px;
   }
 
+  .menu {
+    gap: 22px;
+  }
+
+  .menu h2 {
+    font-size: 13px;
+  }
+
   .toggle {
-    width: 70px;
-    height: 35px;
+    width: 65px;
+    height: 33px;
+    top: 11px;
+    right: 11px;
   }
 
   .toggle i {
     font-size: 16px;
-    line-height: 35px;
+    line-height: 33px;
+  }
+
+  .toggle .ball {
+    width: 22px;
+    height: 22px;
+    margin: 5.5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(32px);
+  }
+
+  .signup-container {
+    padding: 28px 20px;
+    border-radius: 14px;
+  }
+
+  .signup-title {
+    font-size: 26px;
+    margin-bottom: 22px;
+  }
+
+  .input-group {
+    margin-bottom: 13px;
+  }
+
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    font-size: 14px;
+    padding: 9px 0;
+    border-bottom-width: 1.5px;
+  }
+
+  .input-group label {
+    font-size: 12px;
+    top: 11px;
+  }
+
+  .btn-submit {
+    font-size: 14px;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 22px;
+  }
+
+  .signin-text {
+    font-size: 13px;
+    margin-top: 14px;
+  }
+
+  .signin-text a {
+    font-size: 14px;
+  }
+}
+
+/* =======================
+   Responsive Extra Small (≤360px)
+======================= */
+@media (max-width: 360px) {
+  body {
+    padding: 65px 12px 25px 12px;
+  }
+
+  .navbar {
+    height: 50px;
+    padding: 0 12px;
+  }
+
+  .logo img {
+    height: 65px;
+  }
+
+  .menu {
+    gap: 18px;
+  }
+
+  .menu h2 {
+    font-size: 12px;
+  }
+
+  .toggle {
+    width: 60px;
+    height: 30px;
+    top: 10px;
+    right: 10px;
+  }
+
+  .toggle i {
+    font-size: 15px;
+    line-height: 30px;
   }
 
   .toggle .ball {
     width: 20px;
     height: 20px;
-    margin: 7.5px 0 0 5px;
+    margin: 5px;
   }
 
   html.dark .toggle .ball {
     transform: translateX(30px);
+  }
+
+  .signup-container {
+    padding: 24px 18px;
+    border-radius: 12px;
+  }
+
+  .signup-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .input-group {
+    margin-bottom: 12px;
+  }
+
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  .input-group label {
+    font-size: 11px;
+    top: 10px;
+  }
+
+  .btn-submit {
+    font-size: 13px;
+    padding: 11px;
+    margin-top: 6px;
+    border-radius: 20px;
+  }
+
+  .signin-text {
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .signin-text a {
+    font-size: 13px;
+  }
+}
+
+/* =======================
+   Landscape Mobile
+======================= */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    padding: 60px 20px 20px 20px;
+  }
+
+  .navbar {
+    height: 50px;
+  }
+
+  .logo img {
+    height: 60px;
+  }
+
+  .menu {
+    gap: 25px;
+  }
+
+  .menu h2 {
+    font-size: 13px;
+  }
+
+  .toggle {
+    top: 8px;
+    right: 8px;
+    width: 65px;
+    height: 33px;
+  }
+
+  .toggle i {
+    font-size: 16px;
+    line-height: 33px;
+  }
+
+  .toggle .ball {
+    width: 22px;
+    height: 22px;
+    margin: 5.5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(32px);
+  }
+
+  .signup-container {
+    max-width: 450px;
+    padding: 20px 24px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .signup-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .signup-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .signup-container::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .signup-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .input-group {
+    margin-bottom: 10px;
+  }
+
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  .input-group label {
+    font-size: 11px;
+    top: 10px;
+  }
+
+  .btn-submit {
+    font-size: 13px;
+    padding: 10px;
+    margin-top: 6px;
+  }
+
+  .signin-text {
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  .signin-text a {
+    font-size: 13px;
+  }
+}
+
+@supports (padding: max(0px)) {
+  @media (max-width: 768px) {
+    body {
+      padding-bottom: max(40px, env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (max-width: 480px) {
+    body {
+      padding-bottom: max(30px, env(safe-area-inset-bottom));
+    }
+  }
+
+  @media (max-width: 360px) {
+    body {
+      padding-bottom: max(25px, env(safe-area-inset-bottom));
+    }
   }
 }

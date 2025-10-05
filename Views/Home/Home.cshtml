@@ -95,9 +95,51 @@
                 <input type="text" name="postTitile" placeholder="event name" required>
 
                 <div class="tag-container">
-                    <input type="text" id="tagInput" name="tagName" placeholder="tag">
-                    <div id="tagSuggestions" class="suggestions"></div>
+                    <select id="tagSelect" name="tagName" style="margin-bottom: 10px;">
+                        <option value="">เลือกแท็ก</option>
+                    </select>
                 </div>
+
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const tagSelect = document.getElementById('tagSelect');
+                    if (!tagSelect) return;
+
+                    // ล้าง option เดิม
+                    tagSelect.innerHTML = "";
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("GET", "/Post/GetAllTags", true);
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
+                                try {
+                                    const tags = JSON.parse(xhr.responseText);
+
+                                    // เพิ่ม option เริ่มต้น
+                                    const defaultOption = document.createElement("option");
+                                    defaultOption.value = "";
+                                    defaultOption.textContent = "เลือกแท็ก";
+                                    tagSelect.appendChild(defaultOption);
+
+                                    tags.forEach(tag => {
+                                        const option = document.createElement("option");
+                                        option.value = tag.tag_name;   // ส่งชื่อแท็กตามเดิม
+                                        option.textContent = tag.tag_name;
+                                        tagSelect.appendChild(option);
+                                    });
+                                } catch (e) {
+                                    console.error("Parse JSON error:", e);
+                                }
+                            } else {
+                                console.error("โหลด tag ไม่สำเร็จ", xhr.status, xhr.statusText);
+                            }
+                        }
+                    };
+                    xhr.send();
+                });
+                </script>
+
 
                 <div class="form-group-inline">
                     <div class="form-group-pair">

@@ -380,9 +380,10 @@ document.addEventListener("DOMContentLoaded", () => {
             followBtn.textContent = data.isFollowing?"Unfollow":"Follow";
             followBtn.classList.toggle("following", data.isFollowing);
             followersCount.textContent = data.followers;
+            showToast.success(data.isFollowing ? "ติดตามสำเร็จ" : "เลิกติดตามสำเร็จ");
         } catch(err){
             console.error(err);
-            alert("เกิดข้อผิดพลาด: "+err.message);
+            showToast.error("เกิดข้อผิดพลาด: "+err.message); 
         }
     });
 
@@ -519,7 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (!res.ok) throw new Error("ไม่สามารถลบโพสต์ได้");
 
-                    showToast.success("ลบโพสต์เรียบร้อยแล้ว");
+                    showToast.success.success("ลบโพสต์เรียบร้อยแล้ว"); 
                     loadYourPosts();
                 } catch (err) {
                     console.error(err);
@@ -623,8 +624,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {
                         method: "POST",
+                    const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {
+                        method: "POST",
                         credentials: "same-origin",
                         headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ userId: session.userId })
                         body: JSON.stringify({ userId: session.userId })
                     });
 
@@ -632,9 +636,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     showToast.success("ออกจากกิจกรรมเรียบร้อยแล้ว");
                     loadHistory();
+                    showToast.success("ออกจากกิจกรรมเรียบร้อยแล้ว");
+                    loadHistory();
 
                 } catch (err) {
                     console.error(err);
+                    showToast.error("เกิดข้อผิดพลาด: " + err.message);
                     showToast.error("เกิดข้อผิดพลาด: " + err.message);
                 }
             });

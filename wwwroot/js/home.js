@@ -714,6 +714,29 @@ if (notifyLink) {
     } catch (e) {}
   });
 }
+async function loadAllTagsToSelect(selectElementId = "tagSelect") {
+  try {
+    const res = await fetch("/Post/GetAllTags");
+    if (!res.ok) throw new Error("โหลด tag ไม่สำเร็จ");
+    const tags = await res.json();
+    const select = document.getElementById(selectElementId);
+    if (!select) return;
+    select.innerHTML = ""; // ล้าง option เดิม
+    tags.forEach(tag => {
+      const option = document.createElement("option");
+      option.value = tag.tag_id;
+      option.textContent = tag.tag_name;
+      select.appendChild(option);
+    });
+  } catch (e) {
+    showToast.error("ไม่สามารถโหลด tag ได้");
+  }
+}
+
+// เรียกใช้เมื่อ DOM โหลดเสร็จ
+document.addEventListener("DOMContentLoaded", () => {
+  loadAllTagsToSelect("tagSelect");
+});
 
 setInterval(checkNotification, 5000);
 checkNotification();

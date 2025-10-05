@@ -495,7 +495,6 @@ html.dark .sidebar a.add:hover i {
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   transition: 0.2s;
   position: relative;
-  text-align: left;
 }
 
 .post-body {
@@ -1176,11 +1175,285 @@ html.dark .confirm-icon i {
   display: none !important;
 }
 
+.notify-link {
+  position: relative;
+  display: inline-block;
+}
+.notify-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  background: red;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: none;
+  animation: notify-blink 1s infinite;
+}
+@keyframes notify-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* =======================
+   Toast Notification System
+======================= */
+.toast-container {
+  position: fixed;
+  top: 90px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+  pointer-events: none;
+}
+
+.toast-notification {
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 18px 22px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12),
+              0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 320px;
+  animation: toastSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-left: 4px solid;
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toast-notification:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+@keyframes toastSlideIn {
+  0% { 
+    opacity: 0; 
+    transform: translateX(100%) scale(0.8);
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  0% { 
+    opacity: 1; 
+    transform: translateX(0) scale(1);
+  }
+  100% { 
+    opacity: 0; 
+    transform: translateX(120%) scale(0.9);
+  }
+}
+
+.toast-notification.removing {
+  animation: toastSlideOut 0.3s ease-in forwards;
+}
+
+.toast-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--head-font);
+  margin-bottom: 4px;
+}
+
+.toast-message {
+  font-size: 14px;
+  color: var(--sub-font);
+  line-height: 1.5;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: var(--sub-font);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.toast-close:hover {
+  background: var(--highlight);
+  color: var(--head-font);
+}
+
+.toast-notification.success {
+  border-left-color: #10b981;
+}
+
+.toast-notification.success .toast-icon {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #059669;
+}
+
+.toast-notification.error {
+  border-left-color: #ef4444;
+}
+
+.toast-notification.error .toast-icon {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #dc2626;
+}
+
+.toast-notification.warning {
+  border-left-color: #f59e0b;
+}
+
+.toast-notification.warning .toast-icon {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #d97706;
+}
+
+.toast-notification.info {
+  border-left-color: #3b82f6;
+}
+
+.toast-notification.info .toast-icon {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #2563eb;
+}
+
+html.dark .toast-notification {
+  border: 1px solid var(--highlight);
+}
+
 /* =======================
    Responsive Sidebar  for Profile Page
    ======================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) and (min-width: 769px) {
+  .sidebar {
+    left: 15px;
+    padding: 18px 12px;
+    gap: 18px;
+  }
 
+  .sidebar a {
+    width: 55px;
+    height: 55px;
+  }
+
+  .sidebar a i {
+    font-size: 23px;
+  }
+
+  .sidebar a.add {
+    width: 58px;
+    height: 58px;
+  }
+
+  body {
+    padding-top: 75px;
+  }
+
+  .navbar {
+    height: 65px;
+    padding: 0 30px;
+  }
+
+  .logo img {
+    height: 90px;
+  }
+
+  .menu {
+    gap: 35px;
+  }
+
+  .menu h2 {
+    font-size: 15px;
+  }
+
+  .toggle {
+    width: 85px;
+    height: 42px;
+  }
+
+  .toggle i {
+    line-height: 42px;
+    font-size: 19px;
+  }
+
+  .toggle .ball {
+    width: 28px;
+    height: 28px;
+    margin: 7px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(43px);
+  }
+
+  .profile-container {
+    margin-top: clamp(15px, 6vh, 25px);
+    padding: 20px 15px;
+  }
+
+  .profile-card {
+    max-width: 550px;
+    padding: 22px;
+    min-height: 550px;
+    width: 100%
+  }
+
+  .profile-pic {
+    width: 100px;
+    height: 100px;
+  }
+
+  #profile-username {
+    font-size: 20px;
+  }
+
+  .toast-container {
+    top: 80px;
+    right: 15px;
+    max-width: 380px;
+  }
+
+  .toast-notification {
+    min-width: 300px;
+    padding: 16px 20px;
+  }
+
+  .toast {
+    bottom: 25px;
+  }
+}
+
+@media (max-width: 768px) {
   .hamburger,
   .hamburger-menu {
     display: none !important;
@@ -1195,7 +1468,8 @@ html.dark .confirm-icon i {
     transform: none;
     flex-direction: row;
     justify-content: space-around;
-    padding: 10px 0;
+    align-items: center;
+    padding: 10px 0 max(10px, env(safe-area-inset-bottom));
     border-radius: 20px 20px 0 0;
     border: 1px solid var(--highlight);
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
@@ -1209,26 +1483,52 @@ html.dark .confirm-icon i {
     border-radius: 12px;
   }
 
+  .sidebar a i {
+    font-size: 22px;
+  }
+
   .sidebar a.add {
     width: 60px;
     height: 60px;
     margin-top: -25px;
     border-radius: 50%;
     background: var(--highlight);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  body {
+    display: block;
+    padding: 0;
+    padding-top: 60px;
+  }
+
+  .navbar {
+    height: 55px;
+    padding: 0 15px;
   }
 
   .logo {
     font-size: 20px;
+    padding-left: 0;
   }
 
   .logo img {
     width: 75px;
     height: auto;
   }
-  
+
+  .menu {
+    gap: 25px;
+  }
+
+  .menu h2 {
+    font-size: 14px;
+  }
+
   .toggle {
-    margin-top: 10px;
+    margin-top: 0;
+    top: 12px;
+    right: 12px;
     width: 60px;
     height: 30px;
   }
