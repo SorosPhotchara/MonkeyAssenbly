@@ -426,17 +426,17 @@ document.querySelector(".update").addEventListener("click", async () => {
 
 
 document.querySelector(".leave").addEventListener("click", async () => {
-    if (!confirm("คุณต้องการยกเลิกกิจกรรมนี้หรือไม่?")) return;
-    
-    try {
-        await fetch(`${SERVER_URL}/api/activity/${activityId}/leave`, { method: "POST" });
-        showToast.success("ยกเลิกกิจกรรมเรียบร้อย");
-        setTimeout(() => {
-            window.location.href = window.ProfileUrl;
-        }, 1000);
-    } catch (err) {
-        showToast.error("ไม่สามารถยกเลิกได้");
-    }
+    // if (!confirm("คุณต้องการยกเลิกกิจกรรมนี้หรือไม่?")) return;
+    window.location.href = window.ProfileUrl;
+    // try {
+    //     await fetch(`${SERVER_URL}/api/activity/${activityId}/leave`, { method: "POST" });
+    //     showToast.success("ยกเลิกกิจกรรมเรียบร้อย");
+    //     setTimeout(() => {
+    //         window.location.href = window.ProfileUrl;
+    //     }, 1000);
+    // } catch (err) {
+    //     showToast.error("ไม่สามารถยกเลิกได้");
+    // }
 });
 
 document.querySelector(".end").addEventListener("click", async () => {
