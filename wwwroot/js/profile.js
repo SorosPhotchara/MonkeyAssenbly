@@ -1,4 +1,4 @@
-// ==================== TOAST NOTIFICATION SYSTEM ====================
+// ==================== TOAST NOTIFICATION SYSTEM START ====================
 class ToastNotification {
   constructor() {
     this.container = null;
@@ -71,8 +71,50 @@ class ToastNotification {
 
 const showToast = new ToastNotification();
 
-// ==================== PROFILE PAGE SCRIPT ====================
-document.addEventListener("DOMContentLoaded", async () => {
+// ==================== CUSTOM CONFIRM DIALOG ====================
+function showConfirm(message, title = "ยืนยันการดำเนินการ") {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("confirmModal");
+    const titleEl = document.getElementById("confirmTitle");
+    const messageEl = document.getElementById("confirmMessage");
+    const okBtn = modal.querySelector(".btn-confirm-ok");
+    const cancelBtn = modal.querySelector(".btn-confirm-cancel");
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    modal.classList.add("show");
+
+    const handleOk = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    const handleCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    const cleanup = () => {
+      modal.classList.remove("show");
+      okBtn.removeEventListener("click", handleOk);
+      cancelBtn.removeEventListener("click", handleCancel);
+      modal.removeEventListener("click", handleClickOutside);
+    };
+
+    const handleClickOutside = (e) => {
+      if (e.target === modal) handleCancel();
+    };
+
+    okBtn.addEventListener("click", handleOk);
+    cancelBtn.addEventListener("click", handleCancel);
+    modal.addEventListener("click", handleClickOutside);
+  });
+}
+
+
+// ==================== MAIN PROFILE JS ====================
+document.addEventListener("DOMContentLoaded", () => {
     const SERVER_URL = "http://localhost:3000";
     const TIMEZONE = "Asia/Bangkok";
     let currentUserId = localStorage.getItem("userId") || "";
@@ -468,7 +510,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     "คุณต้องการลบโพสต์นี้ใช่หรือไม่?",
                     "ยืนยันการลบ"
                 );
-                
+
                 if (!confirmed) return;
 
                 try {
@@ -558,7 +600,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 };
 
-
     function setupUnjoinButtons() {
         const unjoinBtns = document.querySelectorAll(".unjoin-btn");
 
@@ -566,7 +607,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             btn.addEventListener("click", async (e) => {
                 e.stopPropagation();
 
-                const postId = btn.dataset.postId;  // ดึง postId จาก dataset ของปุ่ม
+                const postId = btn.dataset.postId;
 
                 const confirmed = await showConfirm(
                     "คุณต้องการออกจากกิจกรรมนี้ใช่หรือไม่?",
@@ -575,13 +616,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 if (!confirmed) return;
 
-                 try {
+                try {
                     const session = await getSessionData();
                     if (!session) {
-                        showToast.info("กรุณาเข้าสู่ระบบ"); // ✅ แก้ไข
+                        showToast.error("กรุณาเข้าสู่ระบบ");
                         return;
                     }
 
+                   
                     const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {
                         method: "POST",
                         credentials: "same-origin",
@@ -593,9 +635,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                     showToast.success("ออกจากกิจกรรมเรียบร้อยแล้ว");
                     loadHistory();
+                    showToast.success("ออกจากกิจกรรมเรียบร้อยแล้ว");
+                    loadHistory();
 
                 } catch (err) {
                     console.error(err);
+                    showToast.error("เกิดข้อผิดพลาด: " + err.message);
                     showToast.error("เกิดข้อผิดพลาด: " + err.message);
                 }
             });

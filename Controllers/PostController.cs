@@ -28,17 +28,12 @@ namespace MonkeyAssenbly.Controllers
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-                using (var tzCmd = new NpgsqlCommand("SET TIME ZONE 'Asia/Bangkok';", connection))
-                {
-                    tzCmd.ExecuteNonQuery();
-                }
 
           var sql = @"
           SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
               p.post_time_open, p.post_time_close, 
               p.post_date_open, p.post_date_close,
               p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-              p.created_at,
               u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
           FROM ""PostTable"" p
           JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
@@ -71,8 +66,7 @@ namespace MonkeyAssenbly.Controllers
                         maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
-                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
-                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("yyyy-MM-dd HH:mm:ss")
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
                     });
                 }
             }
@@ -89,10 +83,6 @@ namespace MonkeyAssenbly.Controllers
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-                using (var tzCmd = new NpgsqlCommand("SET TIME ZONE 'Asia/Bangkok';", connection))
-                {
-                    tzCmd.ExecuteNonQuery();
-                }
 
                 var sql = @"
                 SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
@@ -149,10 +139,6 @@ namespace MonkeyAssenbly.Controllers
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-                using (var tzCmd = new NpgsqlCommand("SET TIME ZONE 'Asia/Bangkok';", connection))
-                {
-                    tzCmd.ExecuteNonQuery();
-                }
 
                 var sql = @"
                 SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
@@ -381,16 +367,135 @@ namespace MonkeyAssenbly.Controllers
             });
         }
 
+    [HttpGet("GetAllTags")]
+    public IActionResult GetAllTags()
+    {
+        var tags = new List<object>();
+
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        var sql = @"SELECT tag_id, tag_name FROM ""TagTable"" ORDER BY tag_id";
+
+        using var cmd = new NpgsqlCommand(sql, connection);
+        using var reader = cmd.ExecuteReader();
+
+        while (reader.Read())
+        {
+            tags.Add(new
+            {
+                id = reader.GetInt32(reader.GetOrdinal("tag_id")),
+                name = reader.GetString(reader.GetOrdinal("tag_name"))
+            });
+        }
+
+        return Ok(tags);
+    }
+
+    [HttpPut("UpdatePost/{post_id}")]
+    public IActionResult UpdatePost(int post_id, [FromBody] PostUpdateDto dto)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        var sql = @"
+        UPDATE ""PostTable""
+        SET post_titile = @title,
+            post_descript = @description,
+            post_place = @location,
+            post_date_open = @dateOpen,
+            post_date_close = @dateClose,
+            post_time_open = @startTime,
+            post_time_close = @endTime,
+            post_max_paticipants = @maxParticipants,
+            post_status = @status
+        WHERE post_id = @id
+    ";
+
+        using var cmd = new NpgsqlCommand(sql, connection);
+        cmd.Parameters.AddWithValue("id", post_id);
+        cmd.Parameters.AddWithValue("title", dto.eventName);
+        cmd.Parameters.AddWithValue("description", dto.description);
+        cmd.Parameters.AddWithValue("location", dto.location);
+        cmd.Parameters.AddWithValue("dateOpen", DateTime.Parse(dto.dateOpen));
+        cmd.Parameters.AddWithValue("dateClose", DateTime.Parse(dto.dateClose));
+        cmd.Parameters.AddWithValue("startTime", TimeSpan.Parse(dto.startTime));
+        cmd.Parameters.AddWithValue("endTime", TimeSpan.Parse(dto.endTime));
+        cmd.Parameters.AddWithValue("maxParticipants", dto.maxParticipants);
+        cmd.Parameters.AddWithValue("status", dto.status);
+
+        int affected = cmd.ExecuteNonQuery();
+
+        var checkTagSql = @"SELECT COUNT(*) FROM ""PostTagTable"" WHERE post_id = @postId";
+        using var checkCmd = new NpgsqlCommand(checkTagSql, connection);
+        checkCmd.Parameters.AddWithValue("postId", post_id);
+
+        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+        if (count > 0)
+        {
+            var updateTagSql = @"UPDATE ""PostTagTable"" SET tag_id = @tagId WHERE post_id = @postId";
+            using var updateCmd = new NpgsqlCommand(updateTagSql, connection);
+            updateCmd.Parameters.AddWithValue("tagId", dto.tagId);
+            updateCmd.Parameters.AddWithValue("postId", post_id);
+            updateCmd.ExecuteNonQuery();
+        }
+        else
+        {
+            var insertTagSql = @"INSERT INTO ""PostTagTable"" (post_id, tag_id) VALUES (@postId, @tagId)";
+            using var insertCmd = new NpgsqlCommand(insertTagSql, connection);
+            insertCmd.Parameters.AddWithValue("postId", post_id);
+            insertCmd.Parameters.AddWithValue("tagId", dto.tagId);
+            insertCmd.ExecuteNonQuery();
+        }
+
+
+        return Ok(new { success = affected > 0 });
+    }
+
+    //    [HttpGet("GetCommentByPostId/{post_id}")]
+    //    public IActionResult GetCommentByPostId(int post_id)
+    //    {
+    //        var comments = new List<object>();
+
+    //        using var connection = new NpgsqlConnection(_connectionString);
+    //        connection.Open();
+
+    //        var sql = @"
+    //    SELECT c.comment_id, c.user_id, c.comment_text, c.created_at, u.user_firstname
+    //    FROM ""CommentTable"" c
+    //    JOIN ""UserDetailTable"" u ON c.user_id = u.user_id
+    //    WHERE c.post_id = @post_id
+    //    ORDER BY c.created_at ASC
+    //";
+
+    //        using var cmd = new NpgsqlCommand(sql, connection);
+    //        cmd.Parameters.AddWithValue("post_id", post_id);
+
+    //        using var reader = cmd.ExecuteReader();
+    //        while (reader.Read())
+    //        {
+    //            comments.Add(new
+    //            {
+    //                id = reader.GetInt32(reader.GetOrdinal("comment_id")),
+    //                userId = reader.GetInt32(reader.GetOrdinal("user_id")),
+    //                user = reader.GetString(reader.GetOrdinal("user_firstname")),
+    //                text = reader.GetString(reader.GetOrdinal("comment_text")),
+    //                time = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("HH:mm")
+    //            });
+    //        }
+
+    //        return Ok(comments);
+    //    }
+
+
+
         [HttpDelete("DeletePost/{post_id}")]
         public IActionResult DeletePost(int post_id)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-                using (var tzCmd = new NpgsqlCommand("SET TIME ZONE 'Asia/Bangkok';", connection))
-                {
-                    tzCmd.ExecuteNonQuery();
-                }
 
                 var sql = @"DELETE FROM ""PostTable"" WHERE post_id = @post_id";
 
@@ -496,10 +601,6 @@ namespace MonkeyAssenbly.Controllers
 
                 using var conn = new NpgsqlConnection(_connectionString);
                 conn.Open();
-                using (var tzCmd = new NpgsqlCommand("SET TIME ZONE 'Asia/Bangkok';", conn))
-                {
-                    tzCmd.ExecuteNonQuery();
-                }
                 using var tran = conn.BeginTransaction();
 
                 var insertPostSql = @"
@@ -669,9 +770,30 @@ namespace MonkeyAssenbly.Controllers
 
             return Ok(new { message = "เพิ่มความคิดเห็นสำเร็จ" });
         }
-        // ==================== COMMENT SYSTEM END ====================
 
-        // ==================== JOIN EVENT SYSTEM START ====================
+        [HttpPost("AddCommentFromHost")]
+        public IActionResult AddCommentFromHost([FromBody] CommentDto dto)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+
+            var sql = @"
+        INSERT INTO ""CommentTable"" (post_id, user_id, comment_text, created_at)
+        VALUES (@postId, @userId, @text, @createdAt)";
+
+            using var cmd = new NpgsqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("postId", dto.postId);
+            cmd.Parameters.AddWithValue("userId", dto.userId);
+            cmd.Parameters.AddWithValue("text", dto.text);
+            cmd.Parameters.AddWithValue("createdAt", DateTime.UtcNow.AddHours(7)); // เวลาไทย
+
+            int affected = cmd.ExecuteNonQuery();
+
+            return Ok(new { success = affected > 0 });
+        }
+
+
+
         [HttpPost("JoinEvent")]
         public async Task<IActionResult> JoinEvent(int postId)
         {
@@ -796,6 +918,23 @@ namespace MonkeyAssenbly.Controllers
                 }
             }
         }
+
+        [HttpPatch("EndPost/{post_id}")]
+        public IActionResult EndPost(int post_id)
+        {
+            using var connection = new NpgsqlConnection(_connectionString);
+            connection.Open();
+
+            var sql = @"UPDATE ""PostTable"" SET post_status = FALSE WHERE post_id = @postId";
+
+            using var cmd = new NpgsqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("postId", post_id);
+
+            int affected = cmd.ExecuteNonQuery();
+
+            return Ok(new { success = affected > 0 });
+        }
+
 
         [HttpPost("UnjoinEvent")]
         public async Task<IActionResult> UnjoinEvent(int postId)
@@ -1082,27 +1221,27 @@ public async Task<IActionResult> FollowUser([FromBody] FollowUserRequest request
         return StatusCode(500, new { message = "เกิดข้อผิดพลาด" });
     }
 }
-[HttpGet("GetAllTags")]
-public IActionResult GetAllTags()
-{
-    var tags = new List<object>();
-    using (var connection = new NpgsqlConnection(_connectionString))
-    {
-        connection.Open();
-        var sql = @"SELECT tag_id, tag_name FROM ""TagTable"" ORDER BY tag_name ASC";
-        using var command = new NpgsqlCommand(sql, connection);
-        using var reader = command.ExecuteReader();
-        while (reader.Read())
-        {
-            tags.Add(new
-            {
-                tag_id = reader.GetInt32(0),
-                tag_name = reader.GetString(1)
-            });
-        }
-    }
-    return Ok(tags);
-}
+// [HttpGet("GetAllTags")]
+// public IActionResult GetAllTags()
+// {
+//     var tags = new List<object>();
+//     using (var connection = new NpgsqlConnection(_connectionString))
+//     {
+//         connection.Open();
+//         var sql = @"SELECT tag_id, tag_name FROM ""TagTable"" ORDER BY tag_name ASC";
+//         using var command = new NpgsqlCommand(sql, connection);
+//         using var reader = command.ExecuteReader();
+//         while (reader.Read())
+//         {
+//             tags.Add(new
+//             {
+//                 tag_id = reader.GetInt32(0),
+//                 tag_name = reader.GetString(1)
+//             });
+//         }
+//     }
+//     return Ok(tags);
+// }
 [HttpPost("UnfollowUser")]
 public async Task<IActionResult> UnfollowUser([FromBody] FollowUserRequest request)
 {

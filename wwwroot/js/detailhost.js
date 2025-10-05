@@ -1,11 +1,84 @@
+// ==================== TOAST NOTIFICATION SYSTEM START ====================
+class ToastNotification {
+  constructor() {
+    this.container = null;
+    this.init();
+  }
+
+  init() {
+    if (!document.querySelector('.toast-container')) {
+      this.container = document.createElement('div');
+      this.container.className = 'toast-container';
+      document.body.appendChild(this.container);
+    } else {
+      this.container = document.querySelector('.toast-container');
+    }
+  }
+
+  show(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+
+    const icons = {
+      success: '<i class="fa-solid fa-circle-check"></i>',
+      error: '<i class="fa-solid fa-circle-xmark"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
+      info: '<i class="fa-solid fa-circle-info"></i>'
+    };
+
+    const titles = {
+      success: 'สำเร็จ',
+      error: 'ข้อผิดพลาด',
+      warning: 'คำเตือน',
+      info: 'แจ้งเตือน'
+    };
+
+    toast.innerHTML = `
+      <div class="toast-icon">${icons[type]}</div>
+      <div class="toast-content">
+        <div class="toast-title">${titles[type]}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    `;
+
+    this.container.appendChild(toast);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => this.remove(toast));
+
+    if (duration > 0) {
+      setTimeout(() => this.remove(toast), duration);
+    }
+
+    return toast;
+  }
+
+  remove(toast) {
+    toast.classList.add('removing');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }
+
+  success(message, duration) { return this.show(message, 'success', duration); }
+  error(message, duration) { return this.show(message, 'error', duration); }
+  warning(message, duration) { return this.show(message, 'warning', duration); }
+  info(message, duration) { return this.show(message, 'info', duration); }
+}
+
+const showToast = new ToastNotification();
+// ==================== TOAST NOTIFICATION SYSTEM END ====================  
+
 // ---------------- Config ----------------
-const SERVER_URL = "http://localhost:7014";
+const SERVER_URL = "http://localhost:5122";
 const currentUserId = localStorage.getItem("userId");
 const urlParams = new URLSearchParams(window.location.search);
 const activityId = document.body.dataset.postId;
-console.log("Post ID ที่รับมา:", activityId);
 
-if (!activityId) alert("ไม่พบ ID ของกิจกรรม");
+if (!activityId) showToast.error("ไม่พบ ID ของกิจกรรม");
 
 // ---------------- Theme / Sidebar ----------------
 const menuItems = document.querySelectorAll(".menu h2");
@@ -37,7 +110,7 @@ sidebarLinks.forEach((link, index) => {
         switch (index) {
             case 0: window.location.href = window.LoginUrl; break;
             case 1: window.location.href = window.TagsUrl; break;
-            case 2: alert("Create event modal here"); break;
+            case 2: showToast.info("คุณสามารถสร้างกิจกรรมได้ที่หน้าหลัก"); break;
             case 3: window.location.href = window.NotifyUrl; break;
             case 4: window.location.href = window.ProfileUrl; break;
         }
@@ -60,16 +133,17 @@ function addMenuItem(text, onClick) {
 function updateMenu() {
     menuList.innerHTML = "";
     if (!isLoggedIn) {
-        addMenuItem("เข้าสู่ระบบ", () => window.location.href = "/frontend/HTML/login.html");
-        addMenuItem("สมัครสมาชิก", () => window.location.href = "/frontend/HTML/signup.html");
+        addMenuItem("เข้าสู่ระบบ", () => window.location.href = window.LoginUrl);
+        addMenuItem("สมัครสมาชิก", () => window.location.href = window.SignupUrl);
     } else {
-        addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = "/frontend/HTML/profile.html");
+        addMenuItem("โปรไฟล์ของฉัน", () => window.location.href = window.ProfileUrl);
         addMenuItem("ออกจากระบบ", async () => {
             await fetch(`${SERVER_URL}/Account/Logout`, { method: "POST" });
             localStorage.setItem("isLoggedIn", "false");
             isLoggedIn = false;
             updateMenu();
-            alert("ออกจากระบบเรียบร้อย");
+            showToast.success("ออกจากระบบเรียบร้อย");
+            setTimeout(() => location.reload(), 1000);alert("ออกจากระบบเรียบร้อย");
         });
     }
 }
@@ -86,15 +160,34 @@ hamburgerBtn.addEventListener("click", () => {
 async function loadActivity() {
     try {
         const res = await fetch(`/Post/GetPostById/${activityId}`);
+        const tags = await fetch(`/Post/GetAllTags`);
+
         if (!res.ok) throw new Error("ไม่พบกิจกรรม");
         const data = await res.json();
         console.log(data.post.participants);
-        document.getElementById("activityTitle").textContent = data.post.eventName;
-        document.getElementById("activityTag").innerHTML = `<strong>Tag :</strong> ${data.tags}`;
-        document.getElementById("activityDeadline").innerHTML = `${data.post.dateClose}`;
+        if (!tags.ok) throw new Error("ไม่พบ tags");
+        const tags_data = await tags.json();
+
+        const tagSelect = document.getElementById("tagSelect");
+        tagSelect.innerHTML = `<option disabled selected>-- เลือกแท็ก --</option>`;
+
+        tags_data.forEach(tag => {
+            const option = document.createElement("option");
+            option.value = tag.id;
+            option.textContent = tag.name;
+            tagSelect.appendChild(option);
+        });
+
+
+            const selectedTag = tags_data.find(t => t.name === data.tags[0]);
+            if (selectedTag) tagSelect.value = selectedTag.id;
+
+        document.getElementById("activityTitle").value = data.post.eventName;
+        document.getElementById("activityDeadline").value = data.post.dateClose;
         document.getElementById("activityHost").textContent = data.post.host;
-        document.getElementById("activityPlace").textContent = data.post.location;
-        document.getElementById("activityDetails").textContent = data.post.description;
+        document.getElementById("activityPlace").value = data.post.location;
+        document.getElementById("activityDetails").value = data.post.description;
+
 
         // Render participants (approved)
         const approvedBox = document.getElementById("approvedBox");
@@ -111,9 +204,11 @@ async function loadActivity() {
         }
         document.getElementById("approvedCount").textContent = approvedCount;
     } catch (err) {
-        alert(err.message);
+        showToast.error(err.message);
+        console.error("❌ ERROR:", err);
     }
 }
+
 
 // ---------------- Load Participants ----------------
 async function loadParticipants() {
@@ -124,62 +219,242 @@ async function loadParticipants() {
 // ---------------- Load Comments ----------------
 //async function loadComments() {
 //    try {
-//        const res = await fetch(`/Post/GetCommentByPostId/7`);
-//        if (!res.ok) throw new Error("โหลดคอมเมนต์ไม่สำเร็จ");
-//        const comments = await res.json();
+//        const res = await fetch(`${SERVER_URL}/api/activity/${activityId}/participants`);
+//        if (!res.ok) throw new Error("โหลดผู้เข้าร่วมไม่สำเร็จ");
+//        const participants = await res.json();
 
-//        const commentList = document.getElementById("commentList");
-//        commentList.innerHTML = "";
-//        comments.forEach(c => {
-//            const div = document.createElement("div");
-//            div.className = c.userId === currentUserId ? "comment participant" : "comment host";
-//            div.innerHTML = `
-//                <div class="avatar ${div.className.includes("host") ? "host" : "participant"}">${c.user[0]}</div>
-//                <div class="bubble">
-//                    <div class="meta">
-//                        <span class="name">${c.user}</span>
-//                        <span class="time">${c.time}</span>
-//                    </div>
-//                    <div class="text">${c.text}</div>
-//                </div>`;
-//            commentList.appendChild(div);
+//        const approvedBox = document.getElementById("approvedBox");
+//        const pendingBox = document.getElementById("pendingBox");
+//        approvedBox.querySelectorAll(".participant-row").forEach(e => e.remove());
+//        pendingBox.querySelectorAll(".participant-row").forEach(e => e.remove());
+
+//        let approvedCount = 0;
+//        participants.forEach(p => {
+//            const row = document.createElement("div");
+//            row.className = "participant-row";
+//            row.innerHTML = `<span>${p.name}</span>`;
+//            if (p.status === "approved") {
+//                approvedBox.appendChild(row);
+//                approvedCount++;
+//            } else if (p.status === "pending") {
+//                row.classList.add("pending");
+//                row.innerHTML += `
+//                    <div class="participant-actions">
+//                        <button class="accept">✔</button>
+//                        <button class="reject">✖</button>
+//                    </div>`;
+//                pendingBox.appendChild(row);
+
+//                const userId = p.id;
+//                row.querySelector(".accept").addEventListener("click", async () => {
+//                    await fetch(`${SERVER_URL}/api/participants/${userId}/accept`, { method: "POST" });
+//                    loadParticipants();
+//                });
+//                row.querySelector(".reject").addEventListener("click", async () => {
+//                    await fetch(`${SERVER_URL}/api/participants/${userId}/reject`, { method: "POST" });
+//                    loadParticipants();
+//                });
+//            }
 //        });
-//        commentList.scrollTop = commentList.scrollHeight;
+//        document.getElementById("approvedCount").textContent = approvedCount;
 //    } catch (err) { alert(err.message); }
 //}
+
+// ---------------- Load Comments ----------------
+async function loadComments(activityId) {
+    const commentList = document.getElementById("commentList");
+    commentList.innerHTML = "<p>กำลังโหลด...</p>";
+    try {
+        const response = await fetch(`/Post/GetComments?postId=${activityId}`);
+        if (!response.ok) throw new Error("ไม่สามารถโหลด comments ได้");
+
+        const comments = await response.json();
+        commentList.innerHTML = "";
+
+        if (comments.length === 0) {
+            commentList.innerHTML = "<p style='text-align:center; color:var(--sub-font); padding:20px;'>ยังไม่มีความคิดเห็น</p>";
+        } else {
+            comments.forEach(comment => {
+                const commentDiv = document.createElement("div");
+                commentDiv.className = "comment-item";
+                commentDiv.innerHTML = `
+            <div class="comment-user">${comment.userName}</div>
+            <div class="comment-text">${comment.text}</div>
+            <div class="comment-time">${comment.createdAt}</div>
+          `;
+                commentList.appendChild(commentDiv);
+            });
+        }
+
+        commentList.scrollTop = commentList.scrollHeight;
+
+    } catch (error) {
+        console.error("Error loading comments:", error);
+        commentList.innerHTML = "<p style='color:red;'>เกิดข้อผิดพลาดในการโหลด comments</p>";
+        showToast.error("ไม่สามารถโหลดความคิดเห็นได้");
+    }
+}
 
 // ---------------- Send Comment ----------------
 document.getElementById("sendComment").addEventListener("click", async () => {
     const input = document.getElementById("commentInput");
     const text = input.value.trim();
-    if (!text) return;
+    //console.log("currentUserId : ", currentUserId);
 
-    await fetch(`${SERVER_URL}/api/comments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ activityId, text })
-    });
-    input.value = "";
-    loadComments();
+    const getSessionData = async () => {
+        try {
+            const res = await fetch("/Profile/GetSessionData", {
+                method: "GET",
+                credentials: "same-origin"
+            });
+
+            const data = await res.json();
+            if (data.isLoggedIn) {
+                console.log("Session:", data);
+                return data;  // ✅ ส่งข้อมูลออกไป
+            } else {
+                console.log("ยังไม่ได้ล็อกอิน");
+                return null;
+            }
+        } catch (err) {
+            console.error("Error fetching session:", err);
+            return null;
+        }
+    };
+    //const new_user_id = session?.userId;
+    //console.log("new_user_id", new_user_id);
+
+
+    if (!text) {
+        showToast.warning("กรุณากรอกความคิดเห็น");
+        return;
+    }
+    //const session = getSessionData();
+    const session = await getSessionData();
+    if (!session) return;
+    try {
+        //console.log("Sending comment:", {
+        //    postId: activityId,
+        //    userId: session.userId,
+        //    text: text
+        //});
+        const act_id = parseInt(activityId)
+        const res = await fetch(`/Post/AddCommentFromHost`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                postId: act_id,
+                userId: session.userId,
+                text: text
+            })
+        });
+
+        if (!res.ok) throw new Error("ส่งความคิดเห็นล้มเหลว");
+
+        input.value = "";
+        showToast.success("ส่งความคิดเห็นสำเร็จ");
+        loadComments(activityId); // ✅ โหลด comment ใหม่
+    } catch (err) {
+        console.error(err);
+        showToast.error("ไม่สามารถส่งความคิดเห็นได้");
+    }
 });
+
 
 // ---------------- Action Buttons ----------------
 document.querySelector(".update").addEventListener("click", async () => {
-    await fetch(`${SERVER_URL}/api/activity/${activityId}`, { method: "PUT" });
-    alert("อัปเดตเรียบร้อย");
+    const new_title = document.getElementById("activityTitle").value;
+    const new_description = document.getElementById("activityDetails").value;
+    const new_location = document.getElementById("activityPlace").value;
+    const new_enddate = document.getElementById("activityDeadline").value;
+    const new_tagSelect = document.getElementById("tagSelect");
+    const new_tagId = new_tagSelect.value;
+    let new_status = false;
+    const old_res = await fetch(`/Post/GetPostById/${activityId}`);
+    if (!old_res) { return false };
+    
+    const old_data = await old_res.json();
+    console.log("old data : ",old_data);
+
+
+    if (!new_title || !new_description || !new_location || !new_enddate || !new_tagId) {
+
+        showToast.warning("กรุณากรอกข้อมูลให้ครบถ้วน");
+        return;
+    }
+    console.log("new_tagId:", new_tagId);
+    if (old_data.post.status === "open") {
+        new_status = true;
+    }
+
+    const data = {
+        eventName: new_title,
+        description: new_description,
+        location: new_location,
+        dateOpen: old_data.post.dateOpen,
+        dateClose: new_enddate,
+        startTime: old_data.post.startTime,
+        endTime: old_data.post.endTime,
+        maxParticipants: old_data.post.maxParticipants,
+        status: new_status,
+        tagId: parseInt(new_tagId)
+    };
+    console.log(data);
+
+
+    try {
+        const res = await fetch(`/Post/UpdatePost/${activityId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (res.ok) {
+            showToast.success("อัปเดตกิจกรรมสำเร็จ");
+            setTimeout(() => {
+                window.location.href = window.ProfileUrl;
+            }, 1000);
+        } else {
+            showToast.error("อัปเดตกิจกรรมล้มเหลว");
+        }
+    } catch (err) {
+        showToast.error("เกิดข้อผิดพลาด: " + err.message);
+    }
 });
 
+
 document.querySelector(".leave").addEventListener("click", async () => {
-    await fetch(`${SERVER_URL}/api/activity/${activityId}/leave`, { method: "POST" });
-    alert("ยกเลิกเรียบร้อย");
+    // if (!confirm("คุณต้องการยกเลิกกิจกรรมนี้หรือไม่?")) return;
+    window.location.href = window.ProfileUrl;
+    // try {
+    //     await fetch(`${SERVER_URL}/api/activity/${activityId}/leave`, { method: "POST" });
+    //     showToast.success("ยกเลิกกิจกรรมเรียบร้อย");
+    //     setTimeout(() => {
+    //         window.location.href = window.ProfileUrl;
+    //     }, 1000);
+    // } catch (err) {
+    //     showToast.error("ไม่สามารถยกเลิกได้");
+    // }
 });
 
 document.querySelector(".end").addEventListener("click", async () => {
-    await fetch(`${SERVER_URL}/api/activity/${activityId}/end`, { method: "POST" });
-    alert("ปิดรับสมัครเรียบร้อย");
+    if (!confirm("คุณต้องการปิดรับสมัครกิจกรรมนี้หรือไม่?")) return;
+    
+    try {
+        await fetch(`/Post/EndPost/${activityId}`, { method: "PATCH" });
+        showToast.success("ปิดรับสมัครเรียบร้อย");
+        setTimeout(() => {
+            location.reload();
+        window.location.href = window.ProfileUrl;
+        }, 1000);
+    } catch (err) {
+        showToast.error("ไม่สามารถปิดรับสมัครได้");
+    }
 });
 
 // ---------------- Initial Load ----------------
 loadActivity();
-loadParticipants();
-loadComments();
+loadComments(activityId);
+//loadParticipants();

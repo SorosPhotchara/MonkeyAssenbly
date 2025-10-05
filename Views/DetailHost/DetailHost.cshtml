@@ -58,14 +58,18 @@
     <!-- Content -->
     <main class="container">
         <section class="detail-card">
-            <h2 class="activity-title" id="activityTitle"></h2>
-            <p class="tag" id="activityTag"></p>
+            <input type="text" name="activity-title" value="" id="activityTitle" />
+            <select id="tagSelect">
+                <option disabled selected>-- เลือกแท็ก --</option>
+            </select>
+
+
 
             <div class="meta-grid">
                 <div class="left-meta">
                     <div class="deadline">
                         <strong>Application Deadline</strong>
-                        <p id="activityDeadline"></p>
+                        <input type="date" name="activityDeadline" value="" id="activityDeadline" />
                     </div>
                     <div class="host">
                         <strong>Host :</strong>
@@ -75,14 +79,14 @@
                 <div class="right-meta">
                     <div class="place">
                         <strong>Place :</strong>
-                        <p id="activityPlace"></p>
+                        <input type="text" name="activityPlace" value="" id="activityPlace" />
                     </div>
                 </div>
             </div>
 
             <div class="details">
                 <strong>Details :</strong>
-                <p id="activityDetails"></p>
+                <input type="text" name="activityDetails" value="" id="activityDetails" />
             </div>
 
             <div class="participants-box">
@@ -94,7 +98,7 @@
                 </div>
 
                 <div class="participants-pending" id="pendingBox">
-                    <div class="participants-label">รอการอนุมัติ</div>
+                    @* <div class="participants-label">รอการอนุมัติ</div> *@
                 </div>
             </div>
 
@@ -109,7 +113,7 @@
 
             <div class="actions">
                 <button class="update">Update</button>
-                <button class="leave">Leave</button>
+                <button class="leave">Cancle</button>
                 <button class="end">End Registration</button>
             </div>
         </section>
@@ -126,10 +130,9 @@
     </div>
 
     <script src="/js/detailhost.js"></script>
-    <script>
-        const postId = @ViewBag.PostId;
-        console.log("กำลังแก้ไขโพสต์ ID:", postId);
-    </script>
+    @* <script>
+        // console.log("กำลังแก้ไขโพสต์ ID:", postId);
+    </script> *@
 </body>
 
 </html>
