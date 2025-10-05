@@ -137,18 +137,21 @@ namespace MonkeyAssenbly.Controllers
         /// <summary>
         /// ฟังก์ชันสำหรับบันทึกแจ้งเตือนใหม่ลง database
         /// </summary>
-        private async Task AddNotificationAsync(string type, string message, int? userId, int? postId)
-        {
-            await using var conn = new NpgsqlConnection(_connectionString);
-            await conn.OpenAsync();
-            var sql = @"INSERT INTO ""NotificationTable"" (type, message, user_id, post_id, created_at)
-                        VALUES (@type, @message, @user_id, @post_id, NOW())";
-            await using var cmd = new NpgsqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@type", type);
-            cmd.Parameters.AddWithValue("@message", message);
-            cmd.Parameters.AddWithValue("@user_id", (object?)userId ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@post_id", (object?)postId ?? DBNull.Value);
-            await cmd.ExecuteNonQueryAsync();
-        }
+       public async Task AddNotificationAsync(string type, string message, int? userId, int? postId)
+{
+    await using var conn = new NpgsqlConnection(_connectionString);
+    await conn.OpenAsync();
+    
+    var sql = @"INSERT INTO ""NotificationTable"" (type, message, user_id, post_id, created_at)
+                VALUES (@type, @message, @user_id, @post_id, NOW())";
+    
+    await using var cmd = new NpgsqlCommand(sql, conn);
+    cmd.Parameters.AddWithValue("@type", type);
+    cmd.Parameters.AddWithValue("@message", message);
+    cmd.Parameters.AddWithValue("@user_id", (object?)userId ?? DBNull.Value);
+    cmd.Parameters.AddWithValue("@post_id", (object?)postId ?? DBNull.Value);
+    
+    await cmd.ExecuteNonQueryAsync();
+}
     }
 }

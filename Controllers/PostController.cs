@@ -3,7 +3,10 @@ using Npgsql;
 using System;
 using System.Globalization;
 using MonkeyAssenbly.Models;
-
+public class FollowUserRequest
+{
+    public int followingId { get; set; }
+}
 namespace MonkeyAssenbly.Controllers
 {
     // [ApiController]  // Remove this attribute for classic MVC form POST binding
@@ -935,7 +938,7 @@ namespace MonkeyAssenbly.Controllers
         /// <summary>
         /// ฟังก์ชันสำหรับบันทึกแจ้งเตือนใหม่ลง database
         /// </summary>
-        private async Task AddNotificationAsync(string type, string message, int? userId, int? postId)
+        public async Task AddNotificationAsync(string type, string message, int? userId, int? postId)
         {
             await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
@@ -948,5 +951,174 @@ namespace MonkeyAssenbly.Controllers
             cmd.Parameters.AddWithValue("@post_id", (object?)postId ?? DBNull.Value);
             await cmd.ExecuteNonQueryAsync();
         }
+
+[HttpPost("FollowUser")]
+public async Task<IActionResult> FollowUser([FromBody] FollowUserRequest request)
+{
+    Console.WriteLine($"[DEBUG] FollowUser called with followingId: {request?.followingId}");
+    
+    var followerId = HttpContext.Session.GetInt32("UserId");
+    
+    if (followerId == null)
+    {
+        return Unauthorized(new { message = "กรุณาเข้าสู่ระบบ" });
+    }
+
+    if (request == null || request.followingId <= 0)
+    {
+        return BadRequest(new { message = "ข้อมูลไม่ถูกต้อง" });
+    }
+
+    if (followerId.Value == request.followingId)
+    {
+        return BadRequest(new { message = "ไม่สามารถติดตามตัวเองได้" });
+    }
+
+    try
+    {
+        using (var conn = new NpgsqlConnection(_connectionString))
+        {
+            await conn.OpenAsync();
+            using var tran = conn.BeginTransaction();
+
+            try
+            {
+                // ตรวจสอบว่า user มีจริง
+                var checkUserSql = @"SELECT COUNT(*) FROM ""UserDetailTable"" WHERE user_id = @userId";
+                using (var checkUserCmd = new NpgsqlCommand(checkUserSql, conn, tran))
+                {
+                    checkUserCmd.Parameters.AddWithValue("userId", request.followingId);
+                    var userExists = (long)await checkUserCmd.ExecuteScalarAsync();
+                    
+                    if (userExists == 0)
+                    {
+                        return NotFound(new { message = "ไม่พบผู้ใช้ที่ต้องการติดตาม" });
+                    }
+                }
+
+                // เช็คว่าติดตามอยู่แล้วหรือยัง
+                var checkSql = @"SELECT COUNT(*) FROM ""FollowTable"" 
+                                WHERE follower_id = @followerId AND following_id = @followingId";
+                using (var checkCmd = new NpgsqlCommand(checkSql, conn, tran))
+                {
+                    checkCmd.Parameters.AddWithValue("followerId", followerId.Value);
+                    checkCmd.Parameters.AddWithValue("followingId", request.followingId);
+                    var exists = (long)await checkCmd.ExecuteScalarAsync();
+                    
+                    if (exists > 0)
+                    {
+                        return BadRequest(new { message = "ติดตามแล้ว" });
+                    }
+                }
+
+                // Insert การติดตาม
+                var insertSql = @"INSERT INTO ""FollowTable"" (follower_id, following_id) 
+                                 VALUES (@followerId, @followingId)";
+                using (var insertCmd = new NpgsqlCommand(insertSql, conn, tran))
+                {
+                    insertCmd.Parameters.AddWithValue("followerId", followerId.Value);
+                    insertCmd.Parameters.AddWithValue("followingId", request.followingId);
+                    await insertCmd.ExecuteNonQueryAsync();
+                }
+
+                // ดึงชื่อผู้ติดตาม
+                string followerName = "";
+                using (var userCmd = new NpgsqlCommand(
+                    @"SELECT user_firstname FROM ""UserDetailTable"" WHERE user_id = @uid", conn, tran))
+                {
+                    userCmd.Parameters.AddWithValue("uid", followerId.Value);
+                    followerName = (await userCmd.ExecuteScalarAsync())?.ToString() ?? "Someone";
+                }
+
+                // Insert notification
+                var notifSql = @"INSERT INTO ""NotificationTable"" 
+                                (type, message, user_id, post_id, created_at)
+                                VALUES (@type, @message, @user_id, @post_id, NOW())";
+                using (var notifCmd = new NpgsqlCommand(notifSql, conn, tran))
+                {
+                    notifCmd.Parameters.AddWithValue("type", "follow");
+                    notifCmd.Parameters.AddWithValue("message", $"คุณ {followerName} กำลังติดตามคุณ");
+                    notifCmd.Parameters.AddWithValue("user_id", request.followingId);
+                    notifCmd.Parameters.AddWithValue("post_id", DBNull.Value);
+                    await notifCmd.ExecuteNonQueryAsync();
+                }
+
+                await tran.CommitAsync();
+                Console.WriteLine($"[SUCCESS] Follow completed: {followerId} -> {request.followingId}");
+                
+                return Ok(new { message = "ติดตามสำเร็จ" });
+            }
+            catch (Exception ex)
+            {
+                await tran.RollbackAsync();
+                Console.WriteLine($"[ERROR] Transaction: {ex.Message}");
+                throw;
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERROR] FollowUser: {ex.Message}");
+        return StatusCode(500, new { message = "เกิดข้อผิดพลาด" });
     }
 }
+[HttpPost("UnfollowUser")]
+public async Task<IActionResult> UnfollowUser([FromBody] FollowUserRequest request)
+{
+    Console.WriteLine($"[DEBUG] UnfollowUser called with followingId: {request?.followingId}");
+    
+    var followerId = HttpContext.Session.GetInt32("UserId");
+    if (followerId == null)
+    {
+        return Unauthorized(new { message = "กรุณาเข้าสู่ระบบ" });
+    }
+
+    if (request == null || request.followingId <= 0)
+    {
+        return BadRequest(new { message = "ข้อมูลไม่ถูกต้อง" });
+    }
+
+    try
+    {
+        using (var conn = new NpgsqlConnection(_connectionString))
+        {
+            await conn.OpenAsync();
+            
+            // เช็คว่ามี record อยู่จริงหรือไม่
+            var checkSql = @"SELECT COUNT(*) FROM ""FollowTable"" 
+                            WHERE follower_id = @followerId AND following_id = @followingId";
+            using (var checkCmd = new NpgsqlCommand(checkSql, conn))
+            {
+                checkCmd.Parameters.AddWithValue("followerId", followerId.Value);
+                checkCmd.Parameters.AddWithValue("followingId", request.followingId);
+                var exists = (long)await checkCmd.ExecuteScalarAsync();
+                
+                if (exists == 0)
+                {
+                    return BadRequest(new { message = "คุณไม่ได้ติดตามผู้ใช้นี้" });
+                }
+            }
+            
+            // ลบการติดตาม
+            var sql = @"DELETE FROM ""FollowTable"" 
+                       WHERE follower_id = @followerId AND following_id = @followingId";
+            using var cmd = new NpgsqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("followerId", followerId.Value);
+            cmd.Parameters.AddWithValue("followingId", request.followingId);
+            await cmd.ExecuteNonQueryAsync();
+            
+            Console.WriteLine($"[SUCCESS] Unfollow completed: {followerId} -> {request.followingId}");
+        }
+        
+        return Ok(new { message = "เลิกติดตามสำเร็จ" });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[ERROR] UnfollowUser: {ex.Message}");
+        return StatusCode(500, new { message = "เกิดข้อผิดพลาด" });
+    }
+}
+}
+}
+        
+    

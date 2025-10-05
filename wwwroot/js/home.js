@@ -4,41 +4,70 @@ function showProfilePopup(userId) {
   const avatar = document.getElementById("profile-popup-avatar");
   const fullname = document.getElementById("profile-popup-fullname");
   const username = document.getElementById("profile-popup-username");
-  const followBtn = document.getElementById("profile-popup-follow-btn");
-  overlay.style.display = "flex";
-  avatar.src = "/uploads/default-avatar.png";
-  fullname.textContent = "Loading...";
-  username.textContent = "";
-  followBtn.style.display = "none";
-  followBtn.disabled = true;
+const followBtn = document.getElementById("profile-popup-follow-btn");
+overlay.style.display = "flex";
+avatar.src = "/uploads/default-avatar.png";
+fullname.textContent = "Loading...";
+username.textContent = "";
+followBtn.style.display = "none";
+followBtn.disabled = true;
 
-  fetch(`/Profile/GetUserProfile?userId=${userId}`)
-    .then(res => res.json())
-    .then(data => {
-      avatar.src = data.avatar || "/uploads/default-avatar.png";
-      fullname.textContent = `${data.firstName} ${data.lastName}`;
-      username.textContent = data.username ? `@${data.username}` : "";
-      followBtn.style.display = (data.isSelf ? "none" : "inline-block");
-      followBtn.disabled = false;
-      followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
-      followBtn.classList.toggle("unfollow", !!data.isFollowing);
-      followBtn.onclick = async () => {
-        followBtn.disabled = true;
-        const action = data.isFollowing ? "Unfollow" : "Follow";
-        const res = await fetch(`/Profile/${action}?userId=${userId}`, { method: "POST" });
+fetch(`/Profile/GetUserProfile?userId=${userId}`)
+  .then(res => res.json())
+  .then(data => {
+    avatar.src = data.avatar || "/uploads/default-avatar.png";
+    fullname.textContent = `${data.firstName} ${data.lastName}`;
+    username.textContent = data.username ? `@${data.username}` : "";
+    followBtn.style.display = (data.isSelf ? "none" : "inline-block");
+    followBtn.disabled = false;
+    followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+    followBtn.classList.toggle("unfollow", !!data.isFollowing);
+    
+    followBtn.onclick = async () => {
+      followBtn.disabled = true;
+      
+      try {
+        let res;
+        if (data.isFollowing) {
+          // Unfollow
+          res = await fetch(`/Post/UnfollowUser`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followingId: userId })
+          });
+        } else {
+          // Follow
+          res = await fetch(`/Post/FollowUser`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ followingId: userId })
+          });
+        }
+        
+        const result = await res.json();
+        
         if (res.ok) {
           data.isFollowing = !data.isFollowing;
           followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
           followBtn.classList.toggle("unfollow", !!data.isFollowing);
+          // แสดงข้อความสำเร็จ (optional)
+          console.log(result.message);
+        } else {
+          alert(result.message || 'เกิดข้อผิดพลาด');
         }
-        followBtn.disabled = false;
-      };
-    })
-    .catch(() => {
-      fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
-      username.textContent = "";
-      followBtn.style.display = "none";
-    });
+      } catch (error) {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      }
+      
+      followBtn.disabled = false;
+    };
+  })
+  .catch(() => {
+    fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
+    username.textContent = "";
+    followBtn.style.display = "none";
+  });
 }
 document.getElementById("close-profile-popup").onclick = () => {
   document.getElementById("profile-popup-overlay").style.display = "none";
