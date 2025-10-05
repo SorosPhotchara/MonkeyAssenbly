@@ -58,7 +58,7 @@
             <a href="@Url.Action("Home", "Home")"><i class="fa-solid fa-home"></i></a>
             <a href="@Url.Action("Tags", "Tags")"><i class="fa-solid fa-tag"></i></a>
             <a href="#" class="add"><i class="fa-solid fa-plus"></i></a>
-          <a href="@Url.Action("Notify", "Notify")" class="notify-link">
+            <a href="@Url.Action("Notify", "Notify")" class="notify-link">
                 <i class="fa-solid fa-bell"></i>
                 <span class="notify-dot" style="display:none"></span>
             </a>
@@ -67,8 +67,6 @@
     </nav>
 
     <!-- ตัวอย่างใน sidebar -->
-   
-
     <!-- Profile Card -->
     <main class="profile-container">
         <div class="profile-card">
@@ -103,12 +101,12 @@
         <div class="modal-content">
             <h3>แก้ไขโปรไฟล์</h3>
 
-             <label for="first-name">First Name</label>
+            <label for="first-name">First Name</label>
             <input type="text" id="first-name" value="@Model.FirstName" placeholder="First Name">
 
             <label for="last-name">Last Name</label>
             <input type="text" id="last-name" value="@Model.LastName" placeholder="Last cName">
-            
+
             <label for="bio">คำอธิบายตัวเอง</label>
             <textarea id="bio" rows="3">@Model.Bio</textarea>
 
@@ -137,15 +135,14 @@
             <div class="confirm-icon">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
-            <h3 id="confirmTitle">ยืนยันการลบ</h3>
-            <p id="confirmMessage">คุณต้องการลบโพสต์นี้ใช่หรือไม่?</p>
-            <div class="confirm-btn-group">
-                <button class="btn-confirm-cancel">Cancel</button>
-                <button class="btn-confirm-ok">OK</button>
+            <h3 class="confirm-title">ยืนยันการลบ</h3>
+            <p class="confirm-message">คุณต้องการลบโพสต์นี้ใช่หรือไม่?</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn-cancel" id="confirmCancel">ยกเลิก</button>
+                <button class="confirm-btn-ok" id="confirmOk">ตกลง</button>
             </div>
         </div>
     </div>
-
 
     <script src="/js/profile.js"></script>
     @* <script>

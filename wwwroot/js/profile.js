@@ -521,7 +521,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if (!res.ok) throw new Error("ไม่สามารถลบโพสต์ได้");
 
-                    showToast.success.success("ลบโพสต์เรียบร้อยแล้ว"); 
+                    showToast.success("ลบโพสต์เรียบร้อยแล้ว"); 
                     loadYourPosts();
                 } catch (err) {
                     console.error(err);
