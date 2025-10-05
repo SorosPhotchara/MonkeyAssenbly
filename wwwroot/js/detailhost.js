@@ -440,18 +440,55 @@ document.querySelector(".leave").addEventListener("click", async () => {
 });
 
 document.querySelector(".end").addEventListener("click", async () => {
-    if (!confirm("คุณต้องการปิดรับสมัครกิจกรรมนี้หรือไม่?")) return;
+    // สร้าง Modal Popup
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+        <div class="modal-box">
+            <div class="modal-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="modal-title">ยืนยันการปิดรับสมัคร</div>
+            <div class="modal-message">คุณต้องการปิดรับสมัครกิจกรรมนี้หรือไม่?<br>การกระทำนี้ไม่สามารถยกเลิกได้</div>
+            <div class="modal-actions">
+                <button class="modal-cancel" id="modalCancel">ยกเลิก</button>
+                <button class="modal-confirm" id="modalConfirm">ยืนยัน</button>
+            </div>
+        </div>
+    `;
     
-    try {
-        await fetch(`/Post/EndPost/${activityId}`, { method: "PATCH" });
-        showToast.success("ปิดรับสมัครเรียบร้อย");
-        setTimeout(() => {
-            location.reload();
-        window.location.href = window.ProfileUrl;
-        }, 1000);
-    } catch (err) {
-        showToast.error("ไม่สามารถปิดรับสมัครได้");
-    }
+    document.body.appendChild(modal);
+    
+    // ปุ่มยกเลิก
+    document.getElementById('modalCancel').addEventListener('click', () => {
+        modal.remove();
+    });
+    
+    // ปุ่มยืนยัน
+    document.getElementById('modalConfirm').addEventListener('click', async () => {
+        modal.remove();
+        
+        try {
+            const res = await fetch(`/Post/EndPost/${activityId}`, { method: "PATCH" });
+            if (res.ok) {
+                showToast.success("ปิดรับสมัครเรียบร้อย");
+                setTimeout(() => {
+                    window.location.href = window.ProfileUrl;
+                }, 1000);
+            } else {
+                showToast.error("ไม่สามารถปิดรับสมัครได้");
+            }
+        } catch (err) {
+            showToast.error("เกิดข้อผิดพลาด: " + err.message);
+        }
+    });
+    
+    // คลิกนอก modal เพื่อปิด
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
 });
 
 // ---------------- Initial Load ----------------
