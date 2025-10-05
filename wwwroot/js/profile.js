@@ -118,7 +118,47 @@ document.addEventListener("DOMContentLoaded", () => {
     const SERVER_URL = "http://localhost:3000";
     const TIMEZONE = "Asia/Bangkok";
     let currentUserId = localStorage.getItem("userId") || "";
-    let isLoggedIn = !!currentUserId;
+  
+
+    function showConfirm(message, title = "ยืนยันการดำเนินการ") {
+        return new Promise((resolve) => {
+            const modal = document.getElementById("confirmModal");
+            const titleEl = modal.querySelector(".confirm-title");
+            const messageEl = modal.querySelector(".confirm-message");
+            const okBtn = document.getElementById("confirmOk");
+            const cancelBtn = document.getElementById("confirmCancel");
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.classList.add("show");
+
+            const closeModal = (result) => {
+                modal.classList.remove("show");
+                okBtn.removeEventListener("click", handleOk);
+                cancelBtn.removeEventListener("click", handleCancel);
+                modal.removeEventListener("click", handleBackdrop);
+                resolve(result);
+            };
+
+            const handleOk = () => closeModal(true);
+            const handleCancel = () => closeModal(false);
+            const handleBackdrop = (e) => {
+                if (e.target === modal) closeModal(false);
+            };
+
+            okBtn.addEventListener("click", handleOk);
+            cancelBtn.addEventListener("click", handleCancel);
+            modal.addEventListener("click", handleBackdrop);
+            
+            const handleEsc = (e) => {
+                if (e.key === "Escape") {
+                    document.removeEventListener("keydown", handleEsc);
+                    closeModal(false);
+                }
+            };
+            document.addEventListener("keydown", handleEsc);
+        });
+    }
 
     // ---------------- Theme Toggle ----------------
     const root = document.documentElement;
@@ -605,4 +645,49 @@ document.addEventListener("DOMContentLoaded", () => {
     loadHistory();
 
     updateMenu();
+
+    // ตรวจสอบว่าผู้ใช้ล็อกอินหรือไม่ (ปรับตามแต่ละหน้า)
+  let isLoggedIn = true;
+  // ถ้าในหน้า profile.js หรือ tags.js มีตัวแปร isLoggedIn อยู่แล้ว ให้ใช้ตัวแปรนั้น
+
+  const notifyDot = document.querySelector('.notify-dot');
+  const notifyLink = document.querySelector('.notify-link');
+
+  async function checkNotification() {
+    if (!notifyDot || !isLoggedIn) return;
+    try {
+      const res = await fetch("/Notify/Latest");
+      const notifications = await res.json();
+      if (notifications.length === 0) {
+        notifyDot.style.display = "none";
+        return;
+      }
+      const latestId = notifications[0].notification_id;
+      const lastReadId = Number(sessionStorage.getItem("lastReadNotificationId") || 0);
+
+      if (latestId > lastReadId) {
+        notifyDot.style.display = "block";
+      } else {
+        notifyDot.style.display = "none";
+      }
+    } catch (e) {
+      notifyDot.style.display = "none";
+    }
+  }
+
+  if (notifyLink) {
+    notifyLink.addEventListener("click", async () => {
+      try {
+        const res = await fetch("/Notify/Latest");
+        const notifications = await res.json();
+        if (notifications.length > 0) {
+          sessionStorage.setItem("lastReadNotificationId", notifications[0].notification_id);
+        }
+        notifyDot.style.display = "none";
+      } catch (e) {}
+    });
+  }
+
+  setInterval(checkNotification, 5000);
+  checkNotification();
 });
