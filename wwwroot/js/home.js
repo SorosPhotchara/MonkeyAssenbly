@@ -385,6 +385,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
       }
       const diffMs = now - created;
+      console.log('DEBUG time:', {created, now, diffMs, createdAtStr, serverNow, serverNowClientReceived});
       if (diffMs < 60000) return "เมื่อกี้นี้";
       const diffMin = Math.floor(diffMs/60000);
       if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
