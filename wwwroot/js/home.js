@@ -1,3 +1,4 @@
+const TIMEZONE = "Asia/Bangkok";
 // ==================== PROFILE POPUP SYSTEM START ====================
 function showProfilePopup(userId) {
   const overlay = document.getElementById("profile-popup-overlay");
@@ -150,7 +151,6 @@ const showToast = new ToastNotification();
 
 // ==================== MAIN APPLICATION LOGIC START ====================
 document.addEventListener("DOMContentLoaded", async () => {
-  const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
   const createEventModal = document.getElementById("createEventModal");
   const closeModalBtn = document.querySelector(".close-btn");
@@ -162,7 +162,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   let currentUserId = data.userId || null;
   let isLoggedIn = data.isLoggedIn || false;
   let currentUserName = data.isLoggedIn ? `${data.firstName} ${data.lastName}` : "";
-  
+
+  // Global serverNow for time calculations
+  let serverNow = null;
+  let serverNowClientReceived = null;
+
+  // Helper to sync serverNow with client time
+  function setServerNowFromEvents(events) {
+    if (Array.isArray(events) && events.length > 0 && events[0].serverNow) {
+      serverNow = new Date(events[0].serverNow.replace(/ /, 'T'));
+      serverNowClientReceived = new Date();
+    } else {
+      serverNow = null;
+      serverNowClientReceived = null;
+    }
+  }
+
   console.log("Login Status:", isLoggedIn ? "Logged in" : "Not logged in");
   console.log("User ID:", currentUserId, "Name:", currentUserName);
   // ==================== เช็ค LOGIN จาก SESSION END ====================
@@ -197,7 +212,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
           const res = await fetch(`/Post/GetFollowedPosts/${currentUserId}`);
           if (!res.ok) throw new Error("โหลดโพสไม่สำเร็จ");
-          cachedEvents = await res.json();
+          let data = await res.json();
+          // Support both array and { posts: [...], serverNow: ... }
+          if (Array.isArray(data)) {
+            cachedEvents = data;
+          } else if (data && Array.isArray(data.posts)) {
+            cachedEvents = data.posts;
+            // Attach serverNow to each post for time calculation
+            if (data.serverNow) {
+              cachedEvents.forEach(post => post.serverNow = data.serverNow);
+            }
+          } else {
+            cachedEvents = [];
+          }
+          console.log('DEBUG: cachedEvents', cachedEvents);
+          setServerNowFromEvents(cachedEvents);
           renderEventsCache();
         } catch (e) {
           followFeed.innerHTML = "<p style='padding:2rem;color:red;'>เกิดข้อผิดพลาด</p>";
@@ -289,7 +318,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         res = await fetch(`/Post/GetAllPost`);
       }
       if (!res.ok) throw new Error("ไม่สามารถโหลดข้อมูลได้");
-      cachedEvents = await res.json();
+      let data = await res.json();
+      // Support both array and { posts: [...], serverNow: ... }
+      if (Array.isArray(data)) {
+        cachedEvents = data;
+      } else if (data && Array.isArray(data.posts)) {
+        cachedEvents = data.posts;
+        // Attach serverNow to each post for time calculation
+        if (data.serverNow) {
+          cachedEvents.forEach(post => post.serverNow = data.serverNow);
+        }
+      } else {
+        cachedEvents = [];
+      }
+      console.log('DEBUG: cachedEvents', cachedEvents);
+      setServerNowFromEvents(cachedEvents);
       renderEventsCache();
     } catch(err){
       console.error("Error fetching events:", err);
@@ -329,11 +372,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const avatarHTML = `<img src="${eventData.avatar}" alt="avatar" class="avatar">`;
     const isJoined = isUserJoined(eventData.participants);
 
-    // Show time since createdAt
+    // Show time since createdAt using serverNow
     function getTimeSinceCreated(createdAtStr) {
       if (!createdAtStr) return "-";
       const created = new Date(createdAtStr.replace(/ /, 'T'));
-      const now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
+      let now;
+      if (serverNow && serverNowClientReceived) {
+        // Estimate serverNow at this moment
+        const elapsed = new Date() - serverNowClientReceived;
+        now = new Date(serverNow.getTime() + elapsed);
+      } else {
+        now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
+      }
       const diffMs = now - created;
       if (diffMs < 60000) return "เมื่อกี้นี้";
       const diffMin = Math.floor(diffMs/60000);

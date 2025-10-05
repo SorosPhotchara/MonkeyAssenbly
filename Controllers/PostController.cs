@@ -77,7 +77,8 @@ namespace MonkeyAssenbly.Controllers
                 }
             }
 
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
 
         [HttpGet("GetMyPost/{user_id}")]
@@ -136,7 +137,8 @@ namespace MonkeyAssenbly.Controllers
                 }
             }
 
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
 
         [HttpGet("GetPostsByTag")]
@@ -202,7 +204,8 @@ namespace MonkeyAssenbly.Controllers
                 }
             }
 
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
 
         [HttpGet("GetJoinedPost/{user_id}")]
@@ -957,7 +960,8 @@ namespace MonkeyAssenbly.Controllers
                     });
                 }
             }
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
         // ==================== JOIN EVENT SYSTEM END ====================
 
