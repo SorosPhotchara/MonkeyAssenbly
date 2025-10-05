@@ -622,6 +622,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         return;
                     }
 
+                   
                     const res = await fetch(`/Post/UnjoinEvent?postId=${postId}`, {
                         method: "POST",
                         credentials: "same-origin",
