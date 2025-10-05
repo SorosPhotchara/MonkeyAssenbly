@@ -1,4 +1,126 @@
-// หน้า home
+// ==================== PROFILE POPUP SYSTEM START ====================
+function showProfilePopup(userId) {
+  const overlay = document.getElementById("profile-popup-overlay");
+  const avatar = document.getElementById("profile-popup-avatar");
+  const fullname = document.getElementById("profile-popup-fullname");
+  const username = document.getElementById("profile-popup-username");
+  const followBtn = document.getElementById("profile-popup-follow-btn");
+  overlay.style.display = "flex";
+  avatar.src = "/uploads/default-avatar.png";
+  fullname.textContent = "Loading...";
+  username.textContent = "";
+  followBtn.style.display = "none";
+  followBtn.disabled = true;
+
+  fetch(`/Profile/GetUserProfile?userId=${userId}`)
+    .then(res => res.json())
+    .then(data => {
+      avatar.src = data.avatar || "/uploads/default-avatar.png";
+      fullname.textContent = `${data.firstName} ${data.lastName}`;
+      username.textContent = data.username ? `@${data.username}` : "";
+      followBtn.style.display = (data.isSelf ? "none" : "inline-block");
+      followBtn.disabled = false;
+      followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+      followBtn.classList.toggle("unfollow", !!data.isFollowing);
+      followBtn.onclick = async () => {
+        followBtn.disabled = true;
+        const action = data.isFollowing ? "Unfollow" : "Follow";
+        const res = await fetch(`/Profile/${action}?userId=${userId}`, { method: "POST" });
+        if (res.ok) {
+          data.isFollowing = !data.isFollowing;
+          followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+          followBtn.classList.toggle("unfollow", !!data.isFollowing);
+        }
+        followBtn.disabled = false;
+      };
+    })
+    .catch(() => {
+      fullname.textContent = "ไม่พบข้อมูลผู้ใช้";
+      username.textContent = "";
+      followBtn.style.display = "none";
+    });
+}
+document.getElementById("close-profile-popup").onclick = () => {
+  document.getElementById("profile-popup-overlay").style.display = "none";
+};
+document.getElementById("profile-popup-overlay").addEventListener("click", e => {
+  if (e.target === e.currentTarget) e.currentTarget.style.display = "none";
+});
+// ==================== PROFILE POPUP SYSTEM END ====================
+// ==================== TOAST NOTIFICATION SYSTEM START ====================
+class ToastNotification {
+  constructor() {
+    this.container = null;
+    this.init();
+  }
+
+  init() {
+    if (!document.querySelector('.toast-container')) {
+      this.container = document.createElement('div');
+      this.container.className = 'toast-container';
+      document.body.appendChild(this.container);
+    } else {
+      this.container = document.querySelector('.toast-container');
+    }
+  }
+
+  show(message, type = 'info', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+
+    const icons = {
+      success: '<i class="fa-solid fa-circle-check"></i>',
+      error: '<i class="fa-solid fa-circle-xmark"></i>',
+      warning: '<i class="fa-solid fa-triangle-exclamation"></i>',
+      info: '<i class="fa-solid fa-circle-info"></i>'
+    };
+
+    const titles = {
+      success: 'สำเร็จ',
+      error: 'ข้อผิดพลาด',
+      warning: 'คำเตือน',
+      info: 'แจ้งเตือน'
+    };
+
+    toast.innerHTML = `
+      <div class="toast-icon">${icons[type]}</div>
+      <div class="toast-content">
+        <div class="toast-title">${titles[type]}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    `;
+
+    this.container.appendChild(toast);
+
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', () => this.remove(toast));
+
+    if (duration > 0) {
+      setTimeout(() => this.remove(toast), duration);
+    }
+
+    return toast;
+  }
+
+  remove(toast) {
+    toast.classList.add('removing');
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }
+
+  success(message, duration) { return this.show(message, 'success', duration); }
+  error(message, duration) { return this.show(message, 'error', duration); }
+  warning(message, duration) { return this.show(message, 'warning', duration); }
+  info(message, duration) { return this.show(message, 'info', duration); }
+}
+
+const showToast = new ToastNotification();
+// ==================== TOAST NOTIFICATION SYSTEM END ====================
+
 document.addEventListener("DOMContentLoaded", async () => {
   const TIMEZONE = "Asia/Bangkok";
   const addBtn = document.querySelector(".sidebar .add"); 
@@ -13,8 +135,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let isLoggedIn = data.isLoggedIn || false;
   let currentUserName = data.isLoggedIn ? `${data.firstName} ${data.lastName}` : "";
   
-  console.log("📋 Login Status:", isLoggedIn ? "✅ Logged in" : "❌ Not logged in");
-  console.log("👤 User ID:", currentUserId, "Name:", currentUserName);
+  console.log("Login Status:", isLoggedIn ? "Logged in" : "Not logged in");
+  console.log("User ID:", currentUserId, "Name:", currentUserName);
   // ==================== เช็ค LOGIN จาก SESSION END ====================
 
   // ---------------- Theme ----------------
@@ -32,12 +154,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---------------- Sidebar Tabs ----------------
   document.querySelectorAll(".menu h2").forEach(item => {
-    item.addEventListener("click", () => {
+    item.addEventListener("click", async () => {
       document.querySelectorAll(".menu h2").forEach(el=>el.classList.remove("active"));
       item.classList.add("active");
       document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
       document.getElementById(item.dataset.tab).classList.add("active");
-      renderEventsCache();
+      if(item.dataset.tab === "follow") {
+        if (!isLoggedIn) {
+          showToast.warning("กรุณาเข้าสู่ระบบเพื่อดูโพสที่คุณติดตาม");
+          followFeed.innerHTML = "<p style='padding:2rem;'>กรุณาเข้าสู่ระบบ</p>";
+          cachedEvents = [];
+          return;
+        }
+        try {
+          const res = await fetch(`/Post/GetFollowedPosts/${currentUserId}`);
+          if (!res.ok) throw new Error("โหลดโพสไม่สำเร็จ");
+          cachedEvents = await res.json();
+          renderEventsCache();
+        } catch (e) {
+          followFeed.innerHTML = "<p style='padding:2rem;color:red;'>เกิดข้อผิดพลาด</p>";
+          cachedEvents = [];
+        }
+      } else {
+        await loadEventsByTag(tagQuery);
+      }
     });
   });
 
@@ -76,9 +216,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           try{
             await fetch("/Account/Logout",{method:"POST"});
             localStorage.removeItem("userId");
-            alert("ออกจากระบบเรียบร้อย");
-            location.reload();
-          } catch(err){ alert("เกิดข้อผิดพลาด: "+err.message); }
+            showToast.success("ออกจากระบบเรียบร้อย");
+            setTimeout(() => location.reload(), 1000);
+            } catch(err){ showToast.error("เกิดข้อผิดพลาด: "+err.message); }
         });
     }
   };
@@ -86,7 +226,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // ---------------- Create Event Modal ----------------
   addBtn.addEventListener("click", (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
+    if (!isLoggedIn) {
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนสร้างกิจกรรม");
+      return;
+    }
     createEventModal.style.display = "flex";
   });
 
@@ -121,28 +265,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       renderEventsCache();
     } catch(err){
       console.error("Error fetching events:", err);
+      showToast.error("ไม่สามารถโหลดข้อมูลได้");
       cachedEvents = [];
       renderEventsCache();
     }
   }
 
-  // ฟังก์ชันเช็คว่า user join แล้วหรือยัง
   function isUserJoined(participants) {
     if (!participants || !currentUserId) return false;
     return participants.some(p => String(p) === String(currentUserId));
   }
 
   function renderEventsCache(){
-     forYouFeed.innerHTML=""; 
-     followFeed.innerHTML="";
-    cachedEvents.forEach(event => {
-      const cardForYou = createEventCard(event);
-      forYouFeed.appendChild(cardForYou);
-      if (isLoggedIn && event.hostsFollowing && event.hostsFollowing.includes(currentUserId)) {
-        const cardFollow = createEventCard(event, true);
-        followFeed.appendChild(cardFollow);
-      }
-    });
+    forYouFeed.innerHTML = "";
+    followFeed.innerHTML = "";
+    const activeTab = document.querySelector('.menu h2.active').dataset.tab;
+    if (activeTab === "follow") {
+      cachedEvents.forEach(event => {
+        const card = createEventCard(event);
+        followFeed.appendChild(card);
+      });
+    } else {
+      cachedEvents.forEach(event => {
+        const card = createEventCard(event);
+        forYouFeed.appendChild(card);
+      });
+    }
   }
 
   function createEventCard(eventData) {
@@ -157,7 +305,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <div class="event-header">
         <div class="host-info">
           ${avatarHTML}
-          <span class="host">${eventData.host}</span>
+          <span class="host" data-host-id="${eventData.hostId || ''}" style="cursor: pointer;">${eventData.host}</span>
           <small class="time">0 นาที</small>
         </div>
         <span class="status ${status}">${status.toUpperCase()}</span>
@@ -185,6 +333,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
     
+    const hostElement = card.querySelector(".host");
+    hostElement.addEventListener("click", e => {
+      e.stopPropagation();
+      if (eventData.hostId) {
+        showProfilePopup(eventData.hostId);
+      } else {
+        showToast.warning("ไม่พบข้อมูลผู้สร้างโพสต์");
+      }
+    });
+    
     card.addEventListener("click", () => {
       openPopup(eventData);
     });
@@ -201,11 +359,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     return event.status;
   }
 
-  // ฟังก์ชัน Join/Unjoin Event
   async function joinEvent(postId, isCurrentlyJoined = false) {
     if (!isLoggedIn) {
-      alert("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
-      window.location.href = window.LoginUrl;
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนเข้าร่วมกิจกรรม");
+      setTimeout(() => window.location.href = window.LoginUrl, 1500);
       return;
     }
     
@@ -219,19 +376,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
       
       if (response.status === 401) {
-        alert("กรุณาเข้าสู่ระบบ");
-        window.location.href = window.LoginUrl;
+        showToast.warning("กรุณาเข้าสู่ระบบ");
+        setTimeout(() => window.location.href = window.LoginUrl, 1500);
         return;
       }
       
       const result = await response.json();
       
       if (!response.ok) {
-        alert(result.message || "ไม่สามารถดำเนินการได้");
+        showToast.error(result.message || "ไม่สามารถดำเนินการได้");
         return;
       }
       
-      alert(result.message);
+      showToast.success(result.message);
       await loadEventsByTag(tagQuery);
       
       if (!popup.classList.contains("hidden")) {
@@ -240,7 +397,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       
     } catch (error) {
       console.error("Error join/unjoin:", error);
-      alert("เกิดข้อผิดพลาด");
+      showToast.error("เกิดข้อผิดพลาด");
     }
   }
 
@@ -251,35 +408,58 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function openPopup(eventData) {
     currentPostId = eventData.id;
-    
-    console.log("=== POPUP DEBUG ===");
-    console.log("Event ID:", eventData.id);
-    console.log("Current User ID:", currentUserId, "Type:", typeof currentUserId);
-    console.log("Participants:", eventData.participants);
-    
-    document.getElementById("event-title").textContent = eventData.eventName;
-    document.getElementById("event-host").textContent = eventData.host;
-    document.getElementById("event-place").textContent = eventData.location || "ไม่ระบุ";
-    
-    const participantsList = document.getElementById("participants-list");
-    participantsList.innerHTML = "";
-    if(eventData.participants && eventData.participants.length > 0) {
-      eventData.participants.forEach(p => {
-        const li = document.createElement("li");
-        li.textContent = `User ${p}`;
-        participantsList.appendChild(li);
+    // ดึงข้อมูลโพสต์แบบละเอียดเพื่อให้ได้ participants ที่เป็น object
+    fetch(`/Post/GetPostById/${eventData.id}`)
+      .then(res => res.json())
+      .then(data => {
+        const detail = data.post;
+        document.getElementById("event-title").textContent = detail.eventName;
+        const hostElement = document.getElementById("event-host");
+        hostElement.textContent = detail.host;
+        hostElement.style.cursor = "pointer";
+        hostElement.style.color = "var(--head-font)";
+        hostElement.style.transition = "color 0.2s ease";
+        hostElement.onclick = (e) => {
+          e.stopPropagation();
+          if (detail.hostId) {
+            showProfilePopup(detail.hostId);
+          } else {
+            showToast.warning("ไม่พบข้อมูลผู้สร้างโพสต์");
+          }
+        };
+        hostElement.onmouseenter = () => {
+          hostElement.style.color = "var(--border)";
+          hostElement.style.textDecoration = "underline";
+        };
+        hostElement.onmouseleave = () => {
+          hostElement.style.color = "var(--head-font)";
+          hostElement.style.textDecoration = "none";
+        };
+        document.getElementById("event-place").textContent = detail.location || "ไม่ระบุ";
+        const participantsList = document.getElementById("participants-list");
+        participantsList.innerHTML = "";
+        if(detail.participants && detail.participants.length > 0) {
+          detail.participants.forEach(p => {
+            const li = document.createElement("li");
+            li.innerHTML = `<img src="${p.avatar}" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:6px;"> ${p.name}`;
+            participantsList.appendChild(li);
+          });
+        } else {
+          participantsList.innerHTML = "<li>ยังไม่มีผู้เข้าร่วม</li>";
+        }
+        const isJoined = isUserJoined(detail.participants.map(x=>x.userId));
+        const joinBtn = document.getElementById("popup-join-btn");
+        const now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
+        const isFull = (detail.maxParticipants>0 && detail.currentParticipants>=detail.maxParticipants);
+        const isExpired = detail.dateClose && new Date(detail.dateClose)<now;
+        const isClosedByHost = detail.status==="closed";
+        const isClosed = (isFull || isExpired || isClosedByHost);
+        joinBtn.textContent = isClosed ? "CLOSED" : (isJoined ? "UNJOIN" : "JOIN");
+        joinBtn.style.backgroundColor = isJoined ? "#6c757d" : "";
+        joinBtn.disabled = isClosed;
+        loadComments(currentPostId);
+        popup.classList.remove("hidden");
       });
-    } else {
-      participantsList.innerHTML = "<li>ยังไม่มีผู้เข้าร่วม</li>";
-    }
-    
-    const isJoined = isUserJoined(eventData.participants);
-    const joinBtn = document.getElementById("popup-join-btn");
-    joinBtn.textContent = isJoined ? "UNJOIN" : "JOIN";
-    joinBtn.style.backgroundColor = isJoined ? "#6c757d" : "";
-    
-    loadComments(currentPostId);
-    popup.classList.remove("hidden");
   }
 
   async function loadComments(postId) {
@@ -313,27 +493,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       console.error("Error loading comments:", error);
       commentList.innerHTML = "<p style='color:red;'>เกิดข้อผิดพลาดในการโหลด comments</p>";
+      showToast.error("ไม่สามารถโหลดความคิดเห็นได้");
     }
   }
 
-  // ส่ง comment
   document.getElementById("popup-comment-send").addEventListener("click", async () => {
     const input = document.getElementById("popup-comment-input");
     const text = input.value.trim();
     
     if (!isLoggedIn) {
-      alert("กรุณาเข้าสู่ระบบก่อน Comment");
-      window.location.href = window.LoginUrl;
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
+      setTimeout(() => window.location.href = window.LoginUrl, 1500);
       return;
     }
 
     if (!text) {
-      alert("กรุณากรอกความคิดเห็น");
+      showToast.warning("กรุณากรอกความคิดเห็น");
       return;
     }
     
     if (!currentPostId) {
-      alert("เกิดข้อผิดพลาด");
+      showToast.error("เกิดข้อผิดพลาด");
       return;
     }
     
@@ -341,10 +521,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const response = await fetch(`/Post/AddComment?postId=${currentPostId}&commentText=${encodeURIComponent(text)}`, {
         method: "POST"
       });
-      
-      if (response.status === 401) {
-        alert("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
-        window.location.href = window.LoginUrl;
+          
+    if (response.status === 401) {
+      showToast.warning("กรุณาเข้าสู่ระบบก่อนแสดงความคิดเห็น");
+      setTimeout(() => window.location.href = window.LoginUrl, 1500);
         return;
       }
       
@@ -353,11 +533,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
       
       input.value = "";
+      showToast.success("ส่งความคิดเห็นสำเร็จ");
       loadComments(currentPostId);
       
     } catch (error) {
       console.error("Error sending comment:", error);
-      alert("เกิดข้อผิดพลาดในการส่ง comment");
+      showToast.error("เกิดข้อผิดพลาดในการส่งความคิดเห็น");
     }
   });
 
@@ -367,10 +548,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // ปุ่ม JOIN/UNJOIN ใน popup
   document.getElementById("popup-join-btn").addEventListener("click", async () => {
     if (!currentPostId) {
-      alert("เกิดข้อผิดพลาด");
+      showToast.error("เกิดข้อผิดพลาด");
       return;
     }
     
