@@ -767,7 +767,6 @@ html.dark .sidebar a.add:hover i {
   font-size: 12px;
 }
 
-/* Badge หมดเวลา */
 .expired-badge {
   padding: 6px 14px;
   border-radius: 20px;
@@ -784,7 +783,6 @@ html.dark .expired-badge {
   color: var(--sub-font);
 }
 
-/* ปรับ post-header ให้รองรับปุ่ม */
 .post-header {
   display: flex;
   align-items: center;
@@ -941,7 +939,6 @@ html.dark .expired-badge {
   transform: scale(0.95);
 }
 
-/* Success Toast */
 .toast-notification.success {
   border-left-color: #10b981;
 }
@@ -952,7 +949,6 @@ html.dark .expired-badge {
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
 
-/* Error Toast */
 .toast-notification.error {
   border-left-color: #ef4444;
 }
@@ -963,7 +959,6 @@ html.dark .expired-badge {
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
-/* Warning Toast */
 .toast-notification.warning {
   border-left-color: #f59e0b;
 }
@@ -974,7 +969,6 @@ html.dark .expired-badge {
   box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
 }
 
-/* Info Toast */
 .toast-notification.info {
   border-left-color: #3b82f6;
 }
@@ -985,7 +979,6 @@ html.dark .expired-badge {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
-/* Dark Mode */
 html.dark .toast-notification {
   background: var(--bg);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4),
@@ -1155,7 +1148,6 @@ html.dark .toast-notification.info .toast-icon {
   transform: translateY(0);
 }
 
-/* Dark Mode */
 html.dark .confirm-modal-content {
   background: var(--bg);
   border-color: var(--highlight);
@@ -1179,8 +1171,76 @@ html.dark .confirm-icon i {
 /* =======================
    Responsive Sidebar  for Profile Page
    ======================= */
-@media (max-width: 768px) {
+@media (max-width: 1024px) and (min-width: 769px) {
+  body {
+    padding: 0;
+  }
 
+  .navbar {
+    height: 65px;
+    padding: 0 30px;
+  }
+
+  .logo img {
+    height: 90px;
+  }
+
+  .menu {
+    gap: 35px;
+  }
+
+  .menu h2 {
+    font-size: 15px;
+  }
+
+  .toggle {
+    width: 85px;
+    height: 42px;
+  }
+
+  .toggle i {
+    line-height: 42px;
+    font-size: 19px;
+  }
+
+  .toggle .ball {
+    width: 28px;
+    height: 28px;
+    margin: 7px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(43px);
+  }
+
+  .profile-container {
+    margin-top: 90px;
+    padding: 20px 15px;
+  }
+
+  .profile-card {
+    max-width: 550px;
+    padding: 22px;
+    min-height: 550px;
+  }
+
+  .profile-pic {
+    width: 100px;
+    height: 100px;
+  }
+
+  #profile-username {
+    font-size: 20px;
+  }
+
+  .toast-container {
+    top: 80px;
+    right: 15px;
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
   .hamburger,
   .hamburger-menu {
     display: none !important;
@@ -1218,6 +1278,16 @@ html.dark .confirm-icon i {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
 
+  body {
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  .navbar {
+    height: 55px;
+    padding: 0 15px;
+  }
+
   .logo {
     font-size: 20px;
   }
@@ -1226,11 +1296,21 @@ html.dark .confirm-icon i {
     width: 75px;
     height: auto;
   }
-  
+
+  .menu {
+    gap: 25px;
+  }
+
+  .menu h2 {
+    font-size: 14px;
+  }
+
   .toggle {
     margin-top: 10px;
     width: 60px;
     height: 30px;
+    top: 12px;
+    right: 12px;
   }
 
   .toggle i {
@@ -1248,30 +1328,564 @@ html.dark .confirm-icon i {
     transform: translateX(30px);
   }
 
-    .toast-container {
+  .profile-container {
+    margin-top: 70px;
+    margin-bottom: 90px;
+    padding: 15px;
+  }
+
+  .profile-card {
+    max-width: 100%;
+    padding: 20px 18px;
+    min-height: 500px;
+    max-height: none;
+    border-radius: 16px;
+  }
+
+  .profile-pic {
+    width: 90px;
+    height: 90px;
+    border-width: 2.5px;
+  }
+
+  #profile-username {
+    font-size: 20px;
+    margin: 8px 0;
+  }
+
+  #profile-bio {
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .follow-info {
+    gap: 18px;
+    margin-bottom: 18px;
+    font-size: 14px;
+  }
+
+  .edit-btn,
+  .follow-btn {
+    padding: 10px 35px;
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  .tabs {
+    margin-bottom: 16px;
+  }
+
+  .tab {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .tab.active {
+    border-bottom-width: 2.5px;
+  }
+
+  .tab-content {
+    padding-right: 3px;
+  }
+
+  .post-item {
+    padding: 14px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+  }
+
+  .post-avatar {
+    width: 40px;
+    height: 40px;
+    margin-right: 8px;
+  }
+
+  .post-info h3 {
+    font-size: 14px;
+  }
+
+  .post-info .timestamp {
+    font-size: 11px;
+  }
+
+  .post-menu {
+    font-size: 16px;
+    padding: 4px 8px;
+  }
+
+  .post-menu-dropdown {
+    right: 10px;
+    top: 32px;
+    min-width: 130px;
+  }
+
+  .post-menu-dropdown li {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .post-body h4 {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .post-body p {
+    font-size: 13px;
+  }
+
+  .unjoin-btn {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+
+  .expired-badge {
+    padding: 5px 12px;
+    font-size: 11px;
+  }
+
+  .modal-content {
+    max-width: 90%;
+    padding: 22px 25px;
+    border-radius: 14px;
+  }
+
+  .modal-content h3 {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+
+  .modal-content label {
+    font-size: 13px;
+  }
+
+  .modal-content input[type="text"],
+  .modal-content textarea {
+    padding: 9px 11px;
+    font-size: 13px;
+  }
+
+  .modal-content .file-label {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+
+  .modal-content button {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .confirm-modal-content {
+    max-width: 90%;
+    padding: 25px 28px;
+  }
+
+  .confirm-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 16px;
+  }
+
+  .confirm-icon i {
+    font-size: 28px;
+  }
+
+  .confirm-modal-content h3 {
+    font-size: 19px;
+    margin-bottom: 10px;
+  }
+
+  .confirm-modal-content p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .confirm-btn-group button {
+    padding: 10px 24px;
+    font-size: 14px;
+    min-width: 90px;
+  }
+
+  .toast-container {
     right: 10px;
     left: 10px;
-    top: 80px;
+    top: 65px;
     max-width: none;
   }
-  
+
   .toast-notification {
     min-width: auto;
     width: 100%;
     padding: 16px 18px;
+    border-radius: 12px;
   }
-  
+
   .toast-icon {
     width: 36px;
     height: 36px;
     font-size: 20px;
   }
-  
+
   .toast-title {
     font-size: 14px;
   }
-  
+
   .toast-message {
     font-size: 13px;
+  }
+
+  .toast-close {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+  }
+
+  .toast {
+    bottom: 90px;
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0;
+  }
+
+  .navbar {
+    height: 50px;
+    padding: 0 12px;
+  }
+
+  .logo img {
+    width: 65px;
+  }
+
+  .menu {
+    gap: 18px;
+  }
+
+  .menu h2 {
+    font-size: 13px;
+  }
+
+  .toggle {
+    width: 55px;
+    height: 28px;
+    top: 11px;
+    right: 11px;
+    margin-top: 8px;
+  }
+
+  .toggle i {
+    font-size: 15px;
+    line-height: 28px;
+  }
+
+  .toggle .ball {
+    width: 18px;
+    height: 18px;
+    margin: 5px;
+  }
+
+  html.dark .toggle .ball {
+    transform: translateX(27px);
+  }
+
+  .sidebar {
+    padding: 8px 0;
+  }
+
+  .sidebar a {
+    width: 42px;
+    height: 42px;
+  }
+
+  .sidebar a.add {
+    width: 56px;
+    height: 56px;
+    margin-top: -22px;
+  }
+
+  .profile-container {
+    margin-top: 60px;
+    margin-bottom: 80px;
+    padding: 12px;
+  }
+
+  .profile-card {
+    padding: 18px 16px;
+    min-height: 450px;
+    border-radius: 14px;
+  }
+
+  .profile-pic {
+    width: 80px;
+    height: 80px;
+    border-width: 2px;
+    margin-bottom: 8px;
+  }
+
+  #profile-username {
+    font-size: 18px;
+    margin: 6px 0;
+  }
+
+  #profile-bio {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .follow-info {
+    gap: 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
+  .edit-btn,
+  .follow-btn {
+    padding: 9px 30px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    border-radius: 20px;
+  }
+
+  .tabs {
+    margin-bottom: 14px;
+  }
+
+  .tab {
+    padding: 9px;
+    font-size: 13px;
+  }
+
+  .tab.active {
+    border-bottom-width: 2px;
+  }
+
+  .post-item {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  .post-avatar {
+    width: 38px;
+    height: 38px;
+    margin-right: 8px;
+    border-width: 1.5px;
+  }
+
+  .post-info h3 {
+    font-size: 13px;
+  }
+
+  .post-info .timestamp {
+    font-size: 10px;
+  }
+
+  .post-menu {
+    font-size: 15px;
+    padding: 3px 6px;
+  }
+
+  .post-menu-dropdown {
+    right: 8px;
+    min-width: 120px;
+    font-size: 13px;
+  }
+
+  .post-menu-dropdown li {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .post-body h4 {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .post-body p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .unjoin-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  .unjoin-btn i {
+    font-size: 11px;
+  }
+
+  .expired-badge {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+
+  .modal-content {
+    padding: 20px 22px;
+    border-radius: 12px;
+  }
+
+  .modal-content h3 {
+    font-size: 17px;
+    margin-bottom: 14px;
+  }
+
+  .modal-content label {
+    font-size: 12px;
+    margin: 8px 0 4px;
+  }
+
+  .modal-content input[type="text"],
+  .modal-content textarea {
+    padding: 8px 10px;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .modal-content .file-label {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .modal-content .btn-group {
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .modal-content button {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+
+  .confirm-modal-content {
+    padding: 22px 24px;
+    border-radius: 14px;
+  }
+
+  .confirm-icon {
+    width: 55px;
+    height: 55px;
+    margin-bottom: 14px;
+  }
+
+  .confirm-icon i {
+    font-size: 24px;
+  }
+
+  .confirm-modal-content h3 {
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+
+  .confirm-modal-content p {
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+
+  .confirm-btn-group {
+    gap: 10px;
+  }
+
+  .confirm-btn-group button {
+    padding: 9px 20px;
+    font-size: 13px;
+    min-width: 80px;
+  }
+
+  .toast-container {
+    top: 60px;
+  }
+
+  .toast-notification {
+    padding: 14px 16px;
+    border-radius: 10px;
+  }
+
+  .toast-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    border-radius: 10px;
+  }
+
+  .toast-title {
+    font-size: 13px;
+  }
+
+  .toast-message {
+    font-size: 12px;
+  }
+
+  .toast-close {
+    width: 24px;
+    height: 24px;
+    font-size: 15px;
+  }
+
+  .toast {
+    bottom: 80px;
+    padding: 9px 18px;
+    font-size: 12px;
+    border-radius: 20px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .profile-container {
+    margin-top: 60px;
+    margin-bottom: 70px;
+  }
+
+  .profile-card {
+    min-height: auto;
+    max-height: 75vh;
+  }
+
+  .profile-pic {
+    width: 70px;
+    height: 70px;
+  }
+
+  #profile-username {
+    font-size: 17px;
+  }
+
+  .sidebar {
+    padding: 6px 0;
+  }
+
+  .sidebar a.add {
+    margin-top: -20px;
+  }
+
+  .modal-content,
+  .confirm-modal-content {
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+}
+
+@supports (padding: max(0px)) {
+  @media (max-width: 768px) {
+    .sidebar {
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    .profile-container {
+      margin-bottom: max(90px, calc(90px + env(safe-area-inset-bottom)));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sidebar {
+      padding-bottom: max(8px, env(safe-area-inset-bottom));
+    }
+
+    .profile-container {
+      margin-bottom: max(80px, calc(80px + env(safe-area-inset-bottom)));
+    }
   }
 }

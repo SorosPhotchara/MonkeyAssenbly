@@ -336,23 +336,76 @@ html.dark .login-btn:hover {
 /* =======================
    Responsive Login Card
 ======================= */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .login-card {
+    max-width: 400px;
+    padding: 36px 28px;
+  }
+
+  .login-card h2 {
+    font-size: 32px;
+    margin-bottom: 26px;
+  }
+
+  .input-group {
+    margin-bottom: 14px;
+  }
+
+  .input-group input {
+    font-size: 15px;
+    padding: 11px 0;
+  }
+
+  .input-group label {
+    font-size: 13px;
+    top: 13px;
+  }
+
+  .input-group i {
+    font-size: 19px;
+  }
+
+  .forget-link {
+    font-size: 15px;
+  }
+
+  .login-btn {
+    font-size: 15px;
+    padding: 13px;
+  }
+
+  .login-card p {
+    font-size: 15px;
+    margin-top: 18px;
+  }
+
+  .login-card p .sign-up {
+    font-size: 16px;
+  }
+}
+
 @media (max-width: 768px) {
   body {
-    padding: 20px;
+    padding: 80px 20px 40px 20px;
     justify-content: flex-start;
+    align-items: center;
   }
 
   .login-card {
     width: 100%;
     max-width: 100%;
-    padding: 30px 20px;
-    border-radius: 12px;
-    box-shadow: none;
-    margin-top: 80px;
+    padding: 32px 24px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   }
 
   .login-card h2 {
     font-size: 28px;
+    margin-bottom: 24px;
+  }
+
+  .input-group {
+    margin-bottom: 14px;
   }
 
   .input-group input {
@@ -362,11 +415,16 @@ html.dark .login-btn:hover {
 
   .input-group label {
     font-size: 13px;
+    top: 12px;
   }
 
   .input-group i {
     font-size: 18px;
     right: 8px;
+  }
+
+  .forget-container {
+    margin: 6px 0 14px 0;
   }
 
   .forget-link {
@@ -375,43 +433,237 @@ html.dark .login-btn:hover {
 
   .login-btn {
     font-size: 15px;
-    padding: 12px;
+    padding: 13px;
+    margin-top: 8px;
+  }
+
+  .login-card a {
+    font-size: 13px;
+    margin-top: 10px;
   }
 
   .login-card p {
     font-size: 14px;
-    margin-top: 15px;
+    margin-top: 16px;
   }
 
   .login-card p .sign-up {
     font-size: 15px;
   }
+}
 
-  .navbar {
-    padding: 0 20px;
+@media (max-width: 480px) {
+  body {
+    padding: 70px 16px 30px 16px;
   }
 
-  .logo img {
-    height: 70px;
+  .login-card {
+    padding: 28px 20px;
+    border-radius: 14px;
   }
 
-  .toggle {
-    width: 70px;
-    height: 35px;
+  .login-card h2 {
+    font-size: 26px;
+    margin-bottom: 22px;
   }
 
-  .toggle i {
+  .input-group {
+    margin-bottom: 13px;
+  }
+
+  .input-group input {
+    font-size: 14px;
+    padding: 9px 0;
+    border-bottom-width: 1.5px;
+  }
+
+  .input-group label {
+    font-size: 12px;
+    top: 11px;
+  }
+
+  .input-group i {
+    font-size: 17px;
+    right: 6px;
+  }
+
+  .forget-container {
+    margin: 5px 0 12px 0;
+  }
+
+  .forget-link {
+    font-size: 13px;
+  }
+
+  .login-btn {
+    font-size: 14px;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 22px;
+  }
+
+  .login-card a {
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .login-card p {
+    font-size: 13px;
+    margin-top: 14px;
+  }
+
+  .login-card p .sign-up {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  body {
+    padding: 65px 12px 25px 12px;
+  }
+
+  .login-card {
+    padding: 24px 18px;
+    border-radius: 12px;
+  }
+
+  .login-card h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  .input-group {
+    margin-bottom: 12px;
+  }
+
+  .input-group input {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  .input-group label {
+    font-size: 11px;
+    top: 10px;
+  }
+
+  .input-group i {
     font-size: 16px;
-    line-height: 35px;
+    right: 5px;
   }
 
-  .toggle .ball {
-    width: 20px;
-    height: 20px;
-    margin: 7.5px 0 0 5px;
+  .forget-container {
+    margin: 4px 0 10px 0;
   }
 
-  html.dark .toggle .ball {
-    transform: translateX(30px);
+  .forget-link {
+    font-size: 12px;
+  }
+
+  .login-btn {
+    font-size: 13px;
+    padding: 11px;
+    margin-top: 6px;
+    border-radius: 20px;
+  }
+
+  .login-card a {
+    font-size: 11px;
+    margin-top: 8px;
+  }
+
+  .login-card p {
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
+  .login-card p .sign-up {
+    font-size: 13px;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    padding: 60px 20px 20px 20px;
+  }
+
+  .login-card {
+    max-width: 450px;
+    padding: 20px 24px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .login-card::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .login-card::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .login-card::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+
+  .login-card h2 {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .input-group {
+    margin-bottom: 10px;
+  }
+
+  .input-group input {
+    font-size: 13px;
+    padding: 8px 0;
+  }
+
+  .input-group label {
+    font-size: 11px;
+    top: 10px;
+  }
+
+  .input-group i {
+    font-size: 16px;
+  }
+
+  .forget-container {
+    margin: 4px 0 8px 0;
+  }
+
+  .forget-link {
+    font-size: 12px;
+  }
+
+  .login-btn {
+    font-size: 13px;
+    padding: 10px;
+    margin-top: 6px;
+  }
+
+  .login-card a {
+    font-size: 11px;
+    margin-top: 6px;
+  }
+
+  .login-card p {
+    font-size: 12px;
+    margin-top: 10px;
+  }
+
+  .login-card p .sign-up {
+    font-size: 13px;
+  }
+}
+
+html.dark .login-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  html.dark .login-card {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   }
 }
