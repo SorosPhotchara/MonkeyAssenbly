@@ -455,10 +455,82 @@ html.dark .sidebar a.add:hover i {
   width: 100%;
 }
 
-.tag-container input {
+.tag-container select {
   width: 100%;
-  background: var(--highlight);
+  padding: 12px 40px 12px 14px;
+  border: none;
   border-radius: 10px;
+  background: var(--highlight);
+  color: var(--head-font);
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.tag-container::after {
+  content: '▼';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--head-font);
+  pointer-events: none;
+  font-size: 12px;
+}
+
+.tag-container select:hover {
+  background-color: var(--border);
+  color: var(--white);
+}
+
+.tag-container select:hover + ::after,
+.tag-container:has(select:hover)::after {
+  color: var(--white);
+}
+
+.tag-container select:focus {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  background-color: var(--card-bg);
+}
+
+.tag-container select option {
+  background: var(--card-bg);
+  color: var(--head-font);
+  padding: 10px;
+}
+
+html.dark .tag-container select {
+  background: var(--highlight);
+  color: var(--head-font);
+  border: 1px solid #555;
+}
+
+html.dark .tag-container::after {
+  color: var(--bar-font);
+}
+
+html.dark .tag-container select:hover {
+  background-color: var(--bar-font);
+  color: var(--bg);
+  border-color: var(--bar-font);
+}
+
+html.dark .tag-container:has(select:hover)::after {
+  color: var(--bg);
+}
+
+html.dark .tag-container select:focus {
+  background-color: var(--card-bg);
+  border-color: var(--border);
+}
+
+html.dark .tag-container select option {
+  background: var(--card-bg);
+  color: var(--head-font);
 }
 
 .suggestions {
