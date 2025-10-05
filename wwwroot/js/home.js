@@ -301,12 +301,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     const avatarHTML = `<img src="${eventData.avatar}" alt="avatar" class="avatar">`;
     const isJoined = isUserJoined(eventData.participants);
 
+    // Show time since createdAt
+    function getTimeSinceCreated(createdAtStr) {
+      if (!createdAtStr) return "-";
+      const created = new Date(createdAtStr.replace(/ /, 'T'));
+      const now = new Date(new Date().toLocaleString("en-US",{timeZone:TIMEZONE}));
+      const diffMs = now - created;
+      if (diffMs < 60000) return "เมื่อกี้นี้";
+      const diffMin = Math.floor(diffMs/60000);
+      if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
+      const diffHr = Math.floor(diffMin/60);
+      if (diffHr < 24) return `${diffHr} ชั่วโมงที่แล้ว`;
+      const diffDay = Math.floor(diffHr/24);
+      return `${diffDay} วันที่แล้ว`;
+    }
+    const createdText = getTimeSinceCreated(eventData.createdAt);
     card.innerHTML = `
       <div class="event-header">
         <div class="host-info">
           ${avatarHTML}
           <span class="host" data-host-id="${eventData.hostId || ''}" style="cursor: pointer;">${eventData.host}</span>
-          <small class="time">0 นาที</small>
+          <small class="time">${createdText}</small>
         </div>
         <span class="status ${status}">${status.toUpperCase()}</span>
       </div>
