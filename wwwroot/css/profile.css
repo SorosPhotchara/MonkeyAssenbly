@@ -683,7 +683,14 @@
     font-size: 14px;
     outline: none;
     background: var(--white);
+    color: #1a1a1a;
+  }
+
+  html.dark .modal-content input[type="text"],
+  html.dark .modal-content textarea {
+    background: var(--bg);
     color: var(--head-font);
+    border-color: var(--border);
   }
 
   .modal-content input[type="file"] {
@@ -738,7 +745,7 @@
 
   .modal-content .btn-save {
     background: var(--border);
-    color: var(--white);
+    color: var(--bg);
   }
 
   .modal-content .btn-save:hover {
