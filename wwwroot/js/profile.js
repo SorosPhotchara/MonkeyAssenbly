@@ -439,7 +439,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 container.innerHTML = "<p>คุณยังไม่มีโพสต์</p>";
                 return;
             }
-            console.log("🔍 posts:", posts);
 
             container.innerHTML = "";
             posts.forEach(p => {
