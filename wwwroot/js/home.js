@@ -271,6 +271,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  /**
+   * คำนวณและแสดงเวลาที่ผ่านมาตั้งแต่สร้าง post
+   * @param {string} createdAt - ISO 8601 timestamp จาก backend
+   * @returns {string} เวลาที่แสดง เช่น "5 นาที", "2 ชม.", "3 วัน", "15/01/2568"
+   */
+  function formatTimeAgo(createdAt) {
+    if (!createdAt) return "0 นาที";
+    
+    // แปลง string เป็น Date object
+    const postDate = new Date(createdAt);
+    
+    // ใช้เวลาปัจจุบันใน timezone Bangkok
+    const now = new Date(new Date().toLocaleString("en-US", {timeZone: TIMEZONE}));
+    
+    // คำนวณผลต่าง (milliseconds)
+    const diffMs = now - postDate;
+    
+    // แปลงเป็นนาที, ชั่วโมง, วัน
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    // กรณีที่ 1: น้อยกว่า 1 ชั่วโมง (0-60 นาที)
+    if (diffMinutes < 60) {
+      return `${diffMinutes} นาที`;
+    }
+    
+    // กรณีที่ 2: น้อยกว่า 1 วัน (1-24 ชั่วโมง)
+    if (diffHours < 24) {
+      return `${diffHours} ชม.`;
+    }
+    
+    // กรณีที่ 3: น้อยกว่า 1 สัปดาห์ (1-7 วัน)
+    if (diffDays < 7) {
+      return `${diffDays} วัน`;
+    }
+    
+    // กรณีที่ 4: มากกว่า 7 วัน - แสดงวันที่แบบ DD/MM/YYYY (พ.ศ.)
+    const day = postDate.getDate();
+    const month = postDate.getMonth() + 1; // เดือนเริ่มจาก 0
+    const year = postDate.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+    
+    return `${day}/${month}/${year}`;
+  }
+
+
   function isUserJoined(participants) {
     if (!participants || !currentUserId) return false;
     return participants.some(p => String(p) === String(currentUserId));
@@ -293,6 +339,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  
   function createEventCard(eventData) {
     const card = document.createElement("div");
     card.className = "event-card";
@@ -306,7 +353,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="host-info">
           ${avatarHTML}
           <span class="host" data-host-id="${eventData.hostId || ''}" style="cursor: pointer;">${eventData.host}</span>
-          <small class="time">0 นาที</small>
+          <small class="time">${formatTimeAgo(eventData.createdAt)}</small>  <!-- ✅ ใหม่: เรียกฟังก์ชันคำนวณเวลา -->
         </div>
         <span class="status ${status}">${status.toUpperCase()}</span>
       </div>

@@ -27,12 +27,13 @@ namespace MonkeyAssenbly.Controllers
                 connection.Open();
 
           var sql = @"
-          SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
-              p.post_time_open, p.post_time_close, 
-              p.post_date_open, p.post_date_close,
-              p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-              u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
-          FROM ""PostTable"" p
+            SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+                p.post_time_open, p.post_time_close, 
+                p.post_date_open, p.post_date_close,
+                p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                p.created_at,  -- ✅ เพิ่มบรรทัดนี้
+                u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
+            FROM ""PostTable"" p
           JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
           ORDER BY p.post_date_open DESC";
 
@@ -63,7 +64,8 @@ namespace MonkeyAssenbly.Controllers
                         maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
-                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at"))  // ✅ เพิ่มบรรทัดนี้
                     });
                 }
             }
@@ -85,6 +87,7 @@ namespace MonkeyAssenbly.Controllers
                     p.post_time_open, p.post_time_close, 
                     p.post_date_open, p.post_date_close,
                     p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                    p.created_at,  -- ✅ เพิ่มบรรทัดนี้
                     u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
                 FROM ""PostTable"" p
                 JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
@@ -118,7 +121,8 @@ namespace MonkeyAssenbly.Controllers
                         maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
-                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at"))  // ✅ เพิ่มบรรทัดนี้
                     });
                 }
             }
@@ -140,8 +144,8 @@ namespace MonkeyAssenbly.Controllers
                     p.post_time_open, p.post_time_close, 
                     p.post_date_open, p.post_date_close,
                     p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                    u.user_firstname, u.user_lastname, u.user_avatar, u.user_id,
-                    t.tag_name
+                    p.created_at,  -- ✅ เพิ่มบรรทัดนี้
+                    u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
                 FROM ""PostTable"" p
                 JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
                 JOIN ""PostTagTable"" pt ON p.post_id = pt.post_id
@@ -177,6 +181,7 @@ namespace MonkeyAssenbly.Controllers
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
                         status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at")),  // ✅ เพิ่มบรรทัดนี้
                         tag = reader.GetString(reader.GetOrdinal("tag_name")),
                         hostId = reader.GetInt32(reader.GetOrdinal("user_id"))
                     });
@@ -195,15 +200,16 @@ namespace MonkeyAssenbly.Controllers
             {
                 connection.Open();
 
-          var sql = @"
-          SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
-              p.post_time_open, p.post_time_close, 
-              p.post_date_open, p.post_date_close,
-              p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-              u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
-          FROM ""PostTable"" p
-          JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
-          ORDER BY p.post_date_open DESC";
+            var sql = @"
+            SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+                p.post_time_open, p.post_time_close, 
+                p.post_date_open, p.post_date_close,
+                p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                p.created_at,  -- ✅ เพิ่มบรรทัดนี้
+                u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
+            FROM ""PostTable"" p
+            JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+            ORDER BY p.post_date_open DESC";
 
                 using var command = new NpgsqlCommand(sql, connection);
                 using var reader = command.ExecuteReader();
@@ -234,7 +240,8 @@ namespace MonkeyAssenbly.Controllers
                         maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                         currentParticipants = participantsArray.Length,
                         participants = participantsArray.Select(x => x.ToString()).ToList(),
-                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+                        status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at"))  // ✅ เพิ่มบรรทัดนี้
                     });
                 }
             }
@@ -248,15 +255,15 @@ namespace MonkeyAssenbly.Controllers
             using var connection = new NpgsqlConnection(_connectionString);
             connection.Open();
 
-         var postSql = @"
-         SELECT p.post_id, p.post_titile, p.post_descript, p.post_place,
-             p.post_time_open, p.post_time_close, 
-             p.post_date_open, p.post_date_close,
-             p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-             u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
-         FROM ""PostTable"" p
-         JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
-         WHERE p.post_id = @id";
+            var postSql = @"
+            SELECT p.post_id, p.post_titile, p.post_descript, p.post_place,
+                p.post_time_open, p.post_time_close, 
+                p.post_date_open, p.post_date_close,
+                p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
+            FROM ""PostTable"" p
+            JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+            WHERE p.post_id = @id";
 
             using var postCmd = new NpgsqlCommand(postSql, connection);
             postCmd.Parameters.AddWithValue("id", id);
@@ -271,7 +278,8 @@ namespace MonkeyAssenbly.Controllers
                 : reader.GetFieldValue<int[]>(reader.GetOrdinal("post_current_paticipants"));
 
             // เก็บข้อมูล post หลักไว้ก่อน
-            var postDataTemp = new {
+            var postDataTemp = new
+            {
                 id = reader.GetInt32(reader.GetOrdinal("post_id")),
                 eventName = reader.GetString(reader.GetOrdinal("post_titile")),
                 description = reader.GetString(reader.GetOrdinal("post_descript")),
@@ -287,7 +295,8 @@ namespace MonkeyAssenbly.Controllers
                 dateClose = reader.GetDateTime(reader.GetOrdinal("post_date_close")).ToString("yyyy-MM-dd"),
                 maxParticipants = reader.GetInt32(reader.GetOrdinal("post_max_paticipants")),
                 currentParticipants = participantsArray.Length,
-                status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed"
+                status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                createdAt = reader.GetDateTime(reader.GetOrdinal("created_at"))  // ✅ เพิ่มบรรทัดนี้
             };
             reader.Close();
 
@@ -472,15 +481,18 @@ namespace MonkeyAssenbly.Controllers
                 conn.Open();
                 using var tran = conn.BeginTransaction();
 
+                var bangkokTz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var currentTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, bangkokTz);
+
                 var insertPostSql = @"
-                    INSERT INTO ""PostTable"" 
-                    (post_titile, post_descript, post_place, post_time_open, post_time_close,
-                     post_date_open, post_date_close, post_max_paticipants, post_current_paticipants,
-                     post_status, post_owner_id)
-                    VALUES (@title, @description, @place, @timeOpen, @timeClose,
-                            @dateOpen, @dateClose, @maxParticipants, @currentParticipants,
-                            @status, @ownerId)
-                    RETURNING post_id;";
+                INSERT INTO ""PostTable"" 
+                (post_titile, post_descript, post_place, post_time_open, post_time_close,
+                post_date_open, post_date_close, post_max_paticipants, post_current_paticipants,
+                post_status, post_owner_id, created_at)
+                VALUES (@title, @description, @place, @timeOpen, @timeClose,
+                        @dateOpen, @dateClose, @maxParticipants, @currentParticipants,
+                        @status, @ownerId, @createdAt)
+                RETURNING post_id;";
 
                 using var postCmd = new NpgsqlCommand(insertPostSql, conn, tran);
                 postCmd.Parameters.AddWithValue("title", model.postTitile);
@@ -494,6 +506,7 @@ namespace MonkeyAssenbly.Controllers
                 postCmd.Parameters.AddWithValue("currentParticipants", new int[0]);
                 postCmd.Parameters.AddWithValue("status", true);
                 postCmd.Parameters.AddWithValue("ownerId", userId.Value);
+                postCmd.Parameters.AddWithValue("createdAt", currentTime);  // ✅ เพิ่มบรรทัดนี้
 
                 var postId = postCmd.ExecuteScalar();
 
@@ -790,17 +803,18 @@ namespace MonkeyAssenbly.Controllers
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 connection.Open();
-             var sql = @"
-              SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
-                  p.post_time_open, p.post_time_close, 
-                  p.post_date_open, p.post_date_close,
-                  p.post_max_paticipants, p.post_current_paticipants, p.post_status,
-                  u.user_firstname, u.user_lastname, u.user_avatar, u.user_id AS hostId
-              FROM ""PostTable"" p
-              JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
-              JOIN ""FollowTable"" f ON f.following_id = p.post_owner_id
-              WHERE f.follower_id = @user_id
-              ORDER BY p.post_date_open DESC";
+                var sql = @"
+                SELECT p.post_id, p.post_titile, p.post_descript, p.post_place, 
+                    p.post_time_open, p.post_time_close, 
+                    p.post_date_open, p.post_date_close,
+                    p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                    p.created_at,  -- ✅ เพิ่มบรรทัดนี้
+                    u.user_firstname, u.user_lastname, u.user_avatar, u.user_id
+                FROM ""PostTable"" p
+                JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
+                JOIN ""FollowTable"" f ON f.following_id = p.post_owner_id
+                WHERE f.follower_id = @user_id
+                ORDER BY p.post_date_open DESC";
                 using var command = new NpgsqlCommand(sql, connection);
                 command.Parameters.AddWithValue("user_id", user_id);
                 using var reader = command.ExecuteReader();
@@ -827,6 +841,7 @@ namespace MonkeyAssenbly.Controllers
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
                         status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at")),  // ✅ เพิ่มบรรทัดนี้
                         hostId = reader.GetInt32(reader.GetOrdinal("hostId"))
                     });
                 }
