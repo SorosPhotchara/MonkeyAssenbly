@@ -71,7 +71,8 @@ namespace MonkeyAssenbly.Controllers
                 }
             }
 
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
 
         [HttpGet("GetMyPost/{user_id}")]
@@ -126,7 +127,8 @@ namespace MonkeyAssenbly.Controllers
                 }
             }
 
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
 
         [HttpGet("GetPostsByTag")]
@@ -143,6 +145,7 @@ namespace MonkeyAssenbly.Controllers
                     p.post_time_open, p.post_time_close, 
                     p.post_date_open, p.post_date_close,
                     p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                    p.created_at,
                     u.user_firstname, u.user_lastname, u.user_avatar, u.user_id,
                     t.tag_name
                 FROM ""PostTable"" p
@@ -180,13 +183,15 @@ namespace MonkeyAssenbly.Controllers
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
                         status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("yyyy-MM-dd HH:mm:ss"),
                         tag = reader.GetString(reader.GetOrdinal("tag_name")),
                         hostId = reader.GetInt32(reader.GetOrdinal("user_id"))
                     });
                 }
             }
 
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
 
         [HttpGet("GetJoinedPost/{user_id}")]
@@ -1056,6 +1061,7 @@ namespace MonkeyAssenbly.Controllers
                   p.post_time_open, p.post_time_close, 
                   p.post_date_open, p.post_date_close,
                   p.post_max_paticipants, p.post_current_paticipants, p.post_status,
+                  p.created_at,
                   u.user_firstname, u.user_lastname, u.user_avatar, u.user_id AS hostId
               FROM ""PostTable"" p
               JOIN ""UserDetailTable"" u ON p.post_owner_id = u.user_id
@@ -1088,11 +1094,13 @@ namespace MonkeyAssenbly.Controllers
                         currentParticipants = currentParticipantsArray.Length,
                         participants = currentParticipantsArray.Select(x => x.ToString()).ToList(),
                         status = reader.GetBoolean(reader.GetOrdinal("post_status")) ? "open" : "closed",
+                        createdAt = reader.GetDateTime(reader.GetOrdinal("created_at")).ToString("yyyy-MM-dd HH:mm:ss"),
                         hostId = reader.GetInt32(reader.GetOrdinal("hostId"))
                     });
                 }
             }
-            return Ok(posts);
+            var serverNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time"));
+            return Ok(new { posts, serverNow });
         }
         // ==================== JOIN EVENT SYSTEM END ====================
 
@@ -1103,13 +1111,16 @@ namespace MonkeyAssenbly.Controllers
         {
             await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
+            var bangkokTz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var thaiTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, bangkokTz);
             var sql = @"INSERT INTO ""NotificationTable"" (type, message, user_id, post_id, created_at)
-                        VALUES (@type, @message, @user_id, @post_id, NOW())";
+                        VALUES (@type, @message, @user_id, @post_id, @createdAt)";
             await using var cmd = new NpgsqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@type", type);
             cmd.Parameters.AddWithValue("@message", message);
             cmd.Parameters.AddWithValue("@user_id", (object?)userId ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@post_id", (object?)postId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@createdAt", thaiTime);
             await cmd.ExecuteNonQueryAsync();
         }
 
@@ -1194,13 +1205,16 @@ public async Task<IActionResult> FollowUser([FromBody] FollowUserRequest request
                 // Insert notification
                 var notifSql = @"INSERT INTO ""NotificationTable"" 
                                 (type, message, user_id, post_id, created_at)
-                                VALUES (@type, @message, @user_id, @post_id, NOW())";
+                                VALUES (@type, @message, @user_id, @post_id, @createdAt)";
+                var bangkokTz = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var thaiTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, bangkokTz);
                 using (var notifCmd = new NpgsqlCommand(notifSql, conn, tran))
                 {
                     notifCmd.Parameters.AddWithValue("type", "follow");
                     notifCmd.Parameters.AddWithValue("message", $"คุณ {followerName} กำลังติดตามคุณ");
                     notifCmd.Parameters.AddWithValue("user_id", request.followingId);
                     notifCmd.Parameters.AddWithValue("post_id", DBNull.Value);
+                    notifCmd.Parameters.AddWithValue("createdAt", thaiTime);
                     await notifCmd.ExecuteNonQueryAsync();
                 }
 
