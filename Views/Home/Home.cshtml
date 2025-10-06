@@ -95,7 +95,7 @@
                 <input type="text" name="postTitile" placeholder="event name" required>
 
                 <div class="tag-container">
-                    <select id="tagSelect" name="tagID">
+                    <select id="tagSelect" name="tagID" required>
                         <option value="">เลือกแท็ก</option>
                     </select>
                 </div>
@@ -114,15 +114,15 @@
                     </div>
                     <div class="form-group-pair">
                         <label for="postTimeOpen">เวลาเปิด:</label>
-                        <input type="time" id="postTimeOpen" name="postTimeOpen">
+                        <input type="time" id="postTimeOpen" name="postTimeOpen" required>
                     </div>
                     <div class="form-group-pair">
                         <label for="postTimeClose">เวลาปิด:</label>
-                        <input type="time" id="postTimeClose" name="postTimeClose">
+                        <input type="time" id="postTimeClose" name="postTimeClose" required>
                     </div>
                 </div>
 
-                <input type="text" name="postPlace" placeholder="location">
+                <input type="text" name="postPlace" placeholder="location" required>
                 <input type="number" name="postMaxPaticipants" placeholder="participants" min="1" required>
                 <textarea name="postDescript" placeholder="detail"></textarea>
 
